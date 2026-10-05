@@ -15,6 +15,7 @@
     "@gsap/react": "^2.1.2",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "@nightout/mock": "workspace:*",
+    "@nightout/contracts": "workspace:*",
     "@nightout/types": "workspace:*",
     "@nightout/ui": "workspace:*",
     "@nightout/utils": "workspace:*",

@@ -4,28 +4,14 @@ import { AdminGuard } from '../../auth/admin.guard';
 import { bearerOf } from '../../auth/bearer';
 import { SupabaseJwtGuard, type AuthedRequest } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
+import { ADMIN_MASTER_TABLES, ADMIN_VIEW_MAX_LIMIT, ADMIN_VIEWS, canCreateRole } from '@nightout/contracts';
 import type { UserRole } from '@nightout/types';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { canCreateRole } from './admin.dto';
 
-/** view ของ Backoffice ที่อ่านได้ (RLS ของแต่ละ view: ADMIN + MFA) */
-export const ADMIN_VIEWS = [
-  'admin_users',
-  'admin_bars',
-  'admin_bookings',
-  'admin_deposits',
-  'admin_reviews',
-  'admin_safety_queue',
-  'admin_promoted_listings',
-  'admin_billing_events',
-  'admin_audit_logs',
-  'admin_bar_promotions',
-  'admin_team_members',
-] as const;
-export const ADMIN_MASTER_TABLES = ['styles', 'safety_features', 'platform_settings'] as const;
+export { ADMIN_MASTER_TABLES, ADMIN_VIEWS } from '@nightout/contracts';
 
 const COLUMN = /^[a-z][a-z0-9_]{0,62}$/;
-const MAX_LIMIT = 2000;
+const MAX_LIMIT = ADMIN_VIEW_MAX_LIMIT;
 
 /** "col.asc" / "col.desc" → PostgREST order */
 function parseOrder(order: unknown, fallback?: string): string | null {

@@ -1,6 +1,7 @@
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { ERROR_MESSAGES } from '@nightout/contracts';
 import { apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
 import { log } from './services/log';
 import { isSupabaseConfigured, supabase } from './services/supabase';
@@ -13,6 +14,7 @@ Rest.configure({
   baseURL: apiBaseUrlFromEnv(import.meta.env),
   getAccessToken: async () => (supabase ? ((await supabase.auth.getSession()).data.session?.access_token ?? null) : null),
   logger: log,
+  errorMessages: ERROR_MESSAGES,
 });
 
 /** log ว่า NestJS เปิดอยู่ไหม (ดูใน Console) */
