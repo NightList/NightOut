@@ -49,6 +49,9 @@
 | `…001700_app_actions` | แอปจริง | ฟังก์ชันการกระทำของลูกค้า/ร้าน `app_*` 26 ตัว (service_role เท่านั้น เรียกผ่าน NestJS) · trigger ผลของสถานะการจอง (มัดจำ → รอโอน/รอคืน, เช็กอิน, ค่าคอม, แจ้งเตือน) · `run_booking_timeouts()` · view `my_bar_detail` / `my_reviews` / `admin_bar_promotions` · RPC `zone_availability`, `bar_deposit_ledger`, `bar_team`, `my_invites` · `booking_detail` เพิ่ม `customer_name, share_token, has_review` |
 | `…20261003000200_admin_create_user` | Backoffice เพิ่มผู้ใช้ | ฟังก์ชัน `admin_finish_new_user` (ตั้ง role + ผูกร้าน + audit · service_role) |
 | `…20261003000100_admin_team_members` | Backoffice จัดการทีมงาน | view `admin_team_members` · policy `admin_read` บน team_members · ฟังก์ชัน `admin_save/delete/reorder_team_member(s)` (service_role) · bucket `team-photos` (public · เขียนได้เฉพาะแอดมิน + MFA) |
+| `…20261006000100_slip_reject_reasons_fake_slip_ban` | กันสลิปปลอม | `deposits.reject_code` (FAKE_SLIP · AMOUNT_MISMATCH · WRONG_ACCOUNT · UNREADABLE · DUPLICATE · OTHER) · `users.banned_at/ban_reason` · ตาราง **user_flags** (ธงสลิปปลอม, เก็บเบอร์ในแถว) · **banned_phones** · `admin_review_deposit(…, p_reason_code)` ติดธง → ครบ 2 ครั้ง (นับทั้งบัญชีและเบอร์) แบนบัญชี + ทุกเบอร์ที่บัญชีเคยใช้ · `admin_unban_user` (ปลด + ล้างธง) · `booking_ban_check` ใช้ตอนจอง/ส่งสลิป · แก้บั๊ก: ลูกค้ายกเลิกระหว่างรอตรวจ แล้วแอดมินอนุมัติ → คง `REFUND_PENDING` (เดิมทับเป็น HELD) / ปฏิเสธ → `NONE` (เดิมชน CHECK) |
+| `…20261006000200_checkout_deposit_consent` | Checkout | ตาราง **booking_deposit_consents** (หลักฐานการติ๊กยอมรับเงื่อนไขริบมัดจำ: ข้อความที่เห็น + เวอร์ชัน + ค่ามัดจำ/ชั่วโมงคืนเงิน/grace/นโยบายร้าน ณ ตอนนั้น + IP + User-Agent + เวลา · trigger ห้าม update/delete) · `app_create_booking` ตัวใหม่ (`p_contact_phone`, `p_consent`) = ตรวจแบน → `app_create_booking_core` (ตัวเดิม) → บันทึกเบอร์ + consent ในธุรกรรมเดียว · จำเบอร์ไว้ที่ `users.phone_e164` · `admin_bookings` + `contact_phone` (ผ่าน `admin_booking_contact_phone()` เพราะคอลัมน์นี้ไม่ได้ grant ให้ authenticated) + `deposit_consent` |
+| `…20261006000300_merchant_move_table_refund` | Dashboard ร้าน | `app_team_move_booking` (ย้ายโซน/โต๊ะ ช่วงเวลาเดิม · ทีมร้านทุกบทบาท) · `bar_booking_table_options(booking)` (โต๊ะว่างให้เลือก) · `app_team_refund_deposit` (ร้านอนุมัติคืนมัดจำ → `REFUND_PENDING` + `deposits.refund_reason/requested_by/requested_at`) · `booking_deposit_summary` เป็น security definer (ทีมร้านเห็นสถานะมัดจำใน `booking_detail` ได้ — ไม่มี path สลิป) · `admin_deposits` + เหตุผลคืนเงิน |
 | `…001800_team_members` | หน้า /about | team_members (ทีมงาน: ชื่อเล่น, ชื่อจริง, ตำแหน่ง, bio, สกิล, รูป, `contacts` jsonb) · view `public_team` (เฉพาะ active เรียง sort_order) · RLS อ่านได้เฉพาะ active · revoke write · ทีมตั้งต้น 7 คน |
 
 view ในเฟส 1 เรียกฟังก์ชัน stub (`bar_is_promoted`, `booking_deposit_summary`) ที่เฟส 2 แทนที่ → เฟส 1 ใช้งานได้เองโดยไม่พึ่งตารางเฟส 2
@@ -161,7 +164,8 @@ stateDiagram-v2
 | `PATCH bars/:id/status` `{status, reason?}` | `admin_set_bar_status` | อนุมัติ / ไม่อนุมัติ / ระงับ / เปิดใช้งาน |
 | `PATCH bars/:id/editor-pick` `{value}` | `admin_set_editor_pick` | Editor's Pick |
 | `POST safety/:id/verify` | `admin_verify_safety` | → ADMIN_VERIFIED + ปิดรายงาน + คำนวณคะแนน Safety ใหม่ |
-| `POST deposits/:id/review` `{approve, reason?}` | `admin_review_deposit` | ผ่าน → VERIFIED/HELD + การจอง CONFIRMED · ไม่ผ่าน → REJECTED + การจองกลับ AWAITING_DEPOSIT |
+| `POST deposits/:id/review` `{approve, reason_code?, reason?}` | `admin_review_deposit` | ผ่าน → VERIFIED/HELD + การจอง CONFIRMED (ลูกค้ายกเลิกไปแล้ว → VERIFIED/REFUND_PENDING) · ไม่ผ่าน (ต้องมี `reason_code`, OTHER ต้องมี `reason`) → REJECTED + การจองกลับ AWAITING_DEPOSIT · `FAKE_SLIP` ติดธง → ครบ 2 แบนบัญชี + เบอร์ (`banned` ในผลลัพธ์) |
+| `POST users/:id/unban` `{reason?}` | `admin_unban_user` | ปลดแบนบัญชี + เบอร์ที่โดนเพราะบัญชีนี้ + ล้างธงสลิปปลอม |
 | `POST deposits/:id/settle` `{how: PAID_OUT\|CREDIT\|REFUNDED}` | `admin_settle_deposit` | ปิดยอด (CREDIT ลง `bar_credit_ledger`) |
 | `POST reviews/:id/moderate` `{action: KEEP\|HIDE\|REMOVE\|RESTORE, reason?}` | `admin_moderate_review` | + `review_moderation_logs` |
 | `POST promotions/:id/review` `{approve, reason?}` | `admin_review_promotion` | ผ่าน → ACTIVE |
@@ -188,12 +192,14 @@ error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 4
 
 | endpoint | ฟังก์ชัน |
 |---|---|
-| `POST bookings` | `app_create_booking` (ตรวจจำนวนคน/ล่วงหน้า/ที่ว่างโซน/โปร · มีมัดจำ → `AWAITING_DEPOSIT`) |
+| `POST bookings` `{…, contact_phone, deposit_terms}` | `app_create_booking` (ตรวจแบนบัญชี/เบอร์ → จำนวนคน/ล่วงหน้า/ที่ว่างโซน/โปร · มีมัดจำ → ต้องยอมรับเงื่อนไขริบมัดจำ (เก็บ `booking_deposit_consents`) → `AWAITING_DEPOSIT`) |
 | `POST bookings/:id/deposit` `{slip_path}` | `app_submit_deposit` (สลิปอยู่ `deposit-slips/<uid>/…`) |
 | `POST bookings/:id/cancel` · `POST bookings/:id/review` · `POST reviews/:id/report` | `app_cancel_booking` · `app_add_review` (รูป/วิดีโอใน `review-media/<uid>/<review_id>/…`) · `app_report_review` |
 | `POST me/favorites/:barId/toggle` · `POST me/notifications/read` · `PATCH me/profile` · `POST me/delete` | `app_toggle_favorite` · `app_mark_notifications_read` · `app_update_profile` · `app_delete_account` (+ ban ใน Auth) |
 | `POST invites/:barId/respond` · `POST merchant/join` | `app_respond_invite` · `app_merchant_join` (ร้าน `PENDING_REVIEW`) |
 | `POST merchant/bookings/:id/status` · `POST merchant/bars/:id/check-in` · `…/crowd` | `app_team_set_booking_status` · `app_check_in` (รหัสจองหรือ QR) · `app_set_crowd` |
+| `POST merchant/bookings/:id/move` `{zone_id, table_id?, reason?}` · `GET merchant/bars/:barId/bookings/:id/table-options` | `app_team_move_booking` (ทีมร้านทุกบทบาท · โต๊ะไม่ว่าง → `TABLE_TAKEN`) · `rpc('bar_booking_table_options')` |
+| `POST merchant/bookings/:id/refund` `{reason}` | `app_team_refund_deposit` (ทีมร้านทุกบทบาท · มัดจำที่ตรวจแล้วและยังไม่โอนให้ร้าน → `REFUND_PENDING` · การจองที่ยังไม่เช็กอินถูกยกเลิกฝั่งร้าน) |
 | `PATCH …/info` · `PUT …/menu` · `PUT …/promotions` · `PUT …/fees` · `PUT …/zones` | `app_update_bar_info` · `app_set_menu` · `app_set_bar_promotions` (โปรใหม่/แก้ข้อความ → รอแอดมินตรวจ) · `app_set_fees` · `app_set_zones` |
 | `PUT …/safety/:key` · `PUT …/safety/:key/evidence` | `app_set_safety` · `app_set_safety_evidence` (ไฟล์ `bar-verifications/<bar_id>/…`) |
 | `PATCH …/booking-settings` · `PUT …/payout-account` | `app_update_booking_settings` (มัดจำ, grace, PR ชาย/หญิง/LGBTQ+) · `app_set_payout_account` (NestJS เข้ารหัส AES-256-GCM ด้วย `PAYOUT_ENCRYPTION_KEY`) |
