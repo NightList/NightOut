@@ -1,8 +1,8 @@
 {
-  "name": "@nightlist/backend",
+  "name": "@nightout/backend",
   "version": "0.0.0",
   "private": true,
-  "description": "NightList backend — NestJS REST API + domain modules + Supabase migrations",
+  "description": "NightOut backend — NestJS REST API + domain modules + Supabase migrations",
   "main": "./dist/main.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -30,8 +30,9 @@
     "@nestjs/platform-express": "^11.2.6",
     "@nestjs/swagger": "^11.4.7",
     "@nestjs/throttler": "^6.7.1",
-    "@nightlist/types": "workspace:*",
-    "@nightlist/utils": "workspace:*",
+    "@nightout/contracts": "workspace:*",
+    "@nightout/types": "workspace:*",
+    "@nightout/utils": "workspace:*",
     "jose": "^6.2.12",
     "nestjs-zod": "^5.5.0",
     "reflect-metadata": "^0.2.2",
@@ -40,7 +41,7 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.2.6",
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "@swc/core": "^1.16.2",
     "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",

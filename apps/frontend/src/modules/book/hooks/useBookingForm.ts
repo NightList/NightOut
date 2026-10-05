@@ -2,8 +2,10 @@ import { App } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { DEPOSIT_TERMS_VERSION, depositTermsLines, depositTermsText, formatThaiPhone, toThaiE164 } from '@nightout/utils';
 import {
   createBooking,
+  currentProfile,
   depositFor,
   promotionApplies,
   useZoneAvailability,
@@ -22,7 +24,12 @@ export function useBookingForm(bar: BarWithTier | null) {
   const [zoneId, setZoneId] = useState<string>();
   const [promotionId, setPromotionId] = useState<string>();
   const [note, setNote] = useState('');
+  // เบอร์ที่ใช้จองครั้งก่อน (users.phone_e164) เติมให้
+  const [phone, setPhone] = useState(() => formatThaiPhone(currentProfile()?.phoneE164));
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const banned = !!currentProfile()?.bannedAt;
 
   const datetime = useMemo(() => {
     const [h, m] = time.split(':').map(Number);
@@ -39,8 +46,23 @@ export function useBookingForm(bar: BarWithTier | null) {
   const past = datetime.isBefore(dayjs());
   const canContinue = !!zoneId && !past && !zone?.full;
 
+  const deposit = bar ? depositFor(bar, pax) : 0;
+  const phoneE164 = toThaiE164(phone);
+  const phoneError = phoneTouched && !phoneE164 ? (phone.trim() ? 'เบอร์ไม่ถูกต้อง เช่น 081-234-5678' : 'กรอกเบอร์โทร') : null;
+  // ข้อความเดียวกันทั้งที่แสดงข้าง checkbox และที่ส่งไปเก็บเป็นหลักฐาน
+  const termsInput = {
+    amount: deposit,
+    refundBeforeHours: bar?.deposit.refundBeforeHours ?? 24,
+    graceMinutes: bar?.gracePeriodMinutes ?? 30,
+    barPolicy: bar?.deposit.policy,
+  };
+  const termsLines = depositTermsLines(termsInput);
+  const needsTerms = deposit > 0;
+  const canSubmit = !!phoneE164 && (!needsTerms || termsAccepted) && !banned;
+
   const submit = async () => {
-    if (!bar || !zoneId) return;
+    setPhoneTouched(true);
+    if (!bar || !zoneId || !phoneE164 || (needsTerms && !termsAccepted)) return;
     setSubmitting(true);
     try {
       const b = await createBooking({
@@ -50,6 +72,8 @@ export function useBookingForm(bar: BarWithTier | null) {
         pax,
         promotionId: chosenPromo && promotionApplies(chosenPromo, iso) ? chosenPromo.id : undefined,
         note,
+        contactPhone: phoneE164,
+        depositTerms: needsTerms ? { version: DEPOSIT_TERMS_VERSION, text: depositTermsText(termsInput) } : null,
       });
       if (b.status === 'AWAITING_DEPOSIT') {
         message.success('สร้างการจองแล้ว โอนมัดจำเพื่อยืนยันโต๊ะ');
@@ -91,7 +115,17 @@ export function useBookingForm(bar: BarWithTier | null) {
     zone,
     past,
     canContinue,
-    deposit: bar ? depositFor(bar, pax) : 0,
+    deposit,
+    phone,
+    setPhone,
+    setPhoneTouched,
+    phoneError,
+    termsLines,
+    needsTerms,
+    termsAccepted,
+    setTermsAccepted,
+    banned,
+    canSubmit,
     submitting,
     submit,
   };

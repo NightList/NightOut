@@ -67,7 +67,7 @@ export function MerchantSettingsPage() {
             <Input.TextArea rows={3} />
           </Form.Item>
           <p className="text-xs text-muted">
-            ลูกค้าโอนมัดจำเข้า NightList · เราตรวจสลิปและถือเงินไว้ · เมื่อลูกค้าเช็กอิน (หรือไม่มาตามนัด)
+            ลูกค้าโอนมัดจำเข้า NightOut · เราตรวจสลิปและถือเงินไว้ · เมื่อลูกค้าเช็กอิน (หรือไม่มาตามนัด)
             เงินเป็นของร้าน แล้วเราโอนเข้าบัญชีด้านล่าง หรือเก็บเป็นเครดิตร้านตามที่ตกลง
           </p>
         </Card>
@@ -78,7 +78,7 @@ export function MerchantSettingsPage() {
               type="warning"
               showIcon
               className="!mb-4"
-              title="ยังไม่มีบัญชีรับเงิน — กรอกให้ครบเพื่อให้ NightList โอนมัดจำให้ร้านได้"
+              title="ยังไม่มีบัญชีรับเงิน — กรอกให้ครบเพื่อให้ NightOut โอนมัดจำให้ร้านได้"
             />
           )}
           <div className="grid gap-4 md:grid-cols-3">

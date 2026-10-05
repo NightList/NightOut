@@ -1,5 +1,5 @@
 import type { Review } from '@/services/data';
-import { StarRating } from '@nightlist/ui';
+import { StarRating } from '@nightout/ui';
 import { Avatar, Button, Listy } from 'antd';
 import { ListRow } from '@/ui/components/listRow';
 import { Link } from 'react-router';

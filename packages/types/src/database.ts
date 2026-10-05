@@ -1,12 +1,12 @@
 /**
- * NightList — Data structures (packages/types/src/database.ts)
+ * NightOut — Data structures (packages/types/src/database.ts)
  *
  * ชนิดตาราง/enum/function มาจาก `supabase gen types` (database.generated.ts — ห้ามแก้มือ)
- *   สร้างใหม่หลังแก้ migration: pnpm --filter @nightlist/backend db:types
+ *   สร้างใหม่หลังแก้ migration: pnpm --filter @nightout/backend db:types
  * ไฟล์นี้ override เฉพาะ view ที่หน้าบ้านใช้ (jsonb → ชนิดจริง, คอลัมน์ที่ไม่มีทางเป็น null → non-null)
  * ตามสัญญาใน docs/DATABASE_CHANGES.md หัวข้อ 5 (กฎ "ไม่มีข้อมูล")
  *
- * ใช้: import { Db } from '@nightlist/types'  →  Db.BarCard, Db.BarDetail, Db.Enums<'booking_status'>, Db.BOOKING_TRANSITIONS
+ * ใช้: import { Db } from '@nightout/types'  →  Db.BarCard, Db.BarDetail, Db.Enums<'booking_status'>, Db.BOOKING_TRANSITIONS
  * ชื่อ key เป็น snake_case ตามหลังบ้าน (ไม่มีชั้นแปลงชื่อ)
  */
 import type { Database, Json } from './database.generated';
@@ -272,8 +272,12 @@ export interface UserRef {
 
 export type AdminUser = Override<
   ViewRow<'admin_users'>,
-  'id' | 'email' | 'display_name' | 'role' | 'created_at',
-  { bars: { id: UUID; slug: string; name: string; role: Enums<'bar_staff_role'> }[] }
+  'id' | 'email' | 'display_name' | 'role' | 'created_at' | 'fake_slip_count',
+  {
+    bars: { id: UUID; slug: string; name: string; role: Enums<'bar_staff_role'> }[];
+    /** เบอร์ที่ถูกแบนเพราะบัญชีนี้ (E.164) */
+    banned_phones: string[];
+  }
 >;
 
 export type AdminBar = Override<
@@ -294,13 +298,35 @@ export interface AdminStatusHistory {
 export type AdminBooking = Override<
   ViewRow<'admin_bookings'>,
   'id' | 'code' | 'status' | 'booking_datetime' | 'pax' | 'deposit_required' | 'created_at',
-  { bar: IdName; customer: UserRef | null; status_history: AdminStatusHistory[] }
+  {
+    bar: IdName;
+    customer: UserRef | null;
+    status_history: AdminStatusHistory[];
+    /** หลักฐานการยอมรับเงื่อนไขริบมัดจำตอน Checkout (booking_deposit_consents) */
+    deposit_consent: AdminDepositConsent | null;
+  }
 >;
+
+export interface AdminDepositConsent {
+  terms_version: string;
+  terms_text: string;
+  deposit_amount: number;
+  refund_before_hours: number;
+  grace_minutes: number;
+  deposit_policy: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  accepted_at: ISODateTime;
+}
+
+/** เหตุผลที่แอดมินปฏิเสธสลิป (ข้อความ: DEPOSIT_REJECT_REASONS ใน @nightout/utils) */
+export type DepositRejectCode = 'FAKE_SLIP' | 'AMOUNT_MISMATCH' | 'WRONG_ACCOUNT' | 'UNREADABLE' | 'DUPLICATE' | 'OTHER';
 
 export type AdminDeposit = Override<
   ViewRow<'admin_deposits'>,
-  'id' | 'amount' | 'status' | 'settlement' | 'created_at',
+  'id' | 'amount' | 'status' | 'settlement' | 'created_at' | 'customer_fake_slip_count' | 'customer_banned',
   {
+    reject_code: DepositRejectCode | null;
     booking: { id: UUID; code: string; status: Enums<'booking_status'>; booking_datetime: ISODateTime; pax: number };
     bar: IdName;
     customer: UserRef | null;
@@ -409,6 +435,9 @@ export type PublicTeamMember = Override<
   'id' | 'nickname' | 'roles' | 'skills' | 'sort_order',
   { contacts: TeamContacts }
 >;
+
+/** admin_team_members (migration 20261003000100) — ทุกคนรวมที่ซ่อนอยู่ · Backoffice "ทีมงาน" */
+export type AdminTeamMember = Omit<Tables<'team_members'>, 'contacts'> & { contacts: TeamContacts };
 
 // ---------------------------------------------------------------------
 // กฎธุรกิจที่ต้องตรงกับ DB

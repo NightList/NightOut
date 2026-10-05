@@ -16,6 +16,6 @@ export class HealthController {
     validates: false,
   })
   check() {
-    return { status: 'ok', service: 'nightlist-api', time: new Date().toISOString() };
+    return { status: 'ok', service: 'nightout-api', time: new Date().toISOString() };
   }
 }

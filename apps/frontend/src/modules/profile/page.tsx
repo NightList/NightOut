@@ -7,8 +7,6 @@ import { useAuth } from '@/services/auth';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { useDemo } from '@/hooks/useDemo';
 
-const ROLE = { CUSTOMER: 'ลูกค้า', MERCHANT: 'ร้านค้า', STAFF: 'พนักงานร้าน', ADMIN: 'แอดมิน' } as const;
-
 export function ProfilePage() {
   useDemo();
   const { user, signOut, reload } = useAuth();
@@ -27,7 +25,7 @@ export function ProfilePage() {
           <div className="flex-1">
             <p className="text-lg font-semibold">{user.displayName}</p>
             <p className="text-muted">
-              {user.email} · {ROLE[user.role]}
+              {user.email} · {user.roleLabel}
             </p>
           </div>
           <Button

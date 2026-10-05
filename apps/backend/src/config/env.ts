@@ -7,6 +7,9 @@ export const EnvSchema = z.object({
   CORS_ORIGINS: z.string().default('http://localhost:5173,http://localhost:5174'),
   SUPABASE_URL: z.url().default('http://127.0.0.1:54321'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  /** Publishable (anon) key — ใช้อ่านข้อมูลแทนหน้าเว็บโดยให้ RLS ทำงานตามสิทธิ์ของผู้เรียก (ว่าง = ใช้ VITE_SUPABASE_ANON_KEY) */
+  SUPABASE_ANON_KEY: z.string().optional(),
+  VITE_SUPABASE_ANON_KEY: z.string().optional(),
   DATABASE_URL: z.string().optional(),
   JOB_SECRET: z.string().min(8).default('change-me-local'),
   QR_SIGNING_KEY: z.string().optional(),

@@ -1,7 +1,7 @@
 import { Button, Modal, Typography } from 'antd';
 import { useState } from 'react';
 
-const KEY = 'nightlist-age-confirmed';
+const KEY = 'nightout-age-confirmed';
 
 function isConfirmed(): boolean {
   try {
@@ -36,7 +36,7 @@ export function AgeGate() {
     >
       {denied ? (
         <Typography.Paragraph className="py-6 text-center">
-          ขออภัย NightList สำหรับผู้ที่มีอายุ 20 ปีขึ้นไปเท่านั้น
+          ขออภัย NightOut สำหรับผู้ที่มีอายุ 20 ปีขึ้นไปเท่านั้น
         </Typography.Paragraph>
       ) : (
         <div className="py-2 text-center">

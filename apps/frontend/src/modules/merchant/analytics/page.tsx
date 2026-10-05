@@ -17,7 +17,7 @@ export function MerchantAnalyticsPage() {
   const noShow = all.filter((b) => b.status === 'NO_SHOW').length;
   return (
     <div>
-      <PageHeader title="สถิติ" subtitle="คำนวณจากการจองของร้านใน NightList" />
+      <PageHeader title="สถิติ" subtitle="คำนวณจากการจองของร้านใน NightOut" />
       <Row gutter={[16, 16]}>
         <Col xs={12} md={6}>
           <Card>

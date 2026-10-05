@@ -1,8 +1,8 @@
 {
-  "name": "@nightlist/utils",
+  "name": "@nightout/utils",
   "version": "0.0.0",
   "private": true,
-  "description": "Pure domain logic shared by frontend and backend",
+  "description": "Pure domain logic shared by frontend and backend + Rest (HTTP client กลางของหน้าบ้าน: @nightout/utils/rest)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -12,21 +12,29 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./rest": {
+      "types": "./dist/rest.d.ts",
+      "import": "./dist/rest.js",
+      "require": "./dist/rest.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts src/rest.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts src/rest.ts --format esm,cjs --dts --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@nightlist/types": "workspace:*"
+    "@nightout/types": "workspace:*",
+    "axios": "^1.20.0"
   },
   "devDependencies": {
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
     "vitest": "^5.0.2"

@@ -1,4 +1,4 @@
-import type { PriceEstimate, PriceEstimateInput } from '@nightlist/types';
+import type { PriceEstimate, PriceEstimateInput } from '@nightout/types';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 

@@ -42,8 +42,8 @@ export function MerchantStorePage() {
               style_keys: v.styles ?? [],
               // ลิงก์อื่นที่ร้านมีอยู่แล้ว (Facebook / เว็บไซต์) ไม่หาย
               links: [
-                ...(v.instagram ? [{ type: 'INSTAGRAM', url: v.instagram }] : []),
-                ...(v.tiktok ? [{ type: 'TIKTOK', url: v.tiktok }] : []),
+                ...(v.instagram ? [{ type: 'INSTAGRAM' as const, url: v.instagram as string }] : []),
+                ...(v.tiktok ? [{ type: 'TIKTOK' as const, url: v.tiktok as string }] : []),
                 ...bar.links.filter((l) => l.type !== 'INSTAGRAM' && l.type !== 'TIKTOK'),
               ],
               hours: v.hours.map((h: { closed: boolean; range?: [dayjs.Dayjs, dayjs.Dayjs] | null }, day: number) => ({

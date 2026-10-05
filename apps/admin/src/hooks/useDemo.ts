@@ -1,4 +1,4 @@
-import { getVersion, subscribe } from '@nightlist/mock';
+import { getVersion, subscribe } from '@nightout/mock';
 import { useSyncExternalStore } from 'react';
 
 export function useDemo(): number {

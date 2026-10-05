@@ -7,7 +7,7 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#07070D" />
   <meta name="description"
-    content="NightList — จัดอันดับร้านกลางคืน ดูราคา ความปลอดภัย และจองโต๊ะ" />
+    content="NightOut — จัดอันดับร้านกลางคืน ดูราคา ความปลอดภัย และจองโต๊ะ" />
   <link rel="icon" href="/images/common/logo.png"
     type="image/svg+xml" />
   <link rel="preconnect"
@@ -25,7 +25,7 @@
     imagesrcset="/images/home/hero-poster-sm.webp 854w, /images/home/hero-poster.webp 1600w"
     imagesizes="100vw"
     fetchpriority="high" />
-  <title>NightList</title>
+  <title>NightOut</title>
   <style>
     .boot{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:18px;background:#07070d}
     html.light .boot{background:#faf8f3}
@@ -39,7 +39,7 @@
   <script>
     (function () {
       try {
-        var m = localStorage.getItem('nightlist-theme') || 'DARK';
+        var m = localStorage.getItem('nightout-theme') || 'DARK';
         var dark =
           m === 'DARK' ||
           (m === 'SYSTEM' && (!window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches));
@@ -55,7 +55,7 @@
 <body>
   <!-- หน้าโหลดระหว่างรอ JS/ข้อมูล (React แทนที่ทั้งก้อนตอน render) — ไม่ให้เห็นจอว่าง -->
   <div id="root">
-    <div class="boot" role="status" aria-label="กำลังโหลด NightList">
+    <div class="boot" role="status" aria-label="กำลังโหลด NightOut">
       <img src="/images/common/logo.png" alt="" width="64" height="62" />
       <span class="boot__bar"></span>
     </div>

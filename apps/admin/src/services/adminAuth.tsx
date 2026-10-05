@@ -1,53 +1,75 @@
 import type { Session } from '@supabase/supabase-js';
-import type { UserRole } from '@nightlist/types';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { UserRole } from '@nightout/types';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import type { MyProfile } from '@nightout/contracts';
+import { fetchMyProfile } from '@/services/api/account';
 import { supabase } from '@/services/supabase';
 
 /**
- * Auth ของ Backoffice — ต้องเป็น ADMIN (อ่าน role จากตาราง users ไม่ใช่ user_metadata)
+ * Auth ของ Backoffice — ชั้นบัญชีต้องเข้าหลังบ้านได้ (แอดมิน / ซูเปอร์แอดมิน อ่านจากตาราง users + roles ไม่ใช่ user_metadata)
  * และผ่าน MFA แบบ TOTP แล้ว (Supabase AAL2) ถึงจะเข้าหน้าแอดมินได้
  */
 interface AdminAuthValue {
   session: Session | null;
   role: UserRole | null;
+  /** ชื่อไทยของชั้นบัญชี (ตาราง roles) */
+  roleLabel: string | null;
   displayName: string | null;
   /** aal2 = ยืนยัน MFA แล้วใน session นี้ */
   aal: 'aal1' | 'aal2' | null;
   loading: boolean;
   isAdmin: boolean;
-  /** เข้าหน้าแอดมินได้ = ADMIN + MFA แล้ว */
+  /** แก้ชั้นของบัญชีที่มีอยู่แล้ว + สร้างบัญชีแอดมินได้ */
+  isSuperAdmin: boolean;
+  /** เข้าหน้าแอดมินได้ = ชั้นที่เข้าหลังบ้านได้ + MFA แล้ว */
   canEnter: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
+}
+
+export type AdminProfile = MyProfile;
+
+/** ชั้นบัญชี + ชื่อจาก public.users ผ่าน API (GET /me/profile) — null ถ้าไม่พบ/อ่านไม่ได้ */
+export async function fetchProfile(accessToken: string): Promise<AdminProfile | null> {
+  try {
+    return await fetchMyProfile(accessToken);
+  } catch {
+    return null;
+  }
 }
 
 const AdminAuthContext = createContext<AdminAuthValue | null>(null);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [aal, setAal] = useState<'aal1' | 'aal2' | null>(null);
   const [loading, setLoading] = useState(supabase !== null);
 
-  // โหลด session + role + ระดับ MFA ให้เสร็จก่อน แล้วค่อยตั้ง state พร้อมกันทีเดียว
+  // โหลด session + ชั้นบัญชี + ระดับ MFA ให้เสร็จก่อน แล้วค่อยตั้ง state พร้อมกันทีเดียว
   // (ถ้าตั้ง session ก่อน หน้าอื่นจะเห็น "มี session แต่ยังไม่มี role" ชั่วขณะ)
   const load = useCallback(async (s: Session | null) => {
     if (!supabase || !s) {
       setSession(null);
-      setRole(null);
-      setDisplayName(null);
+      setProfile(null);
       setAal(null);
       setLoading(false);
       return;
     }
-    const [{ data: profile }, { data: level }] = await Promise.all([
-      supabase.from('users').select('role, display_name').eq('id', s.user.id).maybeSingle(),
+    const [p, { data: level }] = await Promise.all([
+      fetchProfile(s.access_token),
       supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
     ]);
     setSession(s);
-    setRole((profile?.role as UserRole | undefined) ?? null);
-    setDisplayName((profile?.display_name as string | undefined) ?? null);
+    setProfile(p);
     setAal((level?.currentLevel as 'aal1' | 'aal2' | null | undefined) ?? null);
     setLoading(false);
   }, []);
@@ -62,15 +84,18 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     return () => data.subscription.unsubscribe();
   }, [load]);
 
-  const value = useMemo<AdminAuthValue>(
-    () => ({
+  const value = useMemo<AdminAuthValue>(() => {
+    const isAdmin = !!profile?.can_enter_backoffice;
+    return {
       session,
-      role,
-      displayName,
+      role: profile?.role ?? null,
+      roleLabel: profile?.role_label ?? null,
+      displayName: profile?.display_name ?? null,
       aal,
       loading,
-      isAdmin: role === 'ADMIN',
-      canEnter: role === 'ADMIN' && aal === 'aal2',
+      isAdmin,
+      isSuperAdmin: isAdmin && profile?.role === 'SUPER_ADMIN',
+      canEnter: isAdmin && aal === 'aal2',
       refresh: async () => {
         if (!supabase) return;
         const { data } = await supabase.auth.getSession();
@@ -79,9 +104,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         if (supabase) await supabase.auth.signOut();
       },
-    }),
-    [session, role, displayName, aal, loading, load],
-  );
+    };
+  }, [session, profile, aal, loading, load]);
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }

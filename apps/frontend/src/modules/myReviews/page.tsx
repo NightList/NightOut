@@ -1,5 +1,5 @@
 import { getBar, myReviews } from '@/services/data';
-import { StarRating } from '@nightlist/ui';
+import { StarRating } from '@nightout/ui';
 import { Card, Empty } from 'antd';
 import { Link } from 'react-router';
 import { PageHeader } from '@/ui/components/pageHeader';

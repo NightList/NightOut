@@ -11,11 +11,11 @@ import {
   type ReactNode,
 } from 'react';
 import { flushSync } from 'react-dom';
-import type { ThemeMode } from '@nightlist/types';
+import type { ThemeMode } from '@nightout/types';
 import { getAntdTheme } from './antd-theme';
 import { colors, type ResolvedTheme } from './tokens';
 
-export const THEME_STORAGE_KEY = 'nightlist-theme';
+export const THEME_STORAGE_KEY = 'nightout-theme';
 
 interface ThemeContextValue {
   /** ค่าที่ผู้ใช้เลือก */

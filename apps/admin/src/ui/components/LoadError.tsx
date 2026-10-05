@@ -8,7 +8,7 @@ export function LoadError({ error, onRetry }: { error: Error | null; onRetry: ()
       className="!mb-4"
       type="error"
       showIcon
-      title="โหลดข้อมูลจาก Supabase ไม่สำเร็จ"
+      title="โหลดข้อมูลไม่สำเร็จ"
       description={error.message}
       action={
         <Button size="small" onClick={onRetry}>

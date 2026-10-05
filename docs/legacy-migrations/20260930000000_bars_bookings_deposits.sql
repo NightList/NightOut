@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · 0002 bars + promotions + bookings + deposits (เงินเข้าแพลตฟอร์ม)
+-- NightOut · 0002 bars + promotions + bookings + deposits (เงินเข้าแพลตฟอร์ม)
 -- ตรงกับ packages/mock/src/models.ts (โหมดเดโม) เพื่อให้ย้ายทีละหน้าได้
 -- =====================================================================
 
@@ -173,7 +173,7 @@ create table public.booking_status_history (
 );
 
 -- ---------------------------------------------------------------------
--- deposits — ลูกค้าโอนเข้า PromptPay ของ NightList · แอดมินตรวจสลิป · แพลตฟอร์มถือเงิน
+-- deposits — ลูกค้าโอนเข้า PromptPay ของ NightOut · แอดมินตรวจสลิป · แพลตฟอร์มถือเงิน
 -- แล้วโอนให้ร้าน (PAID_OUT) หรือเก็บเป็นเครดิตร้าน (CREDIT) หรือคืนลูกค้า (REFUNDED)
 -- ---------------------------------------------------------------------
 create table public.deposits (
@@ -194,14 +194,14 @@ create table public.deposits (
 create index deposits_status_idx on public.deposits (status) where status = 'SUBMITTED';
 create index deposits_settlement_idx on public.deposits (bar_id, settlement);
 
--- ตั้งค่าแพลตฟอร์ม (PromptPay ของ NightList) — แก้ได้เฉพาะ service role
+-- ตั้งค่าแพลตฟอร์ม (PromptPay ของ NightOut) — แก้ได้เฉพาะ service role
 create table public.platform_settings (
   key         text primary key,
   value       jsonb not null,
   updated_at  timestamptz not null default now()
 );
 insert into public.platform_settings (key, value) values
-  ('deposit_promptpay', '{"name": "NightList Co., Ltd.", "promptpayId": "0812345678"}');
+  ('deposit_promptpay', '{"name": "NightOut Co., Ltd.", "promptpayId": "0812345678"}');
 
 -- ---------------------------------------------------------------------
 -- RLS

@@ -1,5 +1,5 @@
 import { Star } from '@phosphor-icons/react';
-import type { Tier } from '@nightlist/types';
+import type { Tier } from '@nightout/types';
 
 /** จำนวนดาวของแต่ละ Tier (ใช้เมื่อไม่รู้ดาวจริง) — S=5 A=4 B=3 C=2 */
 export const TIER_STARS: Record<Tier, number> = { S: 5, A: 4, B: 3, C: 2 };

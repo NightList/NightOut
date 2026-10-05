@@ -14,6 +14,8 @@ export interface AuthUser {
   email?: string;
   /** Authenticator Assurance Level — admin ต้องเป็น aal2 (MFA) */
   aal?: string;
+  /** ชั้นบัญชีจาก public.users — มีเฉพาะหลัง AdminGuard */
+  role?: string;
 }
 
 export type AuthedRequest = Request & { user?: AuthUser };

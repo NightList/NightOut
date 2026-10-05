@@ -1,7 +1,7 @@
 /**
- * สร้าง apps/backend/supabase/seed.sql จากข้อมูลร้านเดโมใน @nightlist/mock
+ * สร้าง apps/backend/supabase/seed.sql จากข้อมูลร้านเดโมใน @nightout/mock
  *
- *   pnpm --filter @nightlist/backend db:seed:gen
+ *   pnpm --filter @nightout/backend db:seed:gen
  *
  * - ใช้ createSeed() ตัวเดียวกับโหมดเดโม → ร้าน/เมนู/โซน/โปร ตรงกับที่หน้าเว็บเคยแสดง
  * - UUID สร้างแบบคงที่จาก id เดโม (เช่น bar-1-z1-t2) → รันกี่ครั้งก็ได้ค่าเดิม
@@ -15,7 +15,7 @@ import type { Bar, SafetyFeature } from '../../../packages/mock/src/models';
 import { isNewBar, scoreToStars, starsToTier } from '../../../packages/utils/src/ranking';
 
 /** UUID คงที่จาก id เดโม (รูปแบบ v5: sha1 ของ namespace + ชื่อ) */
-const NS = 'nightlist-demo-seed';
+const NS = 'nightout-demo-seed';
 export function demoUuid(name: string): string {
   const h = createHash('sha1').update(`${NS}:${name}`).digest();
   h[6] = (h[6]! & 0x0f) | 0x50;
@@ -65,8 +65,8 @@ insert into safety_features (key, name_th, icon, weight, sort_order) values
 
 -- ⚠️ แก้ PromptPay เป็นของจริงใน Table Editor ก่อนเปิดรับเงิน (และรอคำตอบข้อ 10.3)
 insert into platform_settings (key, value) values
-  ('deposit_promptpay',            '{"name":"NightList Co., Ltd.","promptpay_id":"0812345678"}'),
-  ('promotion_promptpay',          '{"name":"NightList Co., Ltd.","promptpay_id":"0812345678"}'),
+  ('deposit_promptpay',            '{"name":"NightOut Co., Ltd.","promptpay_id":"0812345678"}'),
+  ('promotion_promptpay',          '{"name":"NightOut Co., Ltd.","promptpay_id":"0812345678"}'),
   ('slip_retention_days',          '90'),
   ('account_retention_days',       '30'),
   ('contact_phone_retention_days', '90'),
@@ -242,7 +242,7 @@ where bar_id = ${q(id)};`);
 select ${q(id)}, id, placement, price, now() - interval '1 day', now() + interval '30 days', 'ACTIVE', now()
 from promotion_packages where placement = 'HOME_RECOMMENDED' and duration_days = 7 limit 1;`);
   if (bar.editorsPick)
-    out.push(`insert into editor_picks (bar_id, note) values (${q(id)}, 'คัดเลือกโดยทีม NightList');`);
+    out.push(`insert into editor_picks (bar_id, note) values (${q(id)}, 'คัดเลือกโดยทีม NightOut');`);
 
   return out;
 }
@@ -253,7 +253,7 @@ export function buildSeedSql(): string {
     '-- =====================================================================',
     '-- Seed: master data + ร้านเดโม 16 ร้าน (ชื่อสมมติทั้งหมด) — สร้างอัตโนมัติ ห้ามแก้มือ',
     '-- แก้ master data ที่ MASTER_SQL ใน apps/backend/scripts/seed-from-mock.ts',
-    '-- สร้างใหม่: pnpm --filter @nightlist/backend db:seed:gen',
+    '-- สร้างใหม่: pnpm --filter @nightout/backend db:seed:gen',
     '-- ใช้กับ: supabase db reset (local) หรือ supabase db reset --linked (project จริง)',
     '-- =====================================================================',
     'begin;',

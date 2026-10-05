@@ -1,12 +1,12 @@
-import type { Bar } from '@nightlist/mock';
+import type { Bar } from '@nightout/mock';
 
 /**
  * แปลงแถวจาก view `bar_detail` (ร้านสาธารณะ) / `my_bar_detail` (ร้านของฉัน ทุกสถานะ) → รูปแบบ Bar ที่หน้าเว็บใช้
- * ข้อมูลร้านมาจาก Supabase เท่านั้น — services/sync.ts เอาไปใส่ store ของ @nightlist/mock (ใช้เป็น cache)
+ * ข้อมูลร้านมาจาก Supabase เท่านั้น — services/sync.ts เอาไปใส่ store ของ @nightout/mock (ใช้เป็น cache)
  * หน้าเว็บจึงยังเรียก listBars() / getBarBySlug() ได้เหมือนเดิม
  */
 
-/** รูปแบบ key ตาม view (snake_case ตามหลังบ้าน — ดู Db.BarDetail ใน @nightlist/types) */
+/** รูปแบบ key ตาม view (snake_case ตามหลังบ้าน — ดู Db.BarDetail ใน @nightout/types) */
 export interface BarDetailRow {
   id: string;
   slug: string;
@@ -37,6 +37,7 @@ export interface BarDetailRow {
     deposit_amount: number;
     deposit_unit: Bar['deposit']['unit'];
     deposit_policy: string | null;
+    refund_before_hours?: number;
     grace_minutes: number;
   } | null;
   fees: { fee_type: string; calc: string; value: number }[];
@@ -179,6 +180,7 @@ export function toBar(r: BarDetailRow): Bar {
       amount: Number(settings?.deposit_amount ?? 0),
       unit: settings?.deposit_unit ?? 'PER_TABLE',
       policy: settings?.deposit_policy ?? '',
+      refundBeforeHours: settings?.refund_before_hours ?? 24,
     },
     // เลขบัญชีเต็มไม่ออกจาก DB (เข้ารหัส) — แสดงแค่ 4 ตัวท้าย
     payout: r.payout_account

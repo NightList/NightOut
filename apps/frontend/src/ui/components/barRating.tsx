@@ -1,5 +1,5 @@
 import type { BarWithTier } from '@/services/data';
-import { TierStars } from '@nightlist/ui';
+import { TierStars } from '@nightout/ui';
 
 /**
  * ระดับร้านเป็นดาว + คะแนนรีวิวเฉลี่ย + จำนวนรีวิว

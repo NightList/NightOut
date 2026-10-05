@@ -4,7 +4,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module';
 
-describe('NightList API', () => {
+describe('NightOut API', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -44,5 +44,31 @@ describe('NightList API', () => {
       .post('/jobs/booking-timeouts')
       .set('x-job-secret', 'test-job-secret')
       .expect(200);
+  });
+
+  // ADR 0002: หน้าเว็บอ่านข้อมูลผ่าน API — endpoint ของผู้ใช้ต้องล็อกอิน · ข้อมูลที่ส่งมาต้องผ่าน validation
+  it('GET /me/* requires a bearer token', async () => {
+    await request(app.getHttpServer()).get('/me/overview').expect(401);
+    await request(app.getHttpServer()).get('/me/profile').expect(401);
+    await request(app.getHttpServer()).get('/merchant/bars/00000000-0000-4000-8000-000000000000/team').expect(401);
+    await request(app.getHttpServer()).post('/storage/upload-url').send({ bucket: 'deposit-slips', path: 'a/b.jpg' }).expect(401);
+  });
+
+  it('GET /admin/* (reads) requires a bearer token', async () => {
+    await request(app.getHttpServer()).get('/admin/dashboard').expect(401);
+    await request(app.getHttpServer()).get('/admin/views/admin_bars').expect(401);
+    await request(app.getHttpServer()).get('/admin/master/styles').expect(401);
+    await request(app.getHttpServer()).get('/admin/roles').expect(401);
+    await request(app.getHttpServer()).patch('/admin/users/00000000-0000-4000-8000-000000000000/role').send({ role: 'ADMIN' }).expect(401);
+    await request(app.getHttpServer()).post('/admin/team-members').send({ nickname: 'x' }).expect(401);
+    await request(app.getHttpServer()).post('/admin/users').send({ email: 'a@b.co' }).expect(401);
+    await request(app.getHttpServer()).put('/admin/team-members/order').send({ ids: [] }).expect(401);
+  });
+
+  it('read endpoints validate input before touching Supabase', async () => {
+    await request(app.getHttpServer()).get('/bars/not-a-uuid/zone-availability?datetime=2026-10-03T20:00:00%2B07:00').expect(400);
+    await request(app.getHttpServer()).get('/bars/00000000-0000-4000-8000-000000000000/zone-availability').expect(400);
+    await request(app.getHttpServer()).post('/storage/signed-urls').send({ bucket: 'secret-bucket', paths: ['x/y.jpg'] }).expect(400);
+    await request(app.getHttpServer()).post('/storage/signed-urls').send({ bucket: 'review-media', paths: ['../etc/passwd'] }).expect(400);
   });
 });

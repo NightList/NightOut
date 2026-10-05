@@ -1,9 +1,11 @@
 import type { Session } from '@supabase/supabase-js';
-import type { UserRole } from '@nightlist/types';
+import type * as C from '@nightout/contracts';
+import type { UserRole } from '@nightout/types';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useDemo } from '@/hooks/useDemo';
 import { log } from '@/services/log';
 import { supabase } from '@/services/supabase';
+import { fetchMyProfile } from '@/services/api/account';
 import { clearUser, currentProfile, startUser } from '@/services/sync';
 
 export interface AppUser {
@@ -11,7 +13,13 @@ export interface AppUser {
   email: string;
   displayName: string;
   role: UserRole;
+  /** ชื่อไทยของชั้นบัญชี (ตาราง roles) */
+  roleLabel: string;
   barId?: string;
+  /** เบอร์ล่าสุดที่ใช้จอง (E.164) */
+  phoneE164?: string | null;
+  /** ถูกระงับการจอง */
+  bannedAt?: string | null;
 }
 
 interface AuthContextValue {
@@ -27,23 +35,27 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** โปรไฟล์จาก public.users (RLS: อ่านได้เฉพาะแถวตัวเอง) — role อ่านจาก DB ไม่ใช่ user_metadata */
+/** โปรไฟล์จาก public.users ผ่าน API (GET /me/profile) — role อ่านจาก DB ไม่ใช่ user_metadata */
 async function loadProfile(session: Session): Promise<AppUser | null> {
-  if (!supabase) return null;
-  const { data: u, error } = await supabase.from('users').select('id, display_name, role').eq('id', session.user.id).maybeSingle();
-  if (error || !u) {
-    log.error('โหลดโปรไฟล์จาก Supabase ไม่สำเร็จ', error?.message ?? 'ไม่พบแถวใน public.users');
+  let u: C.MyProfile;
+  try {
+    u = await fetchMyProfile(session.access_token);
+  } catch (e) {
+    log.error('โหลดโปรไฟล์ไม่สำเร็จ', (e as Error).message);
     return null;
   }
   const profile = {
-    id: u.id as string,
+    id: u.id,
     email: session.user.email ?? '',
-    displayName: u.display_name as string,
-    role: u.role as UserRole,
+    displayName: u.display_name,
+    role: u.role,
+    roleLabel: u.role_label,
+    phoneE164: u.phone_e164 ?? null,
+    bannedAt: u.banned_at ?? null,
   };
   // ข้อมูลของผู้ใช้ (การจอง แจ้งเตือน ร้านของฉัน …) โหลดให้เสร็จก่อนเปิดหน้าที่ต้องล็อกอิน
   const { barId } = await startUser(profile).catch((e: Error) => {
-    log.error('โหลดข้อมูลผู้ใช้จาก Supabase ไม่สำเร็จ', e.message);
+    log.error('โหลดข้อมูลผู้ใช้ไม่สำเร็จ', e.message);
     return { barId: undefined };
   });
   return { ...profile, barId };

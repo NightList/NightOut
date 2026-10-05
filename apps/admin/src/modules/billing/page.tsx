@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { Table, Tag } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminView } from '@/services/adminData';

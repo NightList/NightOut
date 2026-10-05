@@ -2,7 +2,7 @@
 @layer theme, base, antd, components, utilities;
 
 @import 'tailwindcss';
-@import '@nightlist/ui/theme.css';
+@import '@nightout/ui/theme.css';
 
 /* ให้ Tailwind สแกน class ที่ใช้ใน packages/ui ด้วย */
 @source '../../../../packages/ui/src';

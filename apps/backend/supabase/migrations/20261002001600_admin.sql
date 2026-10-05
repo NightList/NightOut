@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · Backoffice (แอดมิน)
+-- NightOut · Backoffice (แอดมิน)
 --  - อ่าน: ADMIN ที่ยืนยัน MFA แล้ว (JWT aal2) อ่านได้ทุกตารางผ่าน RLS + view สำหรับแต่ละหน้า
 --  - เขียน: ฟังก์ชัน admin_* เรียกได้เฉพาะ service_role (NestJS) · ทุกฟังก์ชันตรวจว่า actor เป็น ADMIN
 --           และบันทึก audit_logs ใน transaction เดียวกัน

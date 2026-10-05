@@ -429,7 +429,7 @@
   }
 }
 
-/* NIGHTLIST ยักษ์: เทาด้านซ้าย → ม่วงด้านขวา */
+/* NIGHTOUT ยักษ์: เทาด้านซ้าย → ม่วงด้านขวา */
 .about-giant {
   background: linear-gradient(90deg, #4b4b52 0%, #4f3c78 40%, #6b3fb8 75%, #6d3fc0 100%);
   -webkit-background-clip: text;

@@ -1,4 +1,4 @@
-# NightList — Architecture
+# NightOut — Architecture
 
 > สถานะ: **Draft v0.4** · ใช้คู่กับ [`PROMPT.md`](PROMPT.md) (สเปค) และ [`SITEMAP.md`](SITEMAP.md) (หน้าเว็บ)
 
@@ -9,7 +9,7 @@ flowchart LR
   subgraph Clients["ผู้ใช้งาน"]
     C["ลูกค้า<br/>(มือถือ / เว็บ PWA)"]
     M["เจ้าของร้าน + Staff<br/>(/merchant, Scanner)"]
-    A["ทีม NightList<br/>(Backoffice)"]
+    A["ทีม NightOut<br/>(Backoffice)"]
     F["เพื่อนที่ได้ลิงก์แชร์<br/>(ไม่ต้องล็อกอิน)"]
   end
 
@@ -37,11 +37,9 @@ flowchart LR
   C & M --> WEB
   A --> ADM
   F --> OG
-  WEB & ADM -- "REST + JWT" --> API
-  WEB -- "อ่านข้อมูลสาธารณะ (RLS)" --> DB
-  WEB & ADM -- "subscribe" --> RT
+  WEB & ADM -- "REST + JWT (อ่าน+เขียน)" --> API
   WEB & ADM --> AUTH
-  WEB --> ST
+  WEB -- "PUT ไฟล์ด้วย signed upload URL จาก API" --> ST
   WEB --> MAP
   API --> DB
   API --> ST
@@ -53,7 +51,7 @@ flowchart LR
 
 **หลักคิด 4 ข้อ**
 1. **เขียนผ่าน API เท่านั้น:** การจอง สถานะ เช็กอิน มัดจำ ค่าคอม และโปรโมท ต้องผ่าน NestJS ทุกครั้ง เพื่อให้มีการตรวจกฎธุรกิจและ transaction ครบ
-2. **อ่านตรงได้:** รายชื่อร้าน เมนู รีวิว และ Realtime ให้ frontend อ่านจาก Supabase ตรงโดยมี RLS คุม เพื่อลดภาระของ API
+2. **หน้าเว็บอ่านผ่าน API ด้วย (ADR 0002):** `apps/frontend` ไม่ query DB / Storage ตรงอีกแล้ว — ใช้ Supabase เฉพาะ Auth · NestJS อ่าน view/RPC เดิม **ในนามผู้เรียก** (anon key + access token ของผู้ใช้) RLS จึงยังเป็นด่านเดียวกับเดิม · Backoffice `apps/admin` ก็เช่นกัน ([ADR 0003](adr/0003-migrate-admin-direct-db-calls-to-backend-api.md))
 3. **Serverless-friendly:** NestJS บน Vercel ไม่ถืองานค้างไว้เอง งานตั้งเวลาทั้งหมดให้ `pg_cron` เป็นตัวเรียก
 4. **โค้ดกฎธุรกิจชุดเดียว:** ตารางเปลี่ยนสถานะ ตัวคำนวณราคา และตัวคำนวณดาว อยู่ใน `packages/utils` แล้วใช้ร่วมกันทั้ง frontend และ backend
 
@@ -64,13 +62,14 @@ flowchart LR
 | Layer | อยู่ที่ | หน้าที่ |
 |---|---|---|
 | Presentation | `apps/frontend`, `apps/admin` | UI, routing, state ฝั่ง client และ form validation |
-| Shared UI / Contract | `packages/ui`, `packages/types` | theme tokens, คอมโพเนนต์ร่วม, Zod schema / DTO |
+| Shared UI / DB types | `packages/ui`, `packages/types` | theme tokens, คอมโพเนนต์ร่วม, enum กลาง, type ของแถว view/ตาราง (`Db.*`) |
 | Domain logic (pure) | `packages/utils` | price calculator, star → tier, status transition map |
-| Demo data | `packages/mock` | โหมดเดโม: ข้อมูลสมมติ + store ในเบราว์เซอร์ (ใช้เมื่อยังไม่ตั้ง Supabase) — ขั้นตอนเชื่อม Supabase ดู `docs/SUPABASE.md` |
+| Client cache | `packages/mock` | store ในเบราว์เซอร์ที่ `services/sync.ts` เติมข้อมูลจาก API (ชื่อเดิมจากยุคเดโม — ไม่มีโหมดเดโมแล้ว) + model ที่หน้าเว็บใช้ |
 | Map | `react-leaflet` + OpenStreetMap | แผนที่ร้าน (หน้าร้าน, หน้าค้นหา, หน้า `/map` เต็มจอ) พื้นแผนที่ vector tiles ฟรีจาก OpenFreeMap (ไม่ต้องมี key) + MapLibre ผ่าน `@maplibre/maplibre-gl-leaflet` แทนสีเป็นพาเลต Google Maps (ปกติ/กลางคืน) ใน `ui/utils/mapStyle.ts` · สำรอง: OSM raster + CSS filter หรือ `VITE_MAP_TILE_URL_*` ไม่ต้องมี API key · ปุ่มนำทางเปิด Google Maps |
 | API | `apps/backend/src` (controllers) | controller, guard, pipe, Swagger |
-| Application / Domain | `apps/backend/src/modules` | booking, pricing, ranking, notification ฯลฯ (NestJS modules) |
-| Data | `apps/backend/supabase` | migrations, RLS, DB functions, seed |
+| API contract | `packages/contracts` | zod ของ body / query / response + รหัส error 1 ไฟล์ต่อโดเมน — backend ใช้ทำ DTO/Swagger · หน้าเว็บใช้เป็น type ([ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md)) |
+| Application | `apps/backend/src/domains/<domain>` | 1 โดเมน = 1 module · controller แยกตามคนเรียก (public / me / merchant / admin) → ฟังก์ชัน DB |
+| Data / Domain logic | `apps/backend/supabase` | migrations, RLS, **ฟังก์ชัน `app_*` / `admin_*` (กฎธุรกิจ + ธุรกรรม + ตรวจสิทธิ์)**, seed |
 | Infra | `infra/terraform`, `.github/workflows` | Vercel, Supabase, secrets, CI/CD |
 
 ---
@@ -110,7 +109,7 @@ apps/frontend/src/
 │   ├── ranking/ search/ barDetail/ barReviews/ book/ bookings/ bookingDetail/ deposit/ ...
 │   └── merchant/<ชื่อหน้า>/page.tsx   # dashboard, tonight, bookings, deposits, store, menu ...
 ├── hooks/                # custom hooks ใช้ข้ามหน้า (useDemo, useNow, useScrolled, useMerchantBar)
-├── services/             # auth.tsx (AuthProvider/useAuth), supabase.ts, api.ts
+├── services/             # data.ts (หน้าต่าง re-export) · api/<domain>.ts (เขียน/เรียก Rest) · queries/<domain>.ts (TanStack hooks) · mappers/<domain>.ts · sync.ts (cache) · auth.tsx · supabase.ts (Auth เท่านั้น)
 ├── ui/
 │   ├── components/       # component ใช้ข้ามหน้า (navbar, barCard, authCard, pageHeader ...)
 │   └── utils/            # format.ts ฯลฯ
@@ -119,9 +118,75 @@ apps/frontend/src/
 - กติกา: ของที่ใช้ **หน้าเดียว** อยู่ใน `modules/<หน้า>/components|type|form|modal|utils` · ใช้ **หลายหน้า** ย้ายไป `ui/` หรือ `hooks/`
 - ชื่อไฟล์ component เป็น camelCase (`barCard.tsx`) ส่วน export เป็น PascalCase (`BarCard`)
 - รูป/วิดีโอใน `public/images/<module>/` และ `public/videos/`
-- `@nightlist/*` ใน dev ถูก alias ไปที่ `packages/*/src` (vite.config.ts) — แก้ package แล้วเห็นผลทันที ไม่ต้องรอ build
-- **API client** สร้างจาก OpenAPI ของ NestJS (`openapi-typescript`) เพื่อให้ type ตรงกับ backend เสมอ
+- `@nightout/*` ใน dev ถูก alias ไปที่ `packages/*/src` (vite.config.ts) — แก้ package แล้วเห็นผลทันที ไม่ต้องรอ build
+- **API client** = class `Rest` ใน `packages/utils/src/rest.ts` (`import { Rest } from '@nightout/utils/rest'`) ใช้ร่วมกันทั้ง `apps/frontend` และ `apps/admin` — ดูหัวข้อ Data Flow Standard ด้านล่าง · (type ของ body/response มาจาก `@nightout/contracts` ชุดเดียวกับที่ backend ใช้ทำ DTO — ADR 0006)
 - **Guard ของ route** (`RequireAuth`, `RequireRole`) ห่อที่ระดับ layout route ใน React Router
+
+### Data Flow Standard (ADR 0002 + 0006) — ✅
+
+```
+Component → services/data.ts (หน้าต่าง) → services/queries/<domain>.ts (TanStack Query) → services/api/<domain>.ts → Rest (@nightout/utils/rest) → Backend domains/<domain> → Supabase (RLS)
+                                                                                        ↑ type/body จาก @nightout/contracts/<domain>
+```
+
+```mermaid
+sequenceDiagram
+  participant C as Component
+  participant H as Hook (useQuery)<br/>services/queries/booking.ts
+  participant S as fetchZoneAvailability<br/>services/api/booking.ts
+  participant R as Rest.get/post/put/patch/delete<T><br/>@nightout/utils/rest
+  participant X as Axios instance<br/>(interceptors)
+  participant API as NestJS /api
+  participant DB as Supabase PostgREST / Storage
+  C->>H: useZoneAvailability(bar, time)
+  H->>S: fetchZoneAvailability(bar.id, time)
+  S->>R: Rest.get<C.ZoneAvailabilityRow[]>('/bars/:id/zone-availability')
+  R->>X: axios instance.get
+  X->>X: แนบ Authorization: Bearer <Supabase access token>
+  X->>API: GET /api/bars/:id/zone-availability
+  API->>DB: rpc zone_availability (anon key + token ผู้เรียก → RLS)
+  DB-->>API: rows
+  API-->>X: 200 JSON (snake_case)
+  X-->>R: response / error → ApiError (ข้อความไทยจากรหัส)
+  R-->>S: data: T
+  S-->>H: rows
+  H-->>C: { data, isLoading, error }
+```
+
+| ชั้น | ไฟล์ | หน้าที่ |
+|---|---|---|
+| Component | `modules/*/page.tsx`, `ui/components/*` | แสดงผล เรียก hook / action — **ห้าม** import `supabase`, `axios`, `Rest` ตรง (เรียกผ่าน hook / service) |
+| หน้าต่าง | `services/data.ts` | re-export ทุกอย่างที่หน้าใช้ (ฟังก์ชันอ่าน store + api/* + queries/*) — หน้า import จากที่นี่ที่เดียว |
+| TanStack Query Hook | `services/queries/<domain>.ts` + `queries/keys.ts` (queryKey factory: `bookingKeys.zoneAvailability(…)`) | cache, loading/error state |
+| API Service Layer | `services/api/<domain>.ts` (เรียก `Rest` · body `satisfies C.XBody` · response `C.XResult` · เขียนแล้ว `refresh()`), `services/mappers/<domain>.ts` (แถว DB → model หน้าเว็บ), `services/sync.ts` (โหลด catalog / overview ลง store + snapshot) | แปลง type หน้าเว็บ ↔ สัญญา API แล้วเรียก `Rest` |
+| Rest + Axios Client | `packages/utils/src/rest.ts` (class `Rest` ใช้ร่วมทุกแอป) | `Rest.configure({ baseURL, getAccessToken, logger, unauthorizedCode, errorMessages: ERROR_MESSAGES })` ครั้งเดียวใน `main.tsx` ของแต่ละแอป → `axios.create` + interceptor แนบ Bearer token · แปลง error เป็น `ApiError` (ข้อความไทยจาก `@nightout/contracts`) · log · `Rest.get/post/put/patch/delete<T>` · `Rest.upload(url, file)` · `Rest.ping()` |
+| Backend API | `apps/backend/src/domains/<domain>/*` | ตรวจ JWT + validate (DTO จาก contracts) แล้วอ่าน/เขียน Supabase · อ่านทำในนามผู้เรียก (RLS) · เขียนผ่านฟังก์ชัน `app_*` / `admin_*` |
+
+**Endpoint อ่านที่ย้ายมาจากการ query ตรง** (ตอนนี้อยู่ใน `domains/<domain>/*.controller.ts` ของแต่ละโดเมน)
+
+| เดิม (หน้าเว็บ → Supabase) | ตอนนี้ (หน้าเว็บ → API) |
+|---|---|
+| `bar_detail`, `public_reviews`, `districts`, `styles`, `platform_settings`, `promotion_packages` | `GET /public/catalog` |
+| `public_team` | `GET /public/team` |
+| rpc `zone_availability` | `GET /bars/:barId/zone-availability?datetime=` |
+| rpc `get_share_card` | `GET /share-cards/:token` |
+| `users` (โปรไฟล์ของฉัน) | `GET /me/profile` |
+| `booking_detail`, `notifications`, `my_favorites`, `my_reviews`, `user_preferences`, `my_bar_detail`, `review_reports`, `promoted_listings` | `GET /me/overview` |
+| rpc `my_invites` | `GET /me/invites` |
+| rpc `bar_team`, `bar_deposit_ledger`, `billing_events` | `GET /merchant/bars/:barId/team` · `/deposit-ledger` · `/billing-events` |
+| (admin) view `admin_*` + filter/order/limit | `GET /admin/views/:view?<คอลัมน์>=<ค่า>[,…]&order=<คอลัมน์>.asc\|desc&limit=` (whitelist view · ADMIN + MFA) |
+| (admin) rpc `admin_dashboard` | `GET /admin/dashboard` |
+| (admin) `styles`, `safety_features`, `platform_settings` | `GET /admin/master/:table?order=` |
+| `storage.upload()` | `POST /storage/upload-url` → PUT ไฟล์เข้า URL ที่ได้ (ไฟล์ใหญ่ไม่ผ่าน Vercel Function) |
+| `storage.createSignedUrl(s)` | `POST /storage/signed-urls` |
+
+**กติกา**
+- ใช้ `supabase` ได้เฉพาะ `supabase.auth.*` ทั้ง `apps/frontend` และ `apps/admin` — ESLint (`eslint.config.js` ของแต่ละแอป) บล็อก `supabase.from / rpc / storage / schema / channel`
+- Backoffice ใช้ชั้นเดียวกัน: `apps/admin/src/services/adminData.ts` (หน้าต่าง) → `services/queries/{backoffice,account,storage}.ts` → `services/api/<domain>.ts` → `Rest` ตัวเดียวกับหน้าเว็บ (ตั้ง `unauthorizedCode: 'MFA_REQUIRED'`)
+- `Rest` อยู่ใน entry แยก `@nightout/utils/rest` — backend ที่ import `@nightout/utils` (ตัวคำนวณราคา ฯลฯ) จึงไม่โหลด axios · ดู [ADR 0004](adr/0004-shared-rest-client.md)
+- ข้อมูลใหม่ที่ต้องอ่าน: zod/type ใน `packages/contracts/src/<domain>.ts` → endpoint ใน `domains/<domain>` (มี `@ApiDoc`) → `fetchX` ใน `services/api/<domain>.ts` → hook ใน `services/queries/<domain>.ts` (key จาก `queries/keys.ts`) → re-export ใน `data.ts`
+- การเขียน: body ใน contracts → endpoint → ฟังก์ชันใน `services/api/<domain>.ts` ที่เรียก `Rest.post/put/patch/delete<T>()` แล้ว `refresh()` (ใช้กับ `useMutation` ได้ตรงๆ)
+- `VITE_API_BASE_URL` ว่างได้: dev = `http://localhost:3000/api`, deploy = `/api` (same-origin) · `VITE_API_URL` เดิมยังอ่านเป็นค่าสำรอง
 
 ### Component style — ✅ Function component + hooks
 - เขียนทุก component เป็น function + hooks ตาม standard React (antd, TanStack Query, React Router และ Motion ออกแบบมาให้ใช้แบบนี้)
@@ -131,52 +196,65 @@ apps/frontend/src/
 
 ---
 
-## 4. Backend (`apps/backend`)
+## 4. Backend (`apps/backend`) — จัดตามโดเมน (ADR 0006)
 
 ```
 apps/backend/
 ├── src/
-│   ├── main.ts / bootstrap.ts   # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function
-│   ├── app.module.ts            # รวม modules + guard/pipe ระดับแอป
-│   ├── auth/ health/ jobs/ config/   # guard, endpoint ระบบ, env
-│   └── modules/<domain>/        # 1 โดเมน = module + service (+ controller ถ้ามี HTTP): booking, pricing, ranking, notification
-├── supabase/                    # config.toml, migrations/, seed.sql — รันด้วย pnpm --filter @nightlist/backend db:*
-├── api/index.js                 # Vercel Function entry
-└── test/                        # e2e (vitest + supertest)
+│   ├── main.ts / bootstrap.ts      # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function · prefix /api · Swagger /api/docs (tag = โดเมน)
+│   ├── auth/                       # SupabaseJwtGuard (JWKS → fallback /auth/v1/user) · AdminGuard (ADMIN/SUPER_ADMIN + aal2) · SuperAdminGuard
+│   ├── common/                     # @ApiDoc · clientInfo (IP/UA) · params (Id / BarId / BookingId + ข้อความ forbidden)
+│   ├── supabase/supabase.service.ts  # ตัวเดียวที่คุย Supabase: rpc (service_role) · selectAs/rpcAs (ในนามผู้เรียก) · storage · auth admin · errcode → HTTP
+│   ├── domains/<domain>/           # 1 โดเมน = 1 module (ชื่อเดียวกับ packages/contracts/src/<domain>.ts และ services/api/<domain>.ts ของหน้าเว็บ)
+│   │   ├── <domain>.module.ts
+│   │   ├── <domain>.public.controller.ts    # ไม่ต้องล็อกอิน (ส่ง token ต่อถ้ามี → RLS)
+│   │   ├── <domain>.me.controller.ts        # ผู้ใช้ที่ล็อกอิน (SupabaseJwtGuard)
+│   │   ├── <domain>.merchant.controller.ts  # ทีมร้าน (ฟังก์ชัน DB ตรวจ bar_staff + บทบาท)
+│   │   ├── <domain>.admin.controller.ts     # Backoffice (SupabaseJwtGuard + AdminGuard · /admin/*)
+│   │   ├── <domain>.dto.ts                  # class XDto extends createZodDto(C.XBody) — zod อยู่ใน @nightout/contracts
+│   │   └── <domain>.service.ts              # มีเมื่อมี logic มากกว่าเรียก rpc 1 ครั้ง (account-users, payout-crypto, pricing)
+│   ├── jobs/  health/  config/     # /api/jobs/* ให้ pg_cron เรียก · health · ตรวจ env ด้วย zod
+├── supabase/                       # config.toml, migrations/, seed.sql — pnpm --filter @nightout/backend db:*
+└── api/index.js                    # Vercel Function entry
 ```
 
+| โดเมน | เรื่อง | controller ที่มี |
+|---|---|---|
+| `catalog` | ข้อมูลตั้งต้นของเว็บ (ร้าน รีวิว ย่าน สไตล์ ตั้งค่า แพ็กเกจ) | public |
+| `booking` | จอง ยกเลิก สถานะ เช็กอิน ย้ายโต๊ะ โซนว่าง บัตรแชร์ | public · me · merchant |
+| `deposit` | ส่งสลิป ตรวจสลิป ปิดยอด คืนมัดจำ สมุดมัดจำ | me · merchant · admin |
+| `review` | เขียน รายงาน จัดการรีวิว | me · admin |
+| `bar` | สมัครลงร้าน ข้อมูลร้าน เมนู โปร ค่าธรรมเนียม โซน Safety ตั้งค่าการจอง บัญชีรับเงิน ความแน่น อนุมัติ/Editor's Pick | me · merchant · admin |
+| `bar-team` | ทีมร้าน: เชิญ นำออก คำเชิญของฉัน | me · merchant |
+| `account` | โปรไฟล์ ข้อมูลของฉัน แจ้งเตือน ร้านโปรด ลบบัญชี · ผู้ใช้ ชั้นบัญชี แบน (Backoffice) | me · admin |
+| `promotion` | โปรโมทร้าน: ซื้อแพ็กเกจ ตรวจคำสั่งซื้อ | merchant · admin |
+| `billing` | ค่าคอมของร้าน | merchant |
+| `site-team` | ทีมงาน NightOut หน้า /about | public · admin |
+| `storage` | URL อัปโหลด / URL ชั่วคราว | (controller เดียว) |
+| `pricing` | ประเมินราคา (ไม่แตะ DB) | public |
+| `backoffice` | การอ่านของหน้าแอดมิน: แดชบอร์ด view admin_* ตาราง master | admin |
 
-### Request pipeline
+### Request pipeline (จริง)
 ```mermaid
 flowchart LR
-  R[Request] --> T[ThrottlerGuard] --> J[SupabaseJwtGuard] --> RG[RolesGuard] --> P[ZodValidationPipe] --> CT[Controller] --> S[Service] --> RP[Repository] --> DB[(Postgres)]
-  S --> O[(notification_outbox)]
-  CT --> I[AuditInterceptor]
+  R[Request] --> G[SupabaseJwtGuard / AdminGuard] --> P["ZodValidationPipe<br/>(DTO จาก @nightout/contracts)"] --> C["domains/&lt;domain&gt;/*.controller"]
+  C -- อ่าน --> RA["db.selectAs / rpcAs<br/>(anon key + JWT ผู้เรียก → RLS)"] --> PG[(Postgres)]
+  C -- เขียน --> RW["db.rpc('app_*' | 'admin_*')<br/>(service_role + p_actor)"] --> F["plpgsql: ตรวจสิทธิ์ซ้ำ + ธุรกรรม + audit + แจ้งเตือน"] --> PG
 ```
 
-### NestJS modules
-| Module | รับผิดชอบ |
-|---|---|
-| `auth` | ตรวจ Supabase JWT, โหลด user + role, `@Roles()` decorator |
-| `bars` | ข้อมูลร้าน, เวลาเปิด-ปิด, styles, links, media, safety |
-| `menu` / `pricing` | เมนูราคา (แสดงเพื่อประเมินงบ ไม่มีสั่งล่วงหน้า), ค่าธรรมเนียม, โปรโมชันของร้าน (cutoff time / วัน), PR ชาย/หญิง |
-| `availability` | คำนวณโต๊ะว่างจาก reservation interval |
-| `booking` | สร้างการจอง (transaction + overlap), state machine, snapshot |
-| `deposit` | รับสลิป (เข้า PromptPay แพลตฟอร์ม), แอดมินยืนยัน/ปฏิเสธ, settlement: ถือไว้ → รอโอน → โอนให้ร้าน / เครดิตร้าน / คืนลูกค้า |
-| `checkin` | ออก QR token (signed JWT ใช้ครั้งเดียว) และสแกน |
-| `review` | สร้าง/แก้รีวิว, รายงาน, moderation |
-| `ranking` | คำนวณคะแนน → ดาว → Tier |
-| `promotion` | แพ็กเกจโปรโมท, สลิป, ช่องที่ว่าง |
-| `billing` | commission rules, billing events (CHECK_IN / NO_SHOW) |
-| `notification` | outbox → LINE / Web Push / In-app + retry |
-| `jobs` | endpoint `/jobs/*` ให้ pg_cron เรียก |
-| `audit` | บันทึก audit log |
+- **กฎธุรกิจ + ธุรกรรม + สิทธิ์ อยู่ในฟังก์ชัน DB** (`app_*` ลูกค้า/ร้าน, `admin_*` แอดมิน) — controller แค่ตรวจ body (zod) แล้วส่ง `p_actor` = ผู้ใช้จาก JWT
+- error จาก DB เป็นรหัสตัวใหญ่ (`ZONE_FULL`) → `SupabaseService` แปลง errcode เป็น HTTP (P0002→404, P0001/23505/23P01→409, 42501→403, 22023/23514→400) → หน้าเว็บแปลไทยด้วย `ERROR_MESSAGES` จาก `@nightout/contracts`
+- ไม่มี Kysely / repository / outbox — NestJS ไม่ต่อ Postgres ตรง (ทุกอย่างผ่าน PostgREST ของ Supabase)
 
-### การเข้าถึงฐานข้อมูล
-- NestJS ต่อ Postgres ตรงผ่าน **Supavisor (transaction mode)** และใช้ **Kysely** + type ที่ generate จาก schema
-  - เหตุผล: การจองต้องใช้ transaction + `SELECT … FOR UPDATE` ซึ่ง `supabase-js` ทำไม่ได้
-- ใช้ `supabase-js` (service role) เฉพาะงาน Storage และ Auth admin
-- ตรวจสิทธิ์ใน service ทุกครั้ง (เช่น ร้านแก้ได้เฉพาะร้านตัวเอง) ไม่พึ่ง RLS อย่างเดียว
+### ไล่โค้ด 1 เรื่อง = grep ชื่อโดเมน
+| ชั้น | ที่ |
+|---|---|
+| สัญญา API (zod body/response + รหัส error) | `packages/contracts/src/<domain>.ts` |
+| endpoint | `apps/backend/src/domains/<domain>/<domain>.{public,me,merchant,admin}.controller.ts` |
+| ฟังก์ชัน DB ตัวล่าสุด | ตาราง "แผนที่โดเมน → ฟังก์ชัน → migration" ใน `docs/DATABASE.md` ข้อ 5.0 |
+| หน้าเว็บเรียก | `apps/frontend/src/services/api/<domain>.ts` (เขียน) · `services/queries/<domain>.ts` (อ่านสด) · `services/mappers/<domain>.ts` (แถว DB → model) · หน้า import ผ่าน `services/data.ts` |
+| Backoffice เรียก | `apps/admin/src/services/api/<domain>.ts` + `services/queries/<domain>.ts` · หน้า import ผ่าน `services/adminData.ts` |
+| type ของแถว view | `packages/types/src/database.ts` (`Db.*`) |
 
 ---
 
@@ -196,10 +274,10 @@ sequenceDiagram
   W->>A: POST /bookings (โต๊ะ + โปรโมชันของร้านถ้ามี — ไม่มีสั่งอาหาร/เครื่องดื่ม)
   A->>D: BEGIN · lock zone · INSERT booking (exclusion constraint) · outbox · COMMIT
   A-->>W: booking = AWAITING_DEPOSIT (ทุกการจองต้องมัดจำ)
-  U->>W: โอน PromptPay ของ NightList + อัปโหลดสลิป
+  U->>W: โอน PromptPay ของ NightOut + อัปโหลดสลิป
   W->>A: POST /bookings/:id/deposit
   A->>D: deposit = SUBMITTED · booking = DEPOSIT_SUBMITTED
-  actor AD as แอดมิน NightList
+  actor AD as แอดมิน NightOut
   AD->>A: ตรวจสลิป → ผ่าน
   A->>D: deposit VERIFIED · settlement = HELD · booking = CONFIRMED · outbox (แจ้งลูกค้า+ร้าน)
   S->>A: ลูกค้าเช็กอิน / ระบบ NO_SHOW
@@ -208,7 +286,7 @@ sequenceDiagram
   A->>D: settlement = PAID_OUT / CREDIT · audit log
 ```
 
-**เงินมัดจำเข้าแพลตฟอร์ม ไม่เข้าร้านโดยตรง:** ลูกค้าโอนเข้า PromptPay ของ NightList (`platform_settings.deposit_promptpay`) · แอดมินเป็นคนตรวจสลิป (ร้านไม่เห็นสลิป) · `deposits.settlement` บอกว่าเงินอยู่ที่ไหน: `HELD` (เราถือไว้) → `PAYOUT_PENDING` (ลูกค้าเช็กอิน/ไม่มา → เป็นของร้าน) → `PAID_OUT` (โอนเข้าบัญชีที่ร้านตั้งใน `/merchant/settings`) หรือ `CREDIT` (เก็บเป็นเครดิตในร้าน) · ยกเลิก/ปฏิเสธ → `REFUNDED` คืนลูกค้า · ร้านดูสรุปที่ `/merchant/deposits` แอดมินจัดการที่ `/deposits`
+**เงินมัดจำเข้าแพลตฟอร์ม ไม่เข้าร้านโดยตรง:** ลูกค้าโอนเข้า PromptPay ของ NightOut (`platform_settings.deposit_promptpay`) · แอดมินเป็นคนตรวจสลิป (ร้านไม่เห็นสลิป) · `deposits.settlement` บอกว่าเงินอยู่ที่ไหน: `HELD` (เราถือไว้) → `PAYOUT_PENDING` (ลูกค้าเช็กอิน/ไม่มา → เป็นของร้าน) → `PAID_OUT` (โอนเข้าบัญชีที่ร้านตั้งใน `/merchant/settings`) หรือ `CREDIT` (เก็บเป็นเครดิตในร้าน) · ยกเลิก/ปฏิเสธ → `REFUNDED` คืนลูกค้า · ร้านดูสรุปที่ `/merchant/deposits` แอดมินจัดการที่ `/deposits`
 
 ### 5.2 เช็กอินด้วย QR
 ```mermaid
@@ -258,11 +336,11 @@ sequenceDiagram
 - **สมัคร:** `signUp()` → trigger สร้าง `public.users` → ยืนยันอีเมลก่อนจอง
 - **ป้องกันการเดารหัส:** rate limit ของ Supabase Auth + Turnstile CAPTCHA + Leaked Password Protection
 - **Staff:** เจ้าของร้านเชิญทางอีเมล (`inviteUserByEmail` ผ่าน NestJS) · **Admin:** บังคับ TOTP MFA (AAL2)
-- **Role:** เก็บที่ `users.role` (CUSTOMER / MERCHANT / STAFF / ADMIN) และ `bar_staff` สำหรับผูก Staff กับร้าน
+- **Role:** เก็บที่ `users.role` (CUSTOMER / MERCHANT / STAFF / ADMIN / SUPER_ADMIN — FK ไปตาราง `roles` ที่มีชื่อไทย + `can_enter_backoffice` · ADR 0005) และ `bar_staff` สำหรับผูก Staff กับร้าน
 - **RLS:** เปิดทุกตาราง
   - อ่านสาธารณะได้เฉพาะข้อมูลร้านที่ `APPROVED`
   - ข้อมูลส่วนตัวอ่านได้เฉพาะเจ้าของ
-- **Admin:** `apps/admin` อยู่แยกโดเมน ต้องเป็น role ADMIN และต้องเปิด MFA
+- **Admin:** `apps/admin` อยู่แยกโดเมน ต้องเป็น ADMIN หรือ SUPER_ADMIN และต้องเปิด MFA · แก้ชั้นบัญชีได้เฉพาะ SUPER_ADMIN
 - **Secrets:** เก็บใน Vercel env / Terraform (sensitive) ห้าม commit
 - **ไฟล์สลิป:** ใช้ Storage bucket แบบ private เปิดดูผ่าน signed URL อายุสั้น และลบตาม retention policy
 
@@ -272,9 +350,9 @@ sequenceDiagram
 
 | Env | Vercel | Supabase | Deploy |
 |---|---|---|---|
-| dev | preview ต่อ PR | `nightlist-dev` | อัตโนมัติทุก PR |
-| staging | `staging.nightlist.app` | `nightlist-staging` | merge เข้า `main` |
-| prod | `nightlist.app` | `nightlist-prod` | manual approval |
+| dev | preview ต่อ PR | `nightout-dev` | อัตโนมัติทุก PR |
+| staging | `staging.nightout.app` | `nightout-staging` | merge เข้า `main` |
+| prod | `nightout.app` | `nightout-prod` | manual approval |
 
 **Vercel services (project เดียว, โดเมนเดียว):** `vercel.json` ที่ root กำหนด 3 services และ rewrites — `frontend` → `/`, `admin` → `/admin/*` (Vite `base: /admin/`), `backend` → `/api/*` (NestJS `setGlobalPrefix('api')`, Swagger ที่ `/api/docs`) · เว็บและแอดมินเรียก API แบบ same-origin จึงไม่ต้องตั้ง `VITE_API_URL` ตอน deploy · ยังไม่มี binding เพราะไม่มี service เรียกกันเองฝั่ง server · frontend/admin เป็น SPA จึงมี rewrite ในแต่ละ service ให้ path ที่ไม่ใช่ไฟล์ (เช่น `/ranking`, `/admin/bars`) ไปที่ `index.html` — ไม่งั้นกด refresh จะเจอ 404 ของ Vercel · ทดสอบรวมด้วย `vercel dev`
 
@@ -300,3 +378,5 @@ sequenceDiagram
 | 5 | Jobs | pg_cron → `/jobs/*` | ✅ |
 | 6 | Component style | Function component + hooks (standard React) และ HOC เฉพาะ cross-cutting | ✅ |
 | 7 | วิธีล็อกอิน | email + password (Supabase Auth) + Turnstile และ MFA สำหรับ Admin | ✅ |
+| 8 | หน้าเว็บอ่านข้อมูล | ผ่าน NestJS เท่านั้น (Axios `Rest`) — ไม่ query DB ตรง · [ADR 0002](adr/0002-migrate-direct-db-calls-to-backend-api.md) | ✅ |
+| 9 | Backoffice อ่านข้อมูล | ผ่าน NestJS เท่านั้น (`/admin/views`, `/admin/dashboard`, `/admin/master`) · [ADR 0003](adr/0003-migrate-admin-direct-db-calls-to-backend-api.md) | ✅ |

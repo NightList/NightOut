@@ -11,7 +11,7 @@ export function MerchantSafetyPage() {
     <div>
       <PageHeader
         title="ความปลอดภัย"
-        subtitle="ข้อมูลที่ร้านแจ้งเองจะแสดงป้าย “ร้านแจ้ง” จนกว่าทีม NightList จะตรวจหลักฐาน"
+        subtitle="ข้อมูลที่ร้านแจ้งเองจะแสดงป้าย “ร้านแจ้ง” จนกว่าทีม NightOut จะตรวจหลักฐาน"
       />
       <Card>
         <ul className="divide-y divide-border">
@@ -28,7 +28,7 @@ export function MerchantSafetyPage() {
                 onChange={async (value) => {
                   try {
                     await setSafety(bar.id, s.key, value);
-                    message.success('บันทึกแล้ว (รอทีม NightList ตรวจหลักฐาน)');
+                    message.success('บันทึกแล้ว (รอทีม NightOut ตรวจหลักฐาน)');
                   } catch (e) {
                     message.error((e as Error).message);
                   }
@@ -48,7 +48,7 @@ export function MerchantSafetyPage() {
                     return Upload.LIST_IGNORE;
                   }
                   void uploadSafetyProof(bar.id, s.key, file)
-                    .then(() => message.success('ส่งหลักฐานแล้ว ทีม NightList จะตรวจให้'))
+                    .then(() => message.success('ส่งหลักฐานแล้ว ทีม NightOut จะตรวจให้'))
                     .catch((e: Error) => message.error(e.message));
                   return false;
                 }}

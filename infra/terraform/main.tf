@@ -1,5 +1,5 @@
 locals {
-  name         = "nightlist-${var.environment}"
+  name         = "nightout-${var.environment}"
   is_prod      = var.environment == "prod"
   sub          = local.is_prod ? "" : "${var.environment}."
   web_domain   = var.base_domain == "" ? null : "${local.sub}${var.base_domain}"

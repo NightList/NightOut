@@ -1,4 +1,4 @@
-import type { PriceEstimate } from '@nightlist/types';
+import type { PriceEstimate } from '@nightout/types';
 import { Descriptions } from 'antd';
 import { baht } from '@/ui/utils/format';
 

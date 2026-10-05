@@ -1,7 +1,7 @@
 import { CheckCircle, QrCode } from '@phosphor-icons/react';
 import { barBookings, checkIn, setCrowd } from '@/services/data';
-import type { CrowdStatus } from '@nightlist/types';
-import { getAntdTheme } from '@nightlist/ui';
+import type { CrowdStatus } from '@nightout/types';
+import { getAntdTheme } from '@nightout/ui';
 import { App, Button, ConfigProvider, Empty, Input, Listy, Segmented, Tag } from 'antd';
 import { ListRow } from '@/ui/components/listRow';
 import { useState } from 'react';

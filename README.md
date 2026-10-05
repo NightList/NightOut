@@ -1,6 +1,6 @@
-# 🌙 NightList
+# 🌙 NightOut
 
-**NightList** คือเว็บแอปสำหรับค้นหา จัดอันดับ และจองโต๊ะร้านกลางคืน เริ่มจากกรุงเทพฯ แล้วขยายไปทั่วประเทศ
+**NightOut** คือเว็บแอปสำหรับค้นหา จัดอันดับ และจองโต๊ะร้านกลางคืน เริ่มจากกรุงเทพฯ แล้วขยายไปทั่วประเทศ
 
 ร้านแบ่งเป็น 3 ประเภท: **ผับ/บาร์** · **ร้านนั่งชิล** · **ร้านอาหารที่มีเครื่องดื่ม**
 
@@ -24,7 +24,7 @@
 |---|---|
 | ⭐ **จัดอันดับดาว 1–5** | คิดคะแนนจากรีวิวที่เช็กอินจริง, จำนวนเช็กอิน, Safety Score และความครบของข้อมูลราคา แยกตามประเภทและย่าน |
 | 💰 **Tag แนะนำ (Promoted)** | ร้านจ่ายเงินเพื่อขึ้นหน้าแรกหรือผลค้นหาได้ ติดป้าย "แนะนำ · โฆษณา" เสมอ และไม่มีผลต่อดาว |
-| 🛡️ **ข้อมูลความปลอดภัย** | บอกว่าร้านมี ✅ / ไม่มี ❌ / ยังไม่มีข้อมูล ⚪ สำหรับ รปภ., CCTV, ทางหนีไฟ, ตรวจบัตร ฯลฯ พร้อมป้ายยืนยันโดย NightList |
+| 🛡️ **ข้อมูลความปลอดภัย** | บอกว่าร้านมี ✅ / ไม่มี ❌ / ยังไม่มีข้อมูล ⚪ สำหรับ รปภ., CCTV, ทางหนีไฟ, ตรวจบัตร ฯลฯ พร้อมป้ายยืนยันโดย NightOut |
 | 🧮 **ประเมินราคาก่อนไป** | คำนวณจากเมนู + service charge + VAT แล้วแสดงยอดรวมและยอดต่อหัว เก็บ snapshot ราคาไว้ตอนจอง |
 | 📅 **จองโต๊ะ + มัดจำ** | เลือกโซนหรือโต๊ะ, ป้องกันจองซ้อน, โอนมัดจำผ่าน PromptPay + อัปโหลดสลิป (เงินเข้าบัญชีร้านโดยตรง) |
 | 📲 **QR Check-in** | การ์ดหรือ PR หน้าร้านสแกน QR ได้เลย ถ้าไม่มาเช็กอินเกินเวลาที่ร้านตั้งไว้ ระบบยกเลิกโต๊ะอัตโนมัติ |
@@ -45,8 +45,8 @@
 ```bash
 pnpm install
 cp .env.example .env                 # ใส่ค่า Supabase หลัง db:start
-pnpm --filter @nightlist/backend db:start   # Supabase local (Studio :54323)
-pnpm dev                             # frontend :5173 · admin :5174 · (api: pnpm --filter @nightlist/backend dev → :3000/api/docs)
+pnpm --filter @nightout/backend db:start   # Supabase local (Studio :54323)
+pnpm dev                             # frontend :5173 · admin :5174 · (api: pnpm --filter @nightout/backend dev → :3000/api/docs)
 ```
 
 | คำสั่ง | ทำอะไร |
@@ -55,7 +55,7 @@ pnpm dev                             # frontend :5173 · admin :5174 · (api: pn
 | `pnpm build` | build ทุก package |
 | `pnpm test` | unit test (utils, ui tokens) + API e2e |
 | `pnpm lint` / `pnpm typecheck` | ตรวจโค้ด |
-| `pnpm --filter @nightlist/frontend dev` | รันแอปเดียว |
+| `pnpm --filter @nightout/frontend dev` | รันแอปเดียว |
 
 ## 🧱 Tech Stack
 
@@ -76,7 +76,7 @@ pnpm dev                             # frontend :5173 · admin :5174 · (api: pn
 night-list/
 ├── apps/
 │   ├── frontend/     # React — ลูกค้า + ร้าน (/merchant) + Staff Scanner (PWA)
-│   ├── admin/        # React + antd Pro — Backoffice ทีม NightList
+│   ├── admin/        # React + antd Pro — Backoffice ทีม NightOut
 │   └── backend/      # NestJS API: src/ (controllers) · src/modules/ (business logic) · supabase/ (migrations, RLS, seed)
 ├── packages/
 │   ├── ui/           # antd theme + Tailwind preset (Midnight Gold)
@@ -109,7 +109,7 @@ CLAUDE.md             # กติกาสำหรับ Claude (branch, commit
 
 **Tier:** S `#E8B64C` · A `#963BE8` · B `#5869C8` · C `#74788B`
 
-🖼️ **Figma:** [NightList Design](https://www.figma.com/design/FtXQS2NeyuHQZIA3chcvLL/NightList?node-id=7-4)
+🖼️ **Figma:** [NightOut Design](https://www.figma.com/design/FtXQS2NeyuHQZIA3chcvLL/NightOut?node-id=7-4)
 
 Motion ใช้ [Motion](https://motion.dev) (`motion/react`) ดูรายละเอียดทั้งหมดใน [`docs/PROMPT.md`](docs/PROMPT.md#ดีไซน์)
 
@@ -166,4 +166,4 @@ Motion ใช้ [Motion](https://motion.dev) (`motion/react`) ดูราย�
 
 ---
 
-© NightList
+© NightOut

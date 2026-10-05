@@ -7,7 +7,7 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#07070D" />
-  <meta name="description" content="NightList Backoffice" />
+  <meta name="description" content="NightOut Backoffice" />
   <link rel="icon" href="/favicon.svg"
     type="image/svg+xml" />
   <link rel="preconnect"
@@ -17,12 +17,12 @@
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
     rel="stylesheet" />
-  <title>NightList Admin</title>
+  <title>NightOut Admin</title>
   <!-- กันจอกะพริบ: ตั้งธีมก่อน React render (key ต้องตรงกับ THEME_STORAGE_KEY) -->
   <script>
     (function () {
       try {
-        var m = localStorage.getItem('nightlist-theme') || 'DARK';
+        var m = localStorage.getItem('nightout-theme') || 'DARK';
         var dark =
           m === 'DARK' ||
           (m === 'SYSTEM' && (!window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches));

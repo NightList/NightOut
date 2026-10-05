@@ -1,5 +1,5 @@
 environment              = "dev"
-base_domain              = ""   # เช่น "nightlist.app"
+base_domain              = ""   # เช่น "nightout.app"
 supabase_organization_id = ""
 # secrets ส่งผ่าน env: TF_VAR_vercel_api_token, TF_VAR_supabase_access_token,
 # TF_VAR_supabase_db_password, TF_VAR_job_secret, TF_VAR_qr_signing_key, ...

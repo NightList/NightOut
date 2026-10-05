@@ -68,6 +68,59 @@ export type Database = {
           },
         ]
       }
+      banned_phones: {
+        Row: {
+          banned_by: string | null
+          created_at: string
+          phone_e164: string
+          reason: string
+          user_id: string | null
+        }
+        Insert: {
+          banned_by?: string | null
+          created_at?: string
+          phone_e164: string
+          reason: string
+          user_id?: string | null
+        }
+        Update: {
+          banned_by?: string | null
+          created_at?: string
+          phone_e164?: string
+          reason?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banned_phones_banned_by_fkey"
+            columns: ["banned_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banned_phones_banned_by_fkey"
+            columns: ["banned_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banned_phones_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banned_phones_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bar_booking_settings: {
         Row: {
           bar_id: string
@@ -1746,7 +1799,7 @@ export type Database = {
           id?: string
           lat: number
           lng: number
-          location?: unknown
+          location?: never
           name: string
           owner_id?: string | null
           perks?: string[]
@@ -1769,7 +1822,7 @@ export type Database = {
           id?: string
           lat?: number
           lng?: number
-          location?: unknown
+          location?: never
           name?: string
           owner_id?: string | null
           perks?: string[]
@@ -1948,13 +2001,98 @@ export type Database = {
           },
         ]
       }
+      booking_deposit_consents: {
+        Row: {
+          accepted_at: string
+          booking_id: string
+          deposit_amount: number
+          deposit_policy: string | null
+          grace_minutes: number
+          ip: unknown
+          refund_before_hours: number
+          terms_text: string
+          terms_version: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          booking_id: string
+          deposit_amount: number
+          deposit_policy?: string | null
+          grace_minutes: number
+          ip?: unknown
+          refund_before_hours: number
+          terms_text: string
+          terms_version: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          booking_id?: string
+          deposit_amount?: number
+          deposit_policy?: string | null
+          grace_minutes?: number
+          ip?: unknown
+          refund_before_hours?: number
+          terms_text?: string
+          terms_version?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_deposit_consents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "admin_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_deposit_consents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "booking_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_deposit_consents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_deposit_consents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "my_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_deposit_consents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_deposit_consents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_package_snapshots: {
         Row: {
           booking_id: string
           created_at: string
-          fees: Json
+          fees: NonNullable<Json>
           id: string
-          items: Json
+          items: NonNullable<Json>
           package_id: string | null
           package_name: string
           package_price: number
@@ -1963,9 +2101,9 @@ export type Database = {
         Insert: {
           booking_id: string
           created_at?: string
-          fees?: Json
+          fees?: NonNullable<Json>
           id?: string
-          items?: Json
+          items?: NonNullable<Json>
           package_id?: string | null
           package_name: string
           package_price: number
@@ -1974,9 +2112,9 @@ export type Database = {
         Update: {
           booking_id?: string
           created_at?: string
-          fees?: Json
+          fees?: NonNullable<Json>
           id?: string
-          items?: Json
+          items?: NonNullable<Json>
           package_id?: string | null
           package_name?: string
           package_price?: number
@@ -2026,8 +2164,8 @@ export type Database = {
           created_at: string
           estimated_total: number
           id: string
-          items: Json
-          other_fees: Json
+          items: NonNullable<Json>
+          other_fees: NonNullable<Json>
           per_person: number
           service_charge_rate: number
           subtotal: number
@@ -2039,8 +2177,8 @@ export type Database = {
           created_at?: string
           estimated_total: number
           id?: string
-          items?: Json
-          other_fees?: Json
+          items?: NonNullable<Json>
+          other_fees?: NonNullable<Json>
           per_person: number
           service_charge_rate?: number
           subtotal: number
@@ -2052,8 +2190,8 @@ export type Database = {
           created_at?: string
           estimated_total?: number
           id?: string
-          items?: Json
-          other_fees?: Json
+          items?: NonNullable<Json>
+          other_fees?: NonNullable<Json>
           per_person?: number
           service_charge_rate?: number
           subtotal?: number
@@ -2096,7 +2234,7 @@ export type Database = {
           booking_id: string
           created_at: string
           id: string
-          perk_snapshot: Json
+          perk_snapshot: NonNullable<Json>
           promotion_id: string | null
           redeemed_at: string | null
           title_snapshot: string
@@ -2106,7 +2244,7 @@ export type Database = {
           booking_id: string
           created_at?: string
           id?: string
-          perk_snapshot: Json
+          perk_snapshot: NonNullable<Json>
           promotion_id?: string | null
           redeemed_at?: string | null
           title_snapshot: string
@@ -2116,7 +2254,7 @@ export type Database = {
           booking_id?: string
           created_at?: string
           id?: string
-          perk_snapshot?: Json
+          perk_snapshot?: NonNullable<Json>
           promotion_id?: string | null
           redeemed_at?: string | null
           title_snapshot?: string
@@ -2458,7 +2596,7 @@ export type Database = {
           pax: number
           request_pr?: Database["public"]["Enums"]["pr_gender"] | null
           reserved_from: string
-          reserved_period?: unknown
+          reserved_period?: never
           reserved_until: string
           status?: Database["public"]["Enums"]["booking_status"]
           table_id?: string | null
@@ -2487,7 +2625,7 @@ export type Database = {
           pax?: number
           request_pr?: Database["public"]["Enums"]["pr_gender"] | null
           reserved_from?: string
-          reserved_period?: unknown
+          reserved_period?: never
           reserved_until?: string
           status?: Database["public"]["Enums"]["booking_status"]
           table_id?: string | null
@@ -2879,8 +3017,12 @@ export type Database = {
           created_at: string
           id: string
           payout_id: string | null
+          refund_reason: string | null
           refund_ref: string | null
+          refund_requested_at: string | null
+          refund_requested_by: string | null
           refunded_at: string | null
+          reject_code: string | null
           reject_reason: string | null
           settled_at: string | null
           settlement: Database["public"]["Enums"]["deposit_settlement"]
@@ -2901,8 +3043,12 @@ export type Database = {
           created_at?: string
           id?: string
           payout_id?: string | null
+          refund_reason?: string | null
           refund_ref?: string | null
+          refund_requested_at?: string | null
+          refund_requested_by?: string | null
           refunded_at?: string | null
+          reject_code?: string | null
           reject_reason?: string | null
           settled_at?: string | null
           settlement?: Database["public"]["Enums"]["deposit_settlement"]
@@ -2923,8 +3069,12 @@ export type Database = {
           created_at?: string
           id?: string
           payout_id?: string | null
+          refund_reason?: string | null
           refund_ref?: string | null
+          refund_requested_at?: string | null
+          refund_requested_by?: string | null
           refunded_at?: string | null
+          reject_code?: string | null
           reject_reason?: string | null
           settled_at?: string | null
           settlement?: Database["public"]["Enums"]["deposit_settlement"]
@@ -3028,6 +3178,20 @@ export type Database = {
             columns: ["payout_id"]
             isOneToOne: false
             referencedRelation: "bar_payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposits_refund_requested_by_fkey"
+            columns: ["refund_requested_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposits_refund_requested_by_fkey"
+            columns: ["refund_requested_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -3705,7 +3869,7 @@ export type Database = {
           dedupe_key: string | null
           event_type: string
           id: string
-          payload: Json
+          payload: NonNullable<Json>
           read_at: string | null
           title: string
           updated_at: string
@@ -3719,7 +3883,7 @@ export type Database = {
           dedupe_key?: string | null
           event_type: string
           id?: string
-          payload?: Json
+          payload?: NonNullable<Json>
           read_at?: string | null
           title: string
           updated_at?: string
@@ -3733,7 +3897,7 @@ export type Database = {
           dedupe_key?: string | null
           event_type?: string
           id?: string
-          payload?: Json
+          payload?: NonNullable<Json>
           read_at?: string | null
           title?: string
           updated_at?: string
@@ -3840,7 +4004,7 @@ export type Database = {
           key: string
           updated_at: string
           updated_by: string | null
-          value: Json
+          value: NonNullable<Json>
         }
         Insert: {
           created_at?: string
@@ -3848,7 +4012,7 @@ export type Database = {
           key: string
           updated_at?: string
           updated_by?: string | null
-          value: Json
+          value: NonNullable<Json>
         }
         Update: {
           created_at?: string
@@ -3856,7 +4020,7 @@ export type Database = {
           key?: string
           updated_at?: string
           updated_by?: string | null
-          value?: Json
+          value?: NonNullable<Json>
         }
         Relationships: [
           {
@@ -4638,6 +4802,30 @@ export type Database = {
           },
         ]
       }
+      roles: {
+        Row: {
+          can_enter_backoffice: boolean
+          code: Database["public"]["Enums"]["user_role"]
+          created_at: string
+          label_th: string
+          sort_order: number
+        }
+        Insert: {
+          can_enter_backoffice?: boolean
+          code: Database["public"]["Enums"]["user_role"]
+          created_at?: string
+          label_th: string
+          sort_order: number
+        }
+        Update: {
+          can_enter_backoffice?: boolean
+          code?: Database["public"]["Enums"]["user_role"]
+          created_at?: string
+          label_th?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       safety_features: {
         Row: {
           created_at: string
@@ -4993,7 +5181,7 @@ export type Database = {
         Row: {
           active: boolean
           bio: string | null
-          contacts: Json
+          contacts: NonNullable<Json>
           created_at: string
           full_name: string | null
           id: string
@@ -5003,11 +5191,12 @@ export type Database = {
           skills: string[]
           sort_order: number
           updated_at: string
+          team_member_check: undefined | null
         }
         Insert: {
           active?: boolean
           bio?: string | null
-          contacts?: Json
+          contacts?: NonNullable<Json>
           created_at?: string
           full_name?: string | null
           id?: string
@@ -5021,7 +5210,7 @@ export type Database = {
         Update: {
           active?: boolean
           bio?: string | null
-          contacts?: Json
+          contacts?: NonNullable<Json>
           created_at?: string
           full_name?: string | null
           id?: string
@@ -5220,6 +5409,133 @@ export type Database = {
           },
         ]
       }
+      user_flags: {
+        Row: {
+          booking_id: string | null
+          cleared_at: string | null
+          cleared_by: string | null
+          created_at: string
+          created_by: string | null
+          deposit_id: string | null
+          id: string
+          kind: string
+          note: string | null
+          phone_e164: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          cleared_at?: string | null
+          cleared_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_id?: string | null
+          id?: string
+          kind: string
+          note?: string | null
+          phone_e164?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          cleared_at?: string | null
+          cleared_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_id?: string | null
+          id?: string
+          kind?: string
+          note?: string | null
+          phone_e164?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_flags_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "admin_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "booking_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "my_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_cleared_by_fkey"
+            columns: ["cleared_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_cleared_by_fkey"
+            columns: ["cleared_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: true
+            referencedRelation: "admin_deposits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: true
+            referencedRelation: "deposits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           budget_per_person: number | null
@@ -5274,12 +5590,13 @@ export type Database = {
       users: {
         Row: {
           age_verification_method:
-            | Database["public"]["Enums"]["age_verification_method"]
-            | null
+            Database["public"]["Enums"]["age_verification_method"] | null
           age_verified: boolean
           age_verified_at: string | null
           anonymized_at: string | null
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           birthdate: string
           created_at: string
           deleted_at: string | null
@@ -5294,12 +5611,13 @@ export type Database = {
         }
         Insert: {
           age_verification_method?:
-            | Database["public"]["Enums"]["age_verification_method"]
-            | null
+            Database["public"]["Enums"]["age_verification_method"] | null
           age_verified?: boolean
           age_verified_at?: string | null
           anonymized_at?: string | null
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           birthdate: string
           created_at?: string
           deleted_at?: string | null
@@ -5314,12 +5632,13 @@ export type Database = {
         }
         Update: {
           age_verification_method?:
-            | Database["public"]["Enums"]["age_verification_method"]
-            | null
+            Database["public"]["Enums"]["age_verification_method"] | null
           age_verified?: boolean
           age_verified_at?: string | null
           anonymized_at?: string | null
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           birthdate?: string
           created_at?: string
           deleted_at?: string | null
@@ -5332,7 +5651,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_role_fkey"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+        ]
       }
     }
     Views: {
@@ -5360,8 +5687,7 @@ export type Database = {
           description: string | null
           id: string | null
           moderation_status:
-            | Database["public"]["Enums"]["moderation_status"]
-            | null
+            Database["public"]["Enums"]["moderation_status"] | null
           title: string | null
           updated_at: string | null
         }
@@ -5412,8 +5738,10 @@ export type Database = {
           bar: Json | null
           booking_datetime: string | null
           code: string | null
+          contact_phone: string | null
           created_at: string | null
           customer: Json | null
+          deposit_consent: Json | null
           deposit_required: number | null
           id: string | null
           pax: number | null
@@ -5431,8 +5759,14 @@ export type Database = {
           booking: Json | null
           created_at: string | null
           customer: Json | null
+          customer_banned: boolean | null
+          customer_fake_slip_count: number | null
           id: string | null
           payout_account: Json | null
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_requested_by_name: string | null
+          reject_code: string | null
           reject_reason: string | null
           settled_at: string | null
           settlement: Database["public"]["Enums"]["deposit_settlement"] | null
@@ -5497,35 +5831,103 @@ export type Database = {
           },
         ]
       }
+      admin_team_members: {
+        Row: {
+          active: boolean | null
+          bio: string | null
+          contacts: Json | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          nickname: string | null
+          photo_url: string | null
+          roles: string[] | null
+          skills: string[] | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          bio?: string | null
+          contacts?: Json | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          nickname?: string | null
+          photo_url?: string | null
+          roles?: string[] | null
+          skills?: string[] | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          bio?: string | null
+          contacts?: Json | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          nickname?: string | null
+          photo_url?: string | null
+          roles?: string[] | null
+          skills?: string[] | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
+          ban_reason: string | null
+          banned_at: string | null
+          banned_phones: Json | null
           bars: Json | null
           created_at: string | null
           deleted_at: string | null
           display_name: string | null
           email: string | null
+          fake_slip_count: number | null
           id: string | null
+          phone_e164: string | null
           role: Database["public"]["Enums"]["user_role"] | null
         }
         Insert: {
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_phones?: never
           bars?: never
           created_at?: string | null
           deleted_at?: string | null
           display_name?: string | null
           email?: string | null
+          fake_slip_count?: never
           id?: string | null
+          phone_e164?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
         }
         Update: {
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_phones?: never
           bars?: never
           created_at?: string | null
           deleted_at?: string | null
           display_name?: string | null
           email?: string | null
+          fake_slip_count?: never
           id?: string | null
+          phone_e164?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_role_fkey"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       bar_cards: {
         Row: {
@@ -6021,8 +6423,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_booking_contact_phone: {
+        Args: { p_booking: string }
+        Returns: string
+      }
       admin_dashboard: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           bars_pending: number
           bookings_today: number
@@ -6031,6 +6437,20 @@ export type Database = {
           promo_slips_pending: number
           reviews_reported: number
         }[]
+      }
+      admin_delete_team_member: {
+        Args: { p_actor: string; p_id: string }
+        Returns: Json
+      }
+      admin_finish_new_user: {
+        Args: {
+          p_actor: string
+          p_bar?: string
+          p_bar_role?: Database["public"]["Enums"]["bar_staff_role"]
+          p_role: Database["public"]["Enums"]["user_role"]
+          p_user: string
+        }
+        Returns: Json
       }
       admin_moderate_bar_promotion: {
         Args: {
@@ -6050,12 +6470,17 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_reorder_team_members: {
+        Args: { p_actor: string; p_ids: string[] }
+        Returns: Json
+      }
       admin_review_deposit: {
         Args: {
           p_actor: string
           p_approve: boolean
           p_deposit: string
           p_reason?: string
+          p_reason_code?: string
         }
         Returns: Json
       }
@@ -6066,6 +6491,10 @@ export type Database = {
           p_listing: string
           p_reason?: string
         }
+        Returns: Json
+      }
+      admin_save_team_member: {
+        Args: { p: Json; p_actor: string; p_id: string }
         Returns: Json
       }
       admin_set_bar_status: {
@@ -6097,6 +6526,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_unban_user: {
+        Args: { p_actor: string; p_reason?: string; p_user: string }
+        Returns: Json
+      }
       admin_verify_safety: {
         Args: { p_actor: string; p_feature: string }
         Returns: Json
@@ -6120,12 +6553,13 @@ export type Database = {
         Args: { p_actor: string }
         Returns: {
           age_verification_method:
-            | Database["public"]["Enums"]["age_verification_method"]
-            | null
+            Database["public"]["Enums"]["age_verification_method"] | null
           age_verified: boolean
           age_verified_at: string | null
           anonymized_at: string | null
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           birthdate: string
           created_at: string
           deleted_at: string | null
@@ -6164,6 +6598,20 @@ export type Database = {
         Returns: Json
       }
       app_create_booking: {
+        Args: {
+          p_actor: string
+          p_bar: string
+          p_consent?: Json
+          p_contact_phone?: string
+          p_datetime: string
+          p_note?: string
+          p_pax: number
+          p_promotion?: string
+          p_zone: string
+        }
+        Returns: Json
+      }
+      app_create_booking_core: {
         Args: {
           p_actor: string
           p_bar: string
@@ -6315,6 +6763,20 @@ export type Database = {
         }
         Returns: Json
       }
+      app_team_move_booking: {
+        Args: {
+          p_actor: string
+          p_booking: string
+          p_reason?: string
+          p_table?: string
+          p_zone: string
+        }
+        Returns: Json
+      }
+      app_team_refund_deposit: {
+        Args: { p_actor: string; p_booking: string; p_reason: string }
+        Returns: Json
+      }
       app_team_role: {
         Args: { p_actor: string; p_bar: string }
         Returns: Database["public"]["Enums"]["bar_staff_role"]
@@ -6341,9 +6803,27 @@ export type Database = {
         Returns: Json
       }
       app_update_profile: { Args: { p: Json; p_actor: string }; Returns: Json }
+      apply_fake_slip_flag: {
+        Args: { p_actor: string; p_deposit: string }
+        Returns: Json
+      }
+      assert_keeps_super_admin: { Args: { p_user: string }; Returns: undefined }
       auth_role: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      bar_booking_table_options: {
+        Args: { p_booking: string }
+        Returns: {
+          available: boolean
+          is_current: boolean
+          seats: number
+          table_id: string
+          table_name: string
+          zone_id: string
+          zone_name: string
+          zone_remaining_pax: number
+        }[]
       }
       bar_deposit_ledger: {
         Args: { p_bar: string }
@@ -6374,6 +6854,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      booking_ban_check: {
+        Args: { p_phone?: string; p_user: string }
+        Returns: undefined
+      }
       booking_customer_name: {
         Args: { p_bar: string; p_user: string }
         Returns: string
@@ -6386,6 +6870,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      deposit_reject_label: { Args: { p_code: string }; Returns: string }
       get_share_card: {
         Args: { p_token: string }
         Returns: {
@@ -6402,11 +6887,11 @@ export type Database = {
           zone_name: string
         }[]
       }
-      is_admin: { Args: never; Returns: boolean }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_bar_member: { Args: { p_bar: string }; Returns: boolean }
       is_bar_member_path: { Args: { p_folder: string }; Returns: boolean }
       my_invites: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           bar_id: string
           bar_name: string
@@ -6452,8 +6937,12 @@ export type Database = {
         Args: { p_name: string }
         Returns: boolean
       }
-      run_booking_timeouts: { Args: never; Returns: Json }
-      run_retention_jobs: { Args: never; Returns: Json }
+      role_enters_backoffice: {
+        Args: { p_role: Database["public"]["Enums"]["user_role"] }
+        Returns: boolean
+      }
+      run_booking_timeouts: { Args: Record<PropertyKey, never>; Returns: Json }
+      run_retention_jobs: { Args: Record<PropertyKey, never>; Returns: Json }
       search_bars: {
         Args: {
           p_category?: Database["public"]["Enums"]["bar_category"]
@@ -6498,6 +6987,11 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      super_admin_assert: { Args: { p_actor: string }; Returns: undefined }
+      team_member_check: {
+        Args: { r: Database["public"]["Tables"]["team_members"]["Row"] }
+        Returns: undefined
+      }
       zone_availability: {
         Args: { p_bar: string; p_datetime: string }
         Returns: {
@@ -6525,11 +7019,7 @@ export type Database = {
       bar_category: "PUB_BAR" | "CHILL" | "RESTAURANT"
       bar_staff_role: "OWNER" | "MANAGER" | "STAFF"
       bar_status:
-        | "DRAFT"
-        | "PENDING_REVIEW"
-        | "APPROVED"
-        | "REJECTED"
-        | "SUSPENDED"
+        "DRAFT" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "SUSPENDED"
       billing_event_type: "CHECK_IN" | "NO_SHOW"
       billing_status: "PENDING" | "INVOICED" | "PAID" | "WAIVED"
       booking_status:
@@ -6607,7 +7097,7 @@ export type Database = {
       slip_status: "SUBMITTED" | "VERIFIED" | "REJECTED"
       theme_mode: "LIGHT" | "DARK" | "SYSTEM"
       tier_letter: "S" | "A" | "B" | "C"
-      user_role: "CUSTOMER" | "MERCHANT" | "STAFF" | "ADMIN"
+      user_role: "CUSTOMER" | "MERCHANT" | "STAFF" | "ADMIN" | "SUPER_ADMIN"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6650,8 +7140,7 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -6675,8 +7164,7 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -6700,8 +7188,7 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
   EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -6828,7 +7315,7 @@ export const Constants = {
       slip_status: ["SUBMITTED", "VERIFIED", "REJECTED"],
       theme_mode: ["LIGHT", "DARK", "SYSTEM"],
       tier_letter: ["S", "A", "B", "C"],
-      user_role: ["CUSTOMER", "MERCHANT", "STAFF", "ADMIN"],
+      user_role: ["CUSTOMER", "MERCHANT", "STAFF", "ADMIN", "SUPER_ADMIN"],
     },
   },
 } as const

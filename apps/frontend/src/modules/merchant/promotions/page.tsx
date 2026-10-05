@@ -44,7 +44,7 @@ export function MerchantPromotionsPage() {
     setSaving(true);
     try {
       const pending = await setBarPromotions(bar.id, list);
-      message.success(pending ? 'บันทึกแล้ว — โปรที่เพิ่ม/แก้ข้อความ รอทีม NightList ตรวจถ้อยคำก่อนแสดง' : 'บันทึกแล้ว');
+      message.success(pending ? 'บันทึกแล้ว — โปรที่เพิ่ม/แก้ข้อความ รอทีม NightOut ตรวจถ้อยคำก่อนแสดง' : 'บันทึกแล้ว');
       return true;
     } catch (e) {
       message.error((e as Error).message);
@@ -58,7 +58,7 @@ export function MerchantPromotionsPage() {
     <div className="space-y-6">
       <PageHeader
         title="โปรโมชัน"
-        subtitle="ลูกค้าเลือกได้ 1 โปรตอนจองโต๊ะ — ระบบเช็กเวลา/วันให้อัตโนมัติ · โปรใหม่หรือที่แก้ข้อความ ทีม NightList ตรวจถ้อยคำก่อนแสดง"
+        subtitle="ลูกค้าเลือกได้ 1 โปรตอนจองโต๊ะ — ระบบเช็กเวลา/วันให้อัตโนมัติ · โปรใหม่หรือที่แก้ข้อความ ทีม NightOut ตรวจถ้อยคำก่อนแสดง"
         extra={
           <Button type="primary" icon={<Plus />} onClick={() => setOpen(true)}>
             เพิ่มโปร

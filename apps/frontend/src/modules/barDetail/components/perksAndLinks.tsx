@@ -3,11 +3,11 @@ import { Button } from 'antd';
 import type { BarWithTier } from '@/services/data';
 import { InfoSection } from '@/ui/components/infoSection';
 
-/** สิทธิพิเศษเมื่อจองผ่าน NightList */
+/** สิทธิพิเศษเมื่อจองผ่าน NightOut */
 export function Perks({ perks }: { perks: string[] }) {
   if (!perks.length) return null;
   return (
-    <InfoSection icon={<Gift />} title="สิทธิพิเศษเมื่อจองผ่าน NightList">
+    <InfoSection icon={<Gift />} title="สิทธิพิเศษเมื่อจองผ่าน NightOut">
       <ul className="list-inside list-disc text-sm text-muted">
         {perks.map((p) => (
           <li key={p}>{p}</li>

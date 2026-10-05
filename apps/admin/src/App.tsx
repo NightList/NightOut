@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@nightlist/ui';
+import { ThemeProvider } from '@nightout/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RouterProvider } from 'react-router';
