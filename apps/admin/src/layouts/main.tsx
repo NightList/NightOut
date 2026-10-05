@@ -1,12 +1,12 @@
 import { MoonStars, SignOut } from '@phosphor-icons/react';
 import { ProLayout } from '@ant-design/pro-components';
 import { ThemeToggle } from '@nightout/ui';
-import { Button, Spin, Tooltip } from 'antd';
+import { Button, Spin, Tooltip, Typography } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { ADMIN_ROUTES } from '@/configs/menu';
 import { useAdminAuth } from '@/services/adminAuth';
 
-/** Layout หลักของ Backoffice — เข้าได้เฉพาะ ADMIN ที่ยืนยัน MFA แล้ว (Supabase AAL2) */
+/** Layout หลักของ Backoffice — เข้าได้เฉพาะแอดมิน / ซูเปอร์แอดมิน ที่ยืนยัน MFA แล้ว (Supabase AAL2) */
 export function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,6 +23,9 @@ export function MainLayout() {
       route={{ path: '/', routes: ADMIN_ROUTES }}
       menuItemRender={(item, dom) => <Link to={item.path ?? '/'}>{dom}</Link>}
       actionsRender={() => [
+        <Typography.Text key="me" type="secondary" className="hidden whitespace-nowrap text-sm md:inline">
+          {auth.displayName} · {auth.roleLabel}
+        </Typography.Text>,
         <ThemeToggle key="theme" />,
         <Tooltip key="out" title="ออกจากระบบ">
           <Button

@@ -2,15 +2,21 @@ import { CheckCircle } from '@phosphor-icons/react';
 import { Alert, Button, DatePicker, Form, Input, Modal, Radio, Result, Select, Typography } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAccountRoles, useAdminAction, useAdminView } from '@/services/adminData';
 
-/** ประเภทบัญชี (ตรงกับ backend ACCOUNT_TYPES) — 3 แบบหลังต้องเลือกร้าน */
+/** ประเภทบัญชี (ตรงกับ backend ACCOUNT_TYPES) → ชั้นบัญชี · แบบที่มี bar ต้องเลือกร้าน */
 const ACCOUNT_TYPES = [
-  { value: 'CUSTOMER', label: 'ลูกค้า', hint: 'จองโต๊ะ รีวิว ร้านโปรด' },
-  { value: 'OWNER', label: 'เจ้าของร้าน', hint: 'จัดการร้านได้ทั้งหมด รวมบัญชีรับเงิน', bar: true },
-  { value: 'MANAGER', label: 'ผู้จัดการร้าน', hint: 'จัดการร้านได้ ยกเว้นบัญชีรับเงิน', bar: true },
-  { value: 'STAFF', label: 'พนักงานร้าน', hint: 'ดูการจอง เช็กอิน อัปเดตความแน่น', bar: true },
-  { value: 'ADMIN', label: 'แอดมิน', hint: 'เข้า Backoffice ได้ทั้งหมด (ต้องตั้ง MFA ตอนเข้าครั้งแรก)' },
+  { value: 'CUSTOMER', role: 'CUSTOMER', label: 'ลูกค้า', hint: 'จองโต๊ะ รีวิว ร้านโปรด' },
+  { value: 'OWNER', role: 'MERCHANT', label: 'เจ้าของร้าน', hint: 'จัดการร้านได้ทั้งหมด รวมบัญชีรับเงิน', bar: true },
+  { value: 'MANAGER', role: 'MERCHANT', label: 'ผู้จัดการร้าน', hint: 'จัดการร้านได้ ยกเว้นบัญชีรับเงิน', bar: true },
+  { value: 'STAFF', role: 'STAFF', label: 'พนักงานร้าน', hint: 'ดูการจอง เช็กอิน อัปเดตความแน่น', bar: true },
+  { value: 'ADMIN', role: 'ADMIN', label: 'แอดมิน', hint: 'เข้า Backoffice ได้ แต่แก้ชั้นบัญชีไม่ได้ (ตั้ง MFA ตอนเข้าครั้งแรก)' },
+  {
+    value: 'SUPER_ADMIN',
+    role: 'SUPER_ADMIN',
+    label: 'ซูเปอร์แอดมิน',
+    hint: 'ทำได้ทุกอย่างของแอดมิน และแก้ชั้นบัญชีของทุกคน (ตั้ง MFA ตอนเข้าครั้งแรก)',
+  },
 ] as const;
 type AccountType = (typeof ACCOUNT_TYPES)[number]['value'];
 
@@ -45,6 +51,15 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
   const passwordMode = Form.useWatch('password_mode', form);
   const barId = Form.useWatch('bar_id', form);
   const bars = useAdminView('admin_bars', { order: { column: 'name', ascending: true } });
+  const roles = useAccountRoles();
+  const typeOptions = useMemo(() => {
+    const creatable = new Set((roles.data ?? []).filter((r) => r.can_create).map((r) => r.code));
+    return ACCOUNT_TYPES.filter((a) => creatable.has(a.role)).map((a) => ({
+      value: a.value,
+      label: a.label,
+      hint: a.hint,
+    }));
+  }, [roles.data]);
 
   const barOptions = useMemo(
     () => (bars.data ?? []).map((b) => ({ value: b.id, label: b.name, owner: b.owner?.display_name ?? null })),
@@ -169,9 +184,19 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
             <Input placeholder="ชื่อที่เห็นในระบบ" maxLength={60} />
           </Form.Item>
 
-          <Form.Item name="account_type" label="ประเภทบัญชี" rules={[{ required: true }]}>
+          <Form.Item
+            name="account_type"
+            label="ประเภทบัญชี"
+            rules={[{ required: true }]}
+            extra={
+              typeOptions.length && !typeOptions.some((o) => o.value === 'ADMIN')
+                ? 'บัญชีแอดมินสร้างได้เฉพาะซูเปอร์แอดมิน'
+                : undefined
+            }
+          >
             <Select
-              options={ACCOUNT_TYPES.map((a) => ({ value: a.value, label: a.label, hint: a.hint }))}
+              loading={roles.isLoading}
+              options={typeOptions}
               optionRender={(o) => (
                 <div>
                   <div>{o.label}</div>

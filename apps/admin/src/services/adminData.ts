@@ -66,6 +66,26 @@ export function useAdminDashboard() {
   });
 }
 
+export interface AccountRoleOption {
+  code: Db.Enums<'user_role'>;
+  label_th: string;
+  sort_order: number;
+  can_enter_backoffice: boolean;
+  /** ผู้เรียกเลือกชั้นนี้ตอนสร้างบัญชีได้ */
+  can_create: boolean;
+  /** ผู้เรียกแก้บัญชีอื่นเป็นชั้นนี้ได้ (เฉพาะซูเปอร์แอดมิน) */
+  can_assign: boolean;
+}
+
+/** ห้าชั้นบัญชีจากตาราง roles พร้อมสิทธิ์ของผู้เรียก (GET /admin/roles) */
+export function useAccountRoles() {
+  return useQuery({
+    queryKey: ['admin', 'roles'],
+    staleTime: 10 * 60_000,
+    queryFn: () => Rest.get<AccountRoleOption[]>('/admin/roles'),
+  });
+}
+
 /** ตาราง master (styles, safety_features, platform_settings) เรียงจากน้อยไปมาก */
 export function useMasterTable<T>(
   table: 'styles' | 'safety_features' | 'platform_settings',

@@ -5,7 +5,7 @@ import { App, Button, Input, Select, Space, Table, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminAuth } from '@/services/adminAuth';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAccountRoles, useAdminAction, useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { formatThaiPhone } from '@nightout/utils';
 import { dateTime } from '@/ui/utils/format';
@@ -13,13 +13,12 @@ import { STAFF_ROLE, USER_ROLE } from '@/ui/utils/labels';
 import { CreateUserModal } from './modal/createUserModal';
 
 type Role = Db.Enums<'user_role'>;
-const ROLE_OPTIONS = (Object.keys(USER_ROLE) as Role[]).map((r) => ({
-  value: r,
-  label: USER_ROLE[r].text,
-}));
+/** ชั้นที่ไม่ผูกกับร้าน — แก้เป็นชั้นนี้แล้วหลุดจากทุกร้าน (admin_set_user_role) */
+const LEAVES_BARS: Role[] = ['CUSTOMER', 'ADMIN', 'SUPER_ADMIN'];
 
 /**
- * ผู้ใช้ทั้งหมด — เพิ่มผู้ใช้ (ลูกค้า / แอดมิน / เจ้าของ / ผู้จัดการ / พนักงานร้าน) · เปลี่ยนสิทธิ์ได้ (ลงบันทึก audit)
+ * ผู้ใช้ทั้งหมด — เพิ่มผู้ใช้ (แอดมินสร้างได้แค่ลูกค้า / เจ้าของ / ผู้จัดการ / พนักงานร้าน)
+ * แก้ชั้นบัญชีที่สร้างผิดได้เฉพาะซูเปอร์แอดมิน (ADR 0005 · ลงบันทึก audit)
  */
 export function UsersPage() {
   const { modal } = App.useApp();
@@ -29,7 +28,14 @@ export function UsersPage() {
   const { data, isLoading, error, refetch } = useAdminView('admin_users', {
     order: { column: 'created_at', ascending: false },
   });
+  const roles = useAccountRoles();
   const act = useAdminAction();
+  const roleText = (r: Role) => roles.data?.find((o) => o.code === r)?.label_th ?? USER_ROLE[r].text;
+  const roleOptions = useMemo(
+    () =>
+      (roles.data ?? []).filter((o) => o.can_assign).map((o) => ({ value: o.code, label: o.label_th })),
+    [roles.data],
+  );
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
     return (data ?? []).filter(
@@ -56,24 +62,47 @@ export function UsersPage() {
         }),
     });
 
-  const changeRole = (u: Db.AdminUser, role: Role) =>
+  const changeRole = (u: Db.AdminUser, role: Role) => {
+    const self = u.id === auth.session?.user.id;
+    const notes = [
+      role === 'ADMIN' && 'เข้าหลังบ้านได้ (ตั้ง MFA ตอนเข้าครั้งแรก) แต่แก้ชั้นบัญชีไม่ได้',
+      role === 'SUPER_ADMIN' && 'เข้าหลังบ้านได้ และแก้ชั้นบัญชีของทุกคนได้',
+      LEAVES_BARS.includes(role) &&
+        u.bars.length > 0 &&
+        `หลุดจากร้าน ${u.bars.map((b) => b.name).join(', ')} (เลิกเป็นเจ้าของและออกจากทีม)`,
+      self && u.role === 'SUPER_ADMIN' && role !== 'SUPER_ADMIN' && 'นี่คือบัญชีของคุณ — หลังเปลี่ยน คุณจะแก้ชั้นบัญชีไม่ได้อีก',
+    ].filter((n): n is string => !!n);
     modal.confirm({
-      title: `เปลี่ยนสิทธิ์ ${u.display_name}?`,
-      content: `${USER_ROLE[u.role].text} → ${USER_ROLE[role].text}${role === 'ADMIN' ? ' (เข้าหลังบ้านได้ทั้งหมด)' : ''}`,
-      okText: 'เปลี่ยนสิทธิ์',
+      title: `แก้ชั้นบัญชีของ ${u.display_name}?`,
+      content: (
+        <div className="flex flex-col gap-1">
+          <span>
+            {roleText(u.role)} → {roleText(role)}
+          </span>
+          {notes.map((n) => (
+            <Typography.Text key={n} type="secondary">
+              {n}
+            </Typography.Text>
+          ))}
+        </div>
+      ),
+      okText: 'แก้ชั้นบัญชี',
+      okButtonProps: { danger: LEAVES_BARS.includes(role) && u.bars.length > 0 },
       cancelText: 'ยกเลิก',
       onOk: () =>
         act.mutateAsync({
           method: 'PATCH',
           path: `users/${u.id}/role`,
           body: { role },
-          success: `${u.display_name} เป็น${USER_ROLE[role].text}แล้ว`,
+          success: `${u.display_name} เป็น${roleText(role)}แล้ว`,
         }),
     });
+  };
 
   return (
     <PageContainer
       title="ผู้ใช้"
+      subTitle={auth.isSuperAdmin ? undefined : 'แก้ชั้นบัญชีได้เฉพาะซูเปอร์แอดมิน'}
       extra={
         <Space wrap>
           <Input.Search placeholder="ชื่อ / อีเมล / เบอร์" allowClear onSearch={setQ} className="w-64" />
@@ -95,20 +124,23 @@ export function UsersPage() {
           { title: 'อีเมล', dataIndex: 'email' },
           { title: 'เบอร์', dataIndex: 'phone_e164', render: (v: string | null) => (v ? formatThaiPhone(v) : '-') },
           {
-            title: 'สิทธิ์',
+            title: 'ชั้นบัญชี',
             dataIndex: 'role',
-            filters: ROLE_OPTIONS.map((o) => ({ text: o.label, value: o.value })),
+            filters: (roles.data ?? []).map((o) => ({ text: o.label_th, value: o.code })),
             onFilter: (v, u) => u.role === v,
-            render: (role: Role, u) => (
-              <Select<Role>
-                className="w-36"
-                value={role}
-                options={ROLE_OPTIONS}
-                disabled={u.id === auth.session?.user.id || !!u.deleted_at}
-                aria-label={`สิทธิ์ของ ${u.display_name}`}
-                onChange={(next) => changeRole(u, next)}
-              />
-            ),
+            render: (role: Role, u) =>
+              auth.isSuperAdmin && !u.deleted_at ? (
+                <Select<Role>
+                  className="w-40"
+                  value={role}
+                  options={roleOptions}
+                  loading={roles.isLoading}
+                  aria-label={`ชั้นบัญชีของ ${u.display_name}`}
+                  onChange={(next) => changeRole(u, next)}
+                />
+              ) : (
+                <Tag color={USER_ROLE[role].color}>{roleText(role)}</Tag>
+              ),
           },
           {
             title: 'ร้าน',

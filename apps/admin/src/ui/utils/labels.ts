@@ -25,6 +25,7 @@ export const USER_ROLE: Record<Db.Enums<'user_role'>, TagLabel> = {
   MERCHANT: { text: 'ร้านค้า', color: 'gold' },
   STAFF: { text: 'พนักงานร้าน', color: 'blue' },
   ADMIN: { text: 'แอดมิน', color: 'red' },
+  SUPER_ADMIN: { text: 'ซูเปอร์แอดมิน', color: 'magenta' },
 };
 
 export const STAFF_ROLE: Record<Db.Enums<'bar_staff_role'>, string> = {
