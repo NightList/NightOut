@@ -62,12 +62,13 @@ flowchart LR
 | Layer | อยู่ที่ | หน้าที่ |
 |---|---|---|
 | Presentation | `apps/frontend`, `apps/admin` | UI, routing, state ฝั่ง client และ form validation |
-| Shared UI / Contract | `packages/ui`, `packages/types` | theme tokens, คอมโพเนนต์ร่วม, Zod schema / DTO |
+| Shared UI / DB types | `packages/ui`, `packages/types` | theme tokens, คอมโพเนนต์ร่วม, enum กลาง, type ของแถว view/ตาราง (`Db.*`) |
 | Domain logic (pure) | `packages/utils` | price calculator, star → tier, status transition map |
 | Client cache | `packages/mock` | store ในเบราว์เซอร์ที่ `services/sync.ts` เติมข้อมูลจาก API (ชื่อเดิมจากยุคเดโม — ไม่มีโหมดเดโมแล้ว) + model ที่หน้าเว็บใช้ |
 | Map | `react-leaflet` + OpenStreetMap | แผนที่ร้าน (หน้าร้าน, หน้าค้นหา, หน้า `/map` เต็มจอ) พื้นแผนที่ vector tiles ฟรีจาก OpenFreeMap (ไม่ต้องมี key) + MapLibre ผ่าน `@maplibre/maplibre-gl-leaflet` แทนสีเป็นพาเลต Google Maps (ปกติ/กลางคืน) ใน `ui/utils/mapStyle.ts` · สำรอง: OSM raster + CSS filter หรือ `VITE_MAP_TILE_URL_*` ไม่ต้องมี API key · ปุ่มนำทางเปิด Google Maps |
 | API | `apps/backend/src` (controllers) | controller, guard, pipe, Swagger |
-| Application | `apps/backend/src/modules` | controller ตามคนเรียก (customer / merchant / admin / query) → ฟังก์ชัน DB · เป้าหมาย: จัดตามโดเมน ([ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md)) |
+| API contract | `packages/contracts` | zod ของ body / query / response + รหัส error 1 ไฟล์ต่อโดเมน — backend ใช้ทำ DTO/Swagger · หน้าเว็บใช้เป็น type ([ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md)) |
+| Application | `apps/backend/src/domains/<domain>` | 1 โดเมน = 1 module · controller แยกตามคนเรียก (public / me / merchant / admin) → ฟังก์ชัน DB |
 | Data / Domain logic | `apps/backend/supabase` | migrations, RLS, **ฟังก์ชัน `app_*` / `admin_*` (กฎธุรกิจ + ธุรกรรม + ตรวจสิทธิ์)**, seed |
 | Infra | `infra/terraform`, `.github/workflows` | Vercel, Supabase, secrets, CI/CD |
 
@@ -108,7 +109,7 @@ apps/frontend/src/
 │   ├── ranking/ search/ barDetail/ barReviews/ book/ bookings/ bookingDetail/ deposit/ ...
 │   └── merchant/<ชื่อหน้า>/page.tsx   # dashboard, tonight, bookings, deposits, store, menu ...
 ├── hooks/                # custom hooks ใช้ข้ามหน้า (useDemo, useNow, useScrolled, useMerchantBar)
-├── services/             # data.ts (TanStack Query hooks) · actions.ts (เขียน) · sync.ts (cache) · storage.ts · auth.tsx · supabase.ts (Auth เท่านั้น)
+├── services/             # data.ts (หน้าต่าง re-export) · api/<domain>.ts (เขียน/เรียก Rest) · queries/<domain>.ts (TanStack hooks) · mappers/<domain>.ts · sync.ts (cache) · auth.tsx · supabase.ts (Auth เท่านั้น)
 ├── ui/
 │   ├── components/       # component ใช้ข้ามหน้า (navbar, barCard, authCard, pageHeader ...)
 │   └── utils/            # format.ts ฯลฯ
@@ -118,25 +119,28 @@ apps/frontend/src/
 - ชื่อไฟล์ component เป็น camelCase (`barCard.tsx`) ส่วน export เป็น PascalCase (`BarCard`)
 - รูป/วิดีโอใน `public/images/<module>/` และ `public/videos/`
 - `@nightout/*` ใน dev ถูก alias ไปที่ `packages/*/src` (vite.config.ts) — แก้ package แล้วเห็นผลทันที ไม่ต้องรอ build
-- **API client** = class `Rest` ใน `packages/utils/src/rest.ts` (`import { Rest } from '@nightout/utils/rest'`) ใช้ร่วมกันทั้ง `apps/frontend` และ `apps/admin` — ดูหัวข้อ Data Flow Standard ด้านล่าง · (แผนต่อไป: generate type จาก OpenAPI ของ NestJS ด้วย `openapi-typescript`)
+- **API client** = class `Rest` ใน `packages/utils/src/rest.ts` (`import { Rest } from '@nightout/utils/rest'`) ใช้ร่วมกันทั้ง `apps/frontend` และ `apps/admin` — ดูหัวข้อ Data Flow Standard ด้านล่าง · (type ของ body/response มาจาก `@nightout/contracts` ชุดเดียวกับที่ backend ใช้ทำ DTO — ADR 0006)
 - **Guard ของ route** (`RequireAuth`, `RequireRole`) ห่อที่ระดับ layout route ใน React Router
 
-### Data Flow Standard (ADR 0002) — ✅
+### Data Flow Standard (ADR 0002 + 0006) — ✅
 
 ```
-Component → TanStack Query Hook → API Service Layer (Rest) → Axios Client → Backend API (NestJS) → Supabase (RLS)
+Component → services/data.ts (หน้าต่าง) → services/queries/<domain>.ts (TanStack Query) → services/api/<domain>.ts → Rest (@nightout/utils/rest) → Backend domains/<domain> → Supabase (RLS)
+                                                                                        ↑ type/body จาก @nightout/contracts/<domain>
 ```
 
 ```mermaid
 sequenceDiagram
   participant C as Component
-  participant H as Hook (useQuery / useMutation)<br/>services/data.ts
+  participant H as Hook (useQuery)<br/>services/queries/booking.ts
+  participant S as fetchZoneAvailability<br/>services/api/booking.ts
   participant R as Rest.get/post/put/patch/delete<T><br/>@nightout/utils/rest
   participant X as Axios instance<br/>(interceptors)
   participant API as NestJS /api
   participant DB as Supabase PostgREST / Storage
   C->>H: useZoneAvailability(bar, time)
-  H->>R: Rest.get<ZoneRow[]>('/bars/:id/zone-availability')
+  H->>S: fetchZoneAvailability(bar.id, time)
+  S->>R: Rest.get<C.ZoneAvailabilityRow[]>('/bars/:id/zone-availability')
   R->>X: axios instance.get
   X->>X: แนบ Authorization: Bearer <Supabase access token>
   X->>API: GET /api/bars/:id/zone-availability
@@ -144,19 +148,21 @@ sequenceDiagram
   DB-->>API: rows
   API-->>X: 200 JSON (snake_case)
   X-->>R: response / error → ApiError (ข้อความไทยจากรหัส)
-  R-->>H: data: T
+  R-->>S: data: T
+  S-->>H: rows
   H-->>C: { data, isLoading, error }
 ```
 
 | ชั้น | ไฟล์ | หน้าที่ |
 |---|---|---|
 | Component | `modules/*/page.tsx`, `ui/components/*` | แสดงผล เรียก hook / action — **ห้าม** import `supabase`, `axios`, `Rest` ตรง (เรียกผ่าน hook / service) |
-| TanStack Query Hook | `services/data.ts` (`useZoneAvailability`, `useBarTeam`, `useMyInvites`, `useBarLedger`, `useBillingEvents`, `useShareCard`, `useSiteTeam`) | cache, loading/error state, queryKey |
-| API Service Layer | `services/actions.ts` (เขียน), `services/sync.ts` (โหลดข้อมูลตั้งต้น/ข้อมูลผู้ใช้ลง cache), `services/storage.ts` (ไฟล์) | แปลง type หน้าเว็บ ↔ body/response ของ API แล้วเรียก `Rest` |
-| Rest + Axios Client | `packages/utils/src/rest.ts` (class `Rest` ใช้ร่วมทุกแอป) | `Rest.configure({ baseURL, getAccessToken, logger, unauthorizedCode })` ครั้งเดียวใน `main.tsx` ของแต่ละแอป → `axios.create` + interceptor แนบ Bearer token · แปลง error เป็น `ApiError` (ข้อความไทยชุดเดียว `ERROR_MESSAGES`) · log · `Rest.get/post/put/patch/delete<T>` · `Rest.upload(url, file)` · `Rest.ping()` |
-| Backend API | `apps/backend/src/modules/*` | ตรวจ JWT + validate (zod) แล้วอ่าน/เขียน Supabase · อ่านทำในนามผู้เรียก (RLS) · เขียนผ่านฟังก์ชัน `app_*` |
+| หน้าต่าง | `services/data.ts` | re-export ทุกอย่างที่หน้าใช้ (ฟังก์ชันอ่าน store + api/* + queries/*) — หน้า import จากที่นี่ที่เดียว |
+| TanStack Query Hook | `services/queries/<domain>.ts` + `queries/keys.ts` (queryKey factory: `bookingKeys.zoneAvailability(…)`) | cache, loading/error state |
+| API Service Layer | `services/api/<domain>.ts` (เรียก `Rest` · body `satisfies C.XBody` · response `C.XResult` · เขียนแล้ว `refresh()`), `services/mappers/<domain>.ts` (แถว DB → model หน้าเว็บ), `services/sync.ts` (โหลด catalog / overview ลง store + snapshot) | แปลง type หน้าเว็บ ↔ สัญญา API แล้วเรียก `Rest` |
+| Rest + Axios Client | `packages/utils/src/rest.ts` (class `Rest` ใช้ร่วมทุกแอป) | `Rest.configure({ baseURL, getAccessToken, logger, unauthorizedCode, errorMessages: ERROR_MESSAGES })` ครั้งเดียวใน `main.tsx` ของแต่ละแอป → `axios.create` + interceptor แนบ Bearer token · แปลง error เป็น `ApiError` (ข้อความไทยจาก `@nightout/contracts`) · log · `Rest.get/post/put/patch/delete<T>` · `Rest.upload(url, file)` · `Rest.ping()` |
+| Backend API | `apps/backend/src/domains/<domain>/*` | ตรวจ JWT + validate (DTO จาก contracts) แล้วอ่าน/เขียน Supabase · อ่านทำในนามผู้เรียก (RLS) · เขียนผ่านฟังก์ชัน `app_*` / `admin_*` |
 
-**Endpoint อ่านที่ย้ายมาจากการ query ตรง** (`apps/backend/src/modules/query`)
+**Endpoint อ่านที่ย้ายมาจากการ query ตรง** (ตอนนี้อยู่ใน `domains/<domain>/*.controller.ts` ของแต่ละโดเมน)
 
 | เดิม (หน้าเว็บ → Supabase) | ตอนนี้ (หน้าเว็บ → API) |
 |---|---|
@@ -176,10 +182,10 @@ sequenceDiagram
 
 **กติกา**
 - ใช้ `supabase` ได้เฉพาะ `supabase.auth.*` ทั้ง `apps/frontend` และ `apps/admin` — ESLint (`eslint.config.js` ของแต่ละแอป) บล็อก `supabase.from / rpc / storage / schema / channel`
-- Backoffice ใช้ชั้นเดียวกัน: `apps/admin/src/services/adminData.ts` (hook) → `Rest` ตัวเดียวกับหน้าเว็บ (ตั้ง `unauthorizedCode: 'MFA_REQUIRED'`)
+- Backoffice ใช้ชั้นเดียวกัน: `apps/admin/src/services/adminData.ts` (หน้าต่าง) → `services/queries/{backoffice,account,storage}.ts` → `services/api/<domain>.ts` → `Rest` ตัวเดียวกับหน้าเว็บ (ตั้ง `unauthorizedCode: 'MFA_REQUIRED'`)
 - `Rest` อยู่ใน entry แยก `@nightout/utils/rest` — backend ที่ import `@nightout/utils` (ตัวคำนวณราคา ฯลฯ) จึงไม่โหลด axios · ดู [ADR 0004](adr/0004-shared-rest-client.md)
-- ข้อมูลใหม่ที่ต้องอ่าน: เพิ่ม endpoint ใน backend (มี `@ApiDoc`) → เพิ่ม hook ใน `services/data.ts` ที่เรียก `Rest.get<T>()`
-- การเขียน: เพิ่มฟังก์ชันใน `services/actions.ts` ที่เรียก `Rest.post/put/patch/delete<T>()` (ใช้กับ `useMutation` ได้ตรงๆ เช่น `useMutation({ mutationFn: (v) => cancelBooking(v.id) })`)
+- ข้อมูลใหม่ที่ต้องอ่าน: zod/type ใน `packages/contracts/src/<domain>.ts` → endpoint ใน `domains/<domain>` (มี `@ApiDoc`) → `fetchX` ใน `services/api/<domain>.ts` → hook ใน `services/queries/<domain>.ts` (key จาก `queries/keys.ts`) → re-export ใน `data.ts`
+- การเขียน: body ใน contracts → endpoint → ฟังก์ชันใน `services/api/<domain>.ts` ที่เรียก `Rest.post/put/patch/delete<T>()` แล้ว `refresh()` (ใช้กับ `useMutation` ได้ตรงๆ)
 - `VITE_API_BASE_URL` ว่างได้: dev = `http://localhost:3000/api`, deploy = `/api` (same-origin) · `VITE_API_URL` เดิมยังอ่านเป็นค่าสำรอง
 
 ### Component style — ✅ Function component + hooks
@@ -190,46 +196,65 @@ sequenceDiagram
 
 ---
 
-## 4. Backend (`apps/backend`)
-
-> หัวข้อนี้อธิบาย **ของที่มีจริงตอนนี้** · โครงเป้าหมาย (จัดตามโดเมน + `packages/contracts`) เสนอไว้ใน [ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md) — เมื่อทีมรับ (Accepted) โค้ดใหม่ให้ทำตามนั้น
+## 4. Backend (`apps/backend`) — จัดตามโดเมน (ADR 0006)
 
 ```
 apps/backend/
 ├── src/
-│   ├── main.ts / bootstrap.ts      # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function · prefix /api · Swagger /api/docs
+│   ├── main.ts / bootstrap.ts      # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function · prefix /api · Swagger /api/docs (tag = โดเมน)
 │   ├── auth/                       # SupabaseJwtGuard (JWKS → fallback /auth/v1/user) · AdminGuard (ADMIN/SUPER_ADMIN + aal2) · SuperAdminGuard
-│   ├── common/                     # @ApiDoc · clientInfo (IP/UA)
-│   ├── supabase/supabase.service.ts  # ตัวเดียวที่คุย Supabase: rpc (service_role) · selectAs/rpcAs (ในนามผู้เรียก) · storage · auth admin · แปลง errcode → HTTP
-│   ├── modules/
-│   │   ├── customer/  merchant/  admin/   # การเขียน แยกตามคนเรียก → db.rpc('app_*' | 'admin_*')
-│   │   ├── query/                  # การอ่าน: public-read · me-read · merchant-read (admin อ่านที่ admin/admin-read)
-│   │   └── pricing/                # คำนวณราคาสาธารณะ (ใช้ @nightout/utils)
+│   ├── common/                     # @ApiDoc · clientInfo (IP/UA) · params (Id / BarId / BookingId + ข้อความ forbidden)
+│   ├── supabase/supabase.service.ts  # ตัวเดียวที่คุย Supabase: rpc (service_role) · selectAs/rpcAs (ในนามผู้เรียก) · storage · auth admin · errcode → HTTP
+│   ├── domains/<domain>/           # 1 โดเมน = 1 module (ชื่อเดียวกับ packages/contracts/src/<domain>.ts และ services/api/<domain>.ts ของหน้าเว็บ)
+│   │   ├── <domain>.module.ts
+│   │   ├── <domain>.public.controller.ts    # ไม่ต้องล็อกอิน (ส่ง token ต่อถ้ามี → RLS)
+│   │   ├── <domain>.me.controller.ts        # ผู้ใช้ที่ล็อกอิน (SupabaseJwtGuard)
+│   │   ├── <domain>.merchant.controller.ts  # ทีมร้าน (ฟังก์ชัน DB ตรวจ bar_staff + บทบาท)
+│   │   ├── <domain>.admin.controller.ts     # Backoffice (SupabaseJwtGuard + AdminGuard · /admin/*)
+│   │   ├── <domain>.dto.ts                  # class XDto extends createZodDto(C.XBody) — zod อยู่ใน @nightout/contracts
+│   │   └── <domain>.service.ts              # มีเมื่อมี logic มากกว่าเรียก rpc 1 ครั้ง (account-users, payout-crypto, pricing)
 │   ├── jobs/  health/  config/     # /api/jobs/* ให้ pg_cron เรียก · health · ตรวจ env ด้วย zod
 ├── supabase/                       # config.toml, migrations/, seed.sql — pnpm --filter @nightout/backend db:*
 └── api/index.js                    # Vercel Function entry
 ```
 
+| โดเมน | เรื่อง | controller ที่มี |
+|---|---|---|
+| `catalog` | ข้อมูลตั้งต้นของเว็บ (ร้าน รีวิว ย่าน สไตล์ ตั้งค่า แพ็กเกจ) | public |
+| `booking` | จอง ยกเลิก สถานะ เช็กอิน ย้ายโต๊ะ โซนว่าง บัตรแชร์ | public · me · merchant |
+| `deposit` | ส่งสลิป ตรวจสลิป ปิดยอด คืนมัดจำ สมุดมัดจำ | me · merchant · admin |
+| `review` | เขียน รายงาน จัดการรีวิว | me · admin |
+| `bar` | สมัครลงร้าน ข้อมูลร้าน เมนู โปร ค่าธรรมเนียม โซน Safety ตั้งค่าการจอง บัญชีรับเงิน ความแน่น อนุมัติ/Editor's Pick | me · merchant · admin |
+| `bar-team` | ทีมร้าน: เชิญ นำออก คำเชิญของฉัน | me · merchant |
+| `account` | โปรไฟล์ ข้อมูลของฉัน แจ้งเตือน ร้านโปรด ลบบัญชี · ผู้ใช้ ชั้นบัญชี แบน (Backoffice) | me · admin |
+| `promotion` | โปรโมทร้าน: ซื้อแพ็กเกจ ตรวจคำสั่งซื้อ | merchant · admin |
+| `billing` | ค่าคอมของร้าน | merchant |
+| `site-team` | ทีมงาน NightOut หน้า /about | public · admin |
+| `storage` | URL อัปโหลด / URL ชั่วคราว | (controller เดียว) |
+| `pricing` | ประเมินราคา (ไม่แตะ DB) | public |
+| `backoffice` | การอ่านของหน้าแอดมิน: แดชบอร์ด view admin_* ตาราง master | admin |
+
 ### Request pipeline (จริง)
 ```mermaid
 flowchart LR
-  R[Request] --> G[SupabaseJwtGuard / AdminGuard] --> P[ZodValidationPipe] --> C[Controller]
+  R[Request] --> G[SupabaseJwtGuard / AdminGuard] --> P["ZodValidationPipe<br/>(DTO จาก @nightout/contracts)"] --> C["domains/&lt;domain&gt;/*.controller"]
   C -- อ่าน --> RA["db.selectAs / rpcAs<br/>(anon key + JWT ผู้เรียก → RLS)"] --> PG[(Postgres)]
   C -- เขียน --> RW["db.rpc('app_*' | 'admin_*')<br/>(service_role + p_actor)"] --> F["plpgsql: ตรวจสิทธิ์ซ้ำ + ธุรกรรม + audit + แจ้งเตือน"] --> PG
 ```
 
 - **กฎธุรกิจ + ธุรกรรม + สิทธิ์ อยู่ในฟังก์ชัน DB** (`app_*` ลูกค้า/ร้าน, `admin_*` แอดมิน) — controller แค่ตรวจ body (zod) แล้วส่ง `p_actor` = ผู้ใช้จาก JWT
-- error จาก DB เป็นรหัสตัวใหญ่ (`ZONE_FULL`) → `SupabaseService` แปลง errcode เป็น HTTP (P0002→404, P0001/23505/23P01→409, 42501→403, 22023/23514→400) → หน้าเว็บแปลไทยด้วย `ERROR_MESSAGES`
+- error จาก DB เป็นรหัสตัวใหญ่ (`ZONE_FULL`) → `SupabaseService` แปลง errcode เป็น HTTP (P0002→404, P0001/23505/23P01→409, 42501→403, 22023/23514→400) → หน้าเว็บแปลไทยด้วย `ERROR_MESSAGES` จาก `@nightout/contracts`
 - ไม่มี Kysely / repository / outbox — NestJS ไม่ต่อ Postgres ตรง (ทุกอย่างผ่าน PostgREST ของ Supabase)
 
-### ไล่โค้ด 1 เรื่องต้องดูที่ไหน (จนกว่าจะย้ายตาม ADR 0006)
+### ไล่โค้ด 1 เรื่อง = grep ชื่อโดเมน
 | ชั้น | ที่ |
 |---|---|
-| endpoint เขียน | `modules/{customer,merchant,admin}/*.controller.ts` + DTO zod ใน `*.dto.ts` ข้างกัน |
-| endpoint อ่าน | `modules/query/{public,me,merchant}-read.controller.ts` · `modules/admin/admin-read.controller.ts` (`ADMIN_VIEWS`) |
-| ฟังก์ชัน DB ตัวล่าสุด | `grep -l "function public.<ชื่อ>(" apps/backend/supabase/migrations/* \| tail -1` (ไฟล์หลังสุดคือของจริง) |
-| หน้าเว็บเรียก | `apps/frontend/src/services/actions.ts` (เขียน) · `data.ts` (hook) · `sync.ts` (โหลด + แปลงลง store) · admin: `apps/admin/src/services/adminData.ts` |
-| type | `packages/types/src/database.ts` (`Db.*`) · ข้อความ error `packages/utils/src/rest.ts` |
+| สัญญา API (zod body/response + รหัส error) | `packages/contracts/src/<domain>.ts` |
+| endpoint | `apps/backend/src/domains/<domain>/<domain>.{public,me,merchant,admin}.controller.ts` |
+| ฟังก์ชัน DB ตัวล่าสุด | ตาราง "แผนที่โดเมน → ฟังก์ชัน → migration" ใน `docs/DATABASE.md` ข้อ 5.0 |
+| หน้าเว็บเรียก | `apps/frontend/src/services/api/<domain>.ts` (เขียน) · `services/queries/<domain>.ts` (อ่านสด) · `services/mappers/<domain>.ts` (แถว DB → model) · หน้า import ผ่าน `services/data.ts` |
+| Backoffice เรียก | `apps/admin/src/services/api/<domain>.ts` + `services/queries/<domain>.ts` · หน้า import ผ่าน `services/adminData.ts` |
+| type ของแถว view | `packages/types/src/database.ts` (`Db.*`) |
 
 ---
 

@@ -120,6 +120,43 @@ stateDiagram-v2
 
 ---
 
+## 5.0 แผนที่โดเมน → ฟังก์ชัน DB → migration ตัวล่าสุด (ADR 0006)
+
+ฟังก์ชันเดียวประกาศซ้ำได้หลาย migration (`create or replace`) — **ไฟล์ที่ระบุคือตัวที่ใช้จริง** · สร้างใหม่ด้วย `grep -l "function public.<ชื่อ>(" apps/backend/supabase/migrations/* | tail -1` · โดเมนเดียวกับ `apps/backend/src/domains/<domain>` และ `packages/contracts/src/<domain>.ts`
+
+| โดเมน | ฟังก์ชัน | migration ล่าสุด |
+|---|---|---|
+| `booking` | `app_cancel_booking` · `app_check_in` · `app_team_set_booking_status` · `booking_customer_name` · `run_booking_timeouts` · `zone_availability` | `20261002001700_app_actions` |
+|  | `app_create_booking` · `app_create_booking_core` | `20261006000200_checkout_deposit_consent` |
+|  | `app_team_move_booking` · `bar_booking_table_options` | `20261006000300_merchant_move_table_refund` |
+|  | `booking_ban_check` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `booking_transition_allowed` · `zone_remaining_pax` | `20261002000600_tables_bookings` |
+|  | `get_share_card` | `20261002001000_sharing_safety_crowd` |
+| `deposit` | `admin_review_deposit` · `app_submit_deposit` · `apply_fake_slip_flag` · `deposit_reject_label` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `admin_settle_deposit` | `20261002001600_admin` |
+|  | `app_team_refund_deposit` · `booking_deposit_summary` | `20261006000300_merchant_move_table_refund` |
+|  | `bar_deposit_ledger` | `20261002001700_app_actions` |
+| `review` | `admin_moderate_review` | `20261002001600_admin` |
+|  | `app_add_review` · `app_report_review` | `20261002001700_app_actions` |
+| `bar` | `admin_moderate_bar_promotion` · `app_merchant_join` · `app_set_bar_promotions` · `app_set_crowd` · `app_set_fees` · `app_set_menu` · `app_set_payout_account` · `app_set_safety` · `app_set_safety_evidence` · `app_set_zones` · `app_update_bar_info` · `app_update_booking_settings` | `20261002001700_app_actions` |
+|  | `admin_set_bar_status` · `admin_set_editor_pick` · `admin_verify_safety` | `20261002001600_admin` |
+|  | `bar_is_public` · `is_bar_member` · `is_bar_member_path` | `20261002000400_bars` |
+| `bar-team` | `app_assert_manager` · `app_invite_staff` · `app_remove_staff` · `app_respond_invite` · `app_team_role` · `bar_team` · `my_invites` | `20261002001700_app_actions` |
+| `account` | `admin_assert` · `is_admin` | `20261005000200_roles` |
+|  | `admin_booking_contact_phone` | `20261006000200_checkout_deposit_consent` |
+|  | `admin_delete_user` · `admin_update_user_account` | `20261006000700_admin_user_permissions` |
+|  | `admin_finish_new_user` · `admin_set_user_role` · `app_delete_account` · `super_admin_assert` | `20261006000500_super_admin_rules` |
+|  | `admin_unban_user` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `app_assert_user` · `app_mark_notifications_read` · `app_toggle_favorite` · `app_update_profile` | `20261002001700_app_actions` |
+|  | `run_retention_jobs` | `20261002001400_retention_jobs` |
+| `promotion` | `admin_review_promotion` | `20261002001600_admin` |
+|  | `app_order_promotion` | `20261002001700_app_actions` |
+|  | `bar_is_promoted` | `20261002001200_promoted_listings` |
+| `site-team` | `admin_delete_team_member` · `admin_reorder_team_members` · `admin_save_team_member` | `20261003000100_admin_team_members` |
+| `backoffice` | `admin_dashboard` | `20261002001600_admin` |
+| `(helper ทุกโดเมน)` | `admin_audit` · `app_notify_admins` | `20261005000200_roles` |
+|  | `app_audit` · `app_fmt` · `app_notify` · `app_notify_team` | `20261002001700_app_actions` |
+
 ## 5. สัญญา view / RPC สำหรับหน้าบ้าน
 
 ทุก view `security_invoker = true` (ใช้ RLS ของผู้เรียก) · ตารางเบื้องหลังมี policy `SELECT` ให้ anon อ่านข้อมูลสาธารณะ
@@ -141,7 +178,7 @@ stateDiagram-v2
 
 **หน้าบ้าน:** ส่ง `request_pr` / `p_pr_gender` เป็นตัวใหญ่ (`Db.PR_GENDER_KEYS.female` → `'FEMALE'`) · เช็กอายุ 20+ ก่อน `signUp()` (error จาก trigger เหลือแค่ "Database error saving new user")
 
-### 5.1 Backoffice (`…001600_admin`)
+### 5.1 Backoffice (`…001600_admin` · backend `domains/backoffice` อ่าน + `<domain>.admin.controller.ts` เขียน)
 
 **อ่าน** — หน้าแอดมินอ่าน view ผ่าน `GET /api/admin/views/:view` (ADR 0003 — backend อ่านในนามแอดมิน) · ทุก view มี `where public.is_admin()` → คนที่ไม่ใช่ ADMIN หรือยังไม่ผ่าน MFA (aal1) ได้แถวว่าง · anon อ่านไม่ได้เลย
 
@@ -181,7 +218,7 @@ stateDiagram-v2
 
 error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 404, `DEPOSIT_ALREADY_REVIEWED` / `LAST_SUPER_ADMIN` ฯลฯ → 409 · `SUPER_ADMIN_REQUIRED` → 403) · หน้าแอดมินแปลเป็นภาษาไทยใน `apps/admin/src/services/api.ts`
 
-### 5.2 แอปลูกค้า / ร้าน (`…001700_app_actions`)
+### 5.2 แอปลูกค้า / ร้าน (`…001700_app_actions` · backend `domains/<domain>/*.{me,merchant}.controller.ts`)
 
 **อ่าน** — หน้าบ้านอ่านผ่าน API (`GET /api/public/catalog`, `/api/me/overview` — ADR 0002 · backend อ่านในนามผู้เรียก RLS คุม) ใน `apps/frontend/src/services/sync.ts` แล้วใส่ store ของ `@nightout/mock` (ใช้เป็น cache) → หน้าเว็บเรียก `listBars()`, `myBookings()`, `barReviews()` … ได้เหมือนเดิม
 
@@ -191,7 +228,7 @@ error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 4
 | หลังล็อกอิน + ทุก 60 วินาที | `booking_detail` (ของฉัน + ของร้านที่อยู่ในทีม), `notifications`, `my_favorites`, `my_reviews`, `user_preferences`, `my_bar_detail` (ร้านของฉันทุกสถานะ), `review_reports`, `promoted_listings` |
 | ตามหน้า (TanStack Query) | `rpc('zone_availability')` หน้าจอง · `rpc('bar_team')` / `rpc('my_invites')` พนักงาน · `rpc('bar_deposit_ledger')` มัดจำของร้าน (ไม่มี path สลิป) · `billing_events` ค่าคอม · `rpc('get_share_card')` |
 
-**เขียน** — `apps/frontend/src/services/actions.ts` → NestJS (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
+**เขียน** — `apps/frontend/src/services/api/<domain>.ts` → NestJS `domains/<domain>` (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
 
 | endpoint | ฟังก์ชัน |
 |---|---|
