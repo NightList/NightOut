@@ -317,11 +317,11 @@ sequenceDiagram
 - **สมัคร:** `signUp()` → trigger สร้าง `public.users` → ยืนยันอีเมลก่อนจอง
 - **ป้องกันการเดารหัส:** rate limit ของ Supabase Auth + Turnstile CAPTCHA + Leaked Password Protection
 - **Staff:** เจ้าของร้านเชิญทางอีเมล (`inviteUserByEmail` ผ่าน NestJS) · **Admin:** บังคับ TOTP MFA (AAL2)
-- **Role:** เก็บที่ `users.role` (CUSTOMER / MERCHANT / STAFF / ADMIN) และ `bar_staff` สำหรับผูก Staff กับร้าน
+- **Role:** เก็บที่ `users.role` (CUSTOMER / MERCHANT / STAFF / ADMIN / SUPER_ADMIN — FK ไปตาราง `roles` ที่มีชื่อไทย + `can_enter_backoffice` · ADR 0005) และ `bar_staff` สำหรับผูก Staff กับร้าน
 - **RLS:** เปิดทุกตาราง
   - อ่านสาธารณะได้เฉพาะข้อมูลร้านที่ `APPROVED`
   - ข้อมูลส่วนตัวอ่านได้เฉพาะเจ้าของ
-- **Admin:** `apps/admin` อยู่แยกโดเมน ต้องเป็น role ADMIN และต้องเปิด MFA
+- **Admin:** `apps/admin` อยู่แยกโดเมน ต้องเป็น ADMIN หรือ SUPER_ADMIN และต้องเปิด MFA · แก้ชั้นบัญชีได้เฉพาะ SUPER_ADMIN
 - **Secrets:** เก็บใน Vercel env / Terraform (sensitive) ห้าม commit
 - **ไฟล์สลิป:** ใช้ Storage bucket แบบ private เปิดดูผ่าน signed URL อายุสั้น และลบตาม retention policy
 

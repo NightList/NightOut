@@ -8,3 +8,4 @@
 | [0002](0002-migrate-direct-db-calls-to-backend-api.md) | ย้ายการอ่าน DB ตรงจากหน้าเว็บไปที่ Backend API | Accepted |
 | [0003](0003-migrate-admin-direct-db-calls-to-backend-api.md) | ย้ายการอ่านข้อมูลของ Backoffice ไปที่ Backend API | Accepted |
 | [0004](0004-shared-rest-client.md) | Rest client กลางใน `@nightout/utils/rest` ใช้ร่วมทุกแอป | Accepted |
+| [0005](0005-account-role-catalog.md) | ชั้นบัญชีอิงตาราง `roles` และมีแต่ Super Admin ที่แก้ชั้นของบัญชีที่มีอยู่แล้ว | Accepted |

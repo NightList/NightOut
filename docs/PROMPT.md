@@ -56,6 +56,15 @@ NightOut เป็นแพลตฟอร์มสำหรับค้นห�
 - ดูแลรีวิวที่ถูกรายงาน จัดการดาว/Tier และอนุมัติการโปรโมท
 - จัดการค่าคอมมิชชัน
 - ดู Audit Log
+- สร้างบัญชีลูกค้า / ร้านค้า / พนักงานร้านได้ แต่สร้างแอดมินและแก้ชั้นบัญชีที่มีอยู่แล้วไม่ได้
+
+**Super Admin (ทีมเรา)**
+- ทำได้ทุกอย่างของ Admin
+- สร้างบัญชีได้ทุกชั้น รวมแอดมินและซูเปอร์แอดมิน
+- เป็นชั้นเดียวที่แก้ชั้นบัญชีที่สร้างผิดได้ (แก้เป็นลูกค้า / แอดมิน / ซูเปอร์แอดมิน → หลุดจากร้าน)
+- ต้องมีซูเปอร์แอดมินอย่างน้อย 1 คนเสมอ · คนแรกตั้งด้วย `scripts/create-user.ts --role SUPER_ADMIN`
+
+ชั้นบัญชีมาจากตอนสร้างบัญชี (สมัครเอง = ลูกค้า) สมัครเป็นร้าน และยอมรับคำเชิญเข้าทีม · ชื่อไทยกับลำดับอยู่ในตาราง `roles` (ADR 0005)
 
 ## Customer Flow
 Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Search → Restaurant Detail → Menu/Pricing → Price Estimate → Availability → Booking (+มัดจำ) → Merchant Confirmation → Share to Gang → QR Check-in → Completed → Review
@@ -336,7 +345,7 @@ Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Sea
 - **ไม่อยู่ใน MVP schema:** campaigns, campaign_clicks และตารางที่ใช้ดึงข้อมูลจากโซเชียล
 
 **ฟิลด์สำคัญ**
-- `users`: id (= auth.users.id), display_name, email (sync จาก auth.users), phone (optional), birthdate, role (CUSTOMER / MERCHANT / STAFF / ADMIN), age_verified, age_verified_at, age_verification_method
+- `users`: id (= auth.users.id), display_name, email (sync จาก auth.users), phone (optional), birthdate, role (CUSTOMER / MERCHANT / STAFF / ADMIN / SUPER_ADMIN → FK `roles.code`), age_verified, age_verified_at, age_verification_method
 - `notification_channels`: id, user_id, channel (LINE / WEB_PUSH / IN_APP), line_user_id, push_subscription, opted_in_at, opted_out_at
 - `notifications`: id, user_id, event_type, booking_id, payload, read_at, created_at
 - `notification_deliveries`: id, notification_id, channel, status (QUEUED / SENT / FAILED / RETRYING), attempt_count, last_error, next_retry_at, sent_at
