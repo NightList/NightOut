@@ -26,14 +26,40 @@
     imagesizes="100vw"
     fetchpriority="high" />
   <title>NightOut</title>
+  <!-- หน้ารอโหลด (Figma/ภาพอ้างอิง "Loading") — ภาพพื้นหลังร้านบาร์ + วงแหวนทอง + โลโก้ NightOut -->
+  <link rel="preload" as="image" type="image/webp"
+    href="/images/boot/boot-bg.webp"
+    imagesrcset="/images/boot/boot-bg-sm.webp 900w, /images/boot/boot-bg.webp 1672w"
+    imagesizes="100vw" fetchpriority="high" />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/poppins-latin-600-normal.woff2" crossorigin />
   <style>
-    .boot{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:18px;background:#07070d}
-    html.light .boot{background:#faf8f3}
-    .boot img{width:64px;height:auto;animation:boot-pulse 1.6s ease-in-out infinite}
-    .boot__bar{width:120px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#e8b64c,transparent) 0 0/50% 100% no-repeat,rgba(232,182,76,.18);animation:boot-slide 1.1s linear infinite}
-    @keyframes boot-pulse{50%{opacity:.6}}
-    @keyframes boot-slide{from{background-position:-100% 0,0 0}to{background-position:200% 0,0 0}}
-    @media (prefers-reduced-motion:reduce){.boot img,.boot__bar{animation:none}}
+    @font-face{font-family:'Boot Poppins';font-weight:600;font-display:swap;src:url('/fonts/poppins-latin-600-normal.woff2') format('woff2')}
+    @font-face{font-family:'Boot Kanit';font-weight:300;font-display:swap;src:url('/fonts/kanit-latin-300-normal.woff2') format('woff2')}
+    .boot :where(p){margin:0}
+    .boot{--gold:#e8c98a;--ring:min(66vh,86vw);position:fixed;inset:0;overflow:hidden;color:var(--gold);background:#07070d;font-family:'Boot Kanit',system-ui,sans-serif;font-weight:300}
+    .boot__bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,4,10,.55)),image-set(url('/images/boot/boot-bg-sm.webp') 1x,url('/images/boot/boot-bg.webp') 2x) center/cover no-repeat;animation:boot-in .8s ease-out both}
+    @media (min-width:900px){.boot__bg{background:radial-gradient(ellipse at center,transparent 35%,rgba(5,4,10,.55)),url('/images/boot/boot-bg.webp') center/cover no-repeat}}
+    .boot__ring{position:absolute;left:50%;top:50%;width:var(--ring);height:var(--ring);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(6,5,10,.72) 0,rgba(6,5,10,.5) 62%,rgba(6,5,10,.18) 100%);display:flex;flex-direction:column;align-items:center;text-align:center}
+    .boot__ring>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .boot__arc{transform-origin:50% 50%;animation:boot-spin 7s linear infinite}
+    .boot__tag{margin-top:24%;font-size:calc(var(--ring)*.024);letter-spacing:.32em;white-space:nowrap;padding-left:.32em}
+    .boot__tag i{font-style:normal;margin:0 1.1em;opacity:.8}
+    .boot__logo{margin-top:7.5%;font-family:'Boot Poppins',system-ui,sans-serif;font-weight:600;font-size:calc(var(--ring)*.155);line-height:1;letter-spacing:-.01em;white-space:nowrap;display:flex;align-items:flex-end;background:linear-gradient(180deg,#fbeccb 10%,#e3c287 55%,#b48a4a 95%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 calc(var(--ring)*.03) rgba(232,182,76,.25))}
+    .boot__logo svg{width:.66em;height:1.1em;margin:0 .02em 0 .03em;transform:translateY(.16em);flex:none}
+    .boot__bar{position:relative;margin-top:11%;width:47%;height:2px;border-radius:2px;background:rgba(232,201,138,.18);overflow:hidden}
+    .boot__bar::after{content:'';position:absolute;inset:0;transform-origin:left;background:linear-gradient(90deg,#9c7a43,#f3dcab);animation:boot-fill 6s cubic-bezier(.15,.6,.25,1) forwards}
+    .boot__load{margin-top:5.5%;font-size:calc(var(--ring)*.02);letter-spacing:.42em;padding-left:.42em;opacity:.9}
+    .boot__foot{position:absolute;bottom:clamp(20px,5.5vh,56px);font-size:13px;letter-spacing:.3em;opacity:.85;white-space:nowrap}
+    .boot__foot--l{left:3%} .boot__foot--r{right:3%}
+    @media (max-width:640px){
+      .boot__bg{background-position:center,78% center}
+      .boot__foot{left:0;right:0;text-align:center;font-size:11px}
+      .boot__foot--l{bottom:calc(clamp(20px,5.5vh,56px) + 24px)}
+    }
+    @keyframes boot-in{from{opacity:0;transform:scale(1.04)}}
+    @keyframes boot-spin{to{transform:rotate(360deg)}}
+    @keyframes boot-fill{from{transform:scaleX(.04)}to{transform:scaleX(.92)}}
+    @media (prefers-reduced-motion:reduce){.boot__bg,.boot__arc{animation:none}.boot__bar::after{animation:none;transform:scaleX(.6)}}
   </style>
   <!-- กันจอกะพริบ: ตั้งธีมก่อน React render (key ต้องตรงกับ THEME_STORAGE_KEY) -->
   <script>
@@ -56,8 +82,41 @@
   <!-- หน้าโหลดระหว่างรอ JS/ข้อมูล (React แทนที่ทั้งก้อนตอน render) — ไม่ให้เห็นจอว่าง -->
   <div id="root">
     <div class="boot" role="status" aria-label="กำลังโหลด NightOut">
-      <img src="/images/common/logo.png" alt="" width="64" height="62" />
-      <span class="boot__bar"></span>
+      <div class="boot__bg"></div>
+      <div class="boot__ring" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="boot-arc" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#e8c98a" stop-opacity="0" />
+              <stop offset="1" stop-color="#f6e2b4" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="49.6" fill="none" stroke="#e8c98a" stroke-opacity=".28" stroke-width=".18" />
+          <g class="boot__arc">
+            <path d="M50 .4A49.6 49.6 0 0 1 85.07 14.93" fill="none" stroke="url(#boot-arc)" stroke-width=".45" stroke-linecap="round" />
+            <path d="M50 .4A49.6 49.6 0 0 1 85.07 14.93" fill="none" stroke="#f6e2b4" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round" style="filter:blur(.8px)" />
+          </g>
+        </svg>
+        <p class="boot__tag">GOOD DRINKS<i>×</i>BETTER NIGHTS</p>
+        <p class="boot__logo">Night<svg viewBox="0 0 60 100">
+            <defs>
+              <linearGradient id="boot-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fbeccb" />
+                <stop offset=".55" stop-color="#e3c287" />
+                <stop offset="1" stop-color="#b48a4a" />
+              </linearGradient>
+            </defs>
+            <path d="M7 27h46l-5.2 58.5a8 8 0 0 1-8 7.3H20.2a8 8 0 0 1-8-7.3Z" fill="#120d08" stroke="url(#boot-gold)" stroke-width="5.5" stroke-linejoin="round" />
+            <path d="M16 38l3.6 42" stroke="#fbeccb" stroke-opacity=".35" stroke-width="2.4" stroke-linecap="round" />
+            <path d="M5 30c-3-5 0-11 6-11 0-7 8-11 14-7 4-6 14-6 17 1 7-2 14 3 12 10 4 3 3 9-2 10-2 4-8 4-10 1-3 3-8 3-11 0-4 3-10 2-12-2-5 2-11 0-14-2Z" fill="#fbeccb" />
+            <circle cx="22" cy="20" r="2.2" fill="#e3c287" opacity=".6" />
+            <circle cx="38" cy="18" r="1.8" fill="#e3c287" opacity=".6" />
+          </svg>ut</p>
+        <span class="boot__bar"></span>
+        <p class="boot__load">LOADING...</p>
+      </div>
+      <p class="boot__foot boot__foot--l" aria-hidden="true">DRINK&nbsp;&nbsp;/&nbsp;&nbsp;FOOD&nbsp;&nbsp;/&nbsp;&nbsp;FRIENDS</p>
+      <p class="boot__foot boot__foot--r" aria-hidden="true">BANGKOK, THAILAND</p>
     </div>
   </div>
   <script type="module" src="/src/main.tsx"></script>
