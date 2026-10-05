@@ -21,9 +21,9 @@ export async function createApp(): Promise<INestApplication> {
   const doc = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
-      .setTitle('NightList API')
+      .setTitle('NightOut API')
       .setDescription(
-        'API ของ NightList — หน้าเว็บอ่าน/เขียนข้อมูลผ่าน API นี้เท่านั้น (ADR 0002) · key ใน body และ response เป็น snake_case ทั้งหมด · ' +
+        'API ของ NightOut — หน้าเว็บอ่าน/เขียนข้อมูลผ่าน API นี้เท่านั้น (ADR 0002) · key ใน body และ response เป็น snake_case ทั้งหมด · ' +
           'เส้นที่มีรูปกุญแจต้องส่ง `Authorization: Bearer <Supabase access token>`',
       )
       .setVersion('0.1.0')

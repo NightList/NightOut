@@ -1,7 +1,7 @@
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { apiBaseUrlFromEnv, Rest } from '@nightlist/utils/rest';
+import { apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
 import { log } from './services/log';
 import { isSupabaseConfigured, supabase } from './services/supabase';
 import { hydratePublicFromCache, loadPublic } from './services/sync';
@@ -29,7 +29,7 @@ const render = (node: ReactNode) => root.render(<StrictMode>{node}</StrictMode>)
  * - เคยเปิดเว็บแล้ว (มี snapshot ในเครื่อง ≤ 24 ชม.) → render ทันที แล้วโหลดของใหม่เบื้องหลัง
  * - ครั้งแรก → รอโหลดข้อมูลสาธารณะเสร็จก่อน render (ระหว่างนั้นเห็นหน้าโหลดใน index.html)
  * ไม่มี .env → หน้าบอกวิธีตั้งค่า · โหลดไม่ได้ → หน้าแจ้ง error + ปุ่มลองใหม่
- * สถานะการเชื่อมต่อดูได้ใน DevTools → Console (กรองคำว่า NightList)
+ * สถานะการเชื่อมต่อดูได้ใน DevTools → Console (กรองคำว่า NightOut)
  */
 async function boot() {
   if (!isSupabaseConfigured) {

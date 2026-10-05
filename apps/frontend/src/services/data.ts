@@ -1,16 +1,16 @@
 /**
- * จุดเดียวที่หน้าเว็บใช้อ่าน/เขียนข้อมูล (แทน import จาก @nightlist/mock ตรง ๆ)
+ * จุดเดียวที่หน้าเว็บใช้อ่าน/เขียนข้อมูล (แทน import จาก @nightout/mock ตรง ๆ)
  *
- * อ่าน: ฟังก์ชันอ่านเดิมของ @nightlist/mock ทำงานบน store ที่ services/sync.ts เติมข้อมูลจาก API
+ * อ่าน: ฟังก์ชันอ่านเดิมของ @nightout/mock ทำงานบน store ที่ services/sync.ts เติมข้อมูลจาก API
  *       (ร้าน รีวิว การจอง แจ้งเตือน ร้านโปรด ร้านของฉัน) — ไม่มีข้อมูลเดโม
  * เขียน: services/actions.ts → NestJS → ฟังก์ชันใน DB แล้วโหลดใหม่
  * ข้อมูลที่ต้องถามสด (โซนว่าง สมาชิกทีม สมุดมัดจำ ค่าคอม คำเชิญ) ใช้ hook ด้านล่าง (TanStack Query)
- *   Component → hook (TanStack Query) → Rest (@nightlist/utils/rest) → Axios → NestJS — ไม่ query DB ตรง (ADR 0002)
+ *   Component → hook (TanStack Query) → Rest (@nightout/utils/rest) → Axios → NestJS — ไม่ query DB ตรง (ADR 0002)
  */
 import { useQuery } from '@tanstack/react-query';
-import type { BarWithTier } from '@nightlist/mock';
-import type { Db } from '@nightlist/types';
-import { Rest } from '@nightlist/utils/rest';
+import type { BarWithTier } from '@nightout/mock';
+import type { Db } from '@nightout/types';
+import { Rest } from '@nightout/utils/rest';
 
 export {
   autoCancelAt,
@@ -36,7 +36,7 @@ export {
   SAFETY_LABELS,
   tierList,
   withTier,
-} from '@nightlist/mock';
+} from '@nightout/mock';
 export type {
   Bar,
   BarFilter,
@@ -49,7 +49,7 @@ export type {
   Review,
   ReviewMedia,
   SafetyValue,
-} from '@nightlist/mock';
+} from '@nightout/mock';
 export { DISTRICTS, MASTER, STYLES, myPrefs } from '@/services/sync';
 export * from '@/services/actions';
 

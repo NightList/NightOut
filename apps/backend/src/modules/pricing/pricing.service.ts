@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { estimatePrice } from '@nightlist/utils';
+import { estimatePrice } from '@nightout/utils';
 import type { PriceEstimateBody, PriceEstimateResult } from './pricing.dto';
 
-/** แปลง snake_case ของ API ↔ ฟังก์ชันคำนวณกลาง (@nightlist/utils ใช้ camelCase ร่วมกับหน้าเว็บ) */
+/** แปลง snake_case ของ API ↔ ฟังก์ชันคำนวณกลาง (@nightout/utils ใช้ camelCase ร่วมกับหน้าเว็บ) */
 @Injectable()
 export class PricingService {
   estimate(b: PriceEstimateBody): PriceEstimateResult {

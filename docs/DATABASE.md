@@ -1,9 +1,9 @@
-# NightList — Database Design
+# NightOut — Database Design
 
 > สถานะ: **v1.1** (ทำตาม [`DATABASE_CHANGES.md`](DATABASE_CHANGES.md)) · ใช้คู่กับ [`ARCHITECTURE.md`](ARCHITECTURE.md) และ [`SITEMAP.md`](SITEMAP.md)
 > Migration: `apps/backend/supabase/migrations/20261002000100_*.sql` … `20261002001500_*.sql` (15 ไฟล์ แยกตามโดเมน)
 > Seed: `apps/backend/supabase/seed.sql` (master data + ร้านเดโม 16 ร้าน — สร้างด้วย `db:seed:gen`)
-> Types: `packages/types/src/database.generated.ts` (จาก `supabase gen types` — ห้ามแก้มือ) + `database.ts` (override ของ view) → `import { Db } from '@nightlist/types'`
+> Types: `packages/types/src/database.generated.ts` (จาก `supabase gen types` — ห้ามแก้มือ) + `database.ts` (override ของ view) → `import { Db } from '@nightout/types'`
 > migration ทีมรุ่นแรก (0001–0003) เก็บไว้อ้างอิงที่ `docs/legacy-migrations/`
 
 ---
@@ -176,7 +176,7 @@ error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 4
 
 ### 5.2 แอปลูกค้า / ร้าน (`…001700_app_actions`)
 
-**อ่าน** — หน้าบ้านอ่านผ่าน API (`GET /api/public/catalog`, `/api/me/overview` — ADR 0002 · backend อ่านในนามผู้เรียก RLS คุม) ใน `apps/frontend/src/services/sync.ts` แล้วใส่ store ของ `@nightlist/mock` (ใช้เป็น cache) → หน้าเว็บเรียก `listBars()`, `myBookings()`, `barReviews()` … ได้เหมือนเดิม
+**อ่าน** — หน้าบ้านอ่านผ่าน API (`GET /api/public/catalog`, `/api/me/overview` — ADR 0002 · backend อ่านในนามผู้เรียก RLS คุม) ใน `apps/frontend/src/services/sync.ts` แล้วใส่ store ของ `@nightout/mock` (ใช้เป็น cache) → หน้าเว็บเรียก `listBars()`, `myBookings()`, `barReviews()` … ได้เหมือนเดิม
 
 | ตอนไหน | อ่านอะไร |
 |---|---|
@@ -232,7 +232,7 @@ error เป็นรหัสตัวใหญ่ (`ZONE_FULL`, `NOT_BAR_MANAG
 
 ## 7. Seed · Job
 
-- `seed.sql`: districts 10, styles 9, safety_features **9 ข้อ** (weight รวม 100), platform_settings (PromptPay, retention), legal_documents (Terms / Privacy / Cookie / Age v1 `is_current`), promotion_packages 5 แบบ + ร้านเดโม 16 ร้านจาก `@nightlist/mock`
+- `seed.sql`: districts 10, styles 9, safety_features **9 ข้อ** (weight รวม 100), platform_settings (PromptPay, retention), legal_documents (Terms / Privacy / Cookie / Age v1 `is_current`), promotion_packages 5 แบบ + ร้านเดโม 16 ร้านจาก `@nightout/mock`
 - ตัวรัน job (ข้อ 8.2): **pg_cron เรียก NestJS `/api/jobs/*` ผ่าน pg_net** (ทุกนาที: no-show, expire, complete, แจ้งเตือน) — คำสั่งตั้งเวลาอยู่ในหัวไฟล์ `…001400_retention_jobs.sql` (ต้องตั้ง secret ใน Vault ก่อน)
 - `run_retention_jobs()` (รันวันละครั้ง): anonymize บัญชีที่ `deleted_at` เลย `account_retention_days` (30) + ล้าง `contact_phone` ที่เลย `contact_phone_retention_days` (90) · บันทึกใน `job_runs` · บัญชีใน `auth.users` ให้ NestJS ปิด/เปลี่ยนอีเมลผ่าน Admin API (ห้ามลบ เพราะการจองยังอ้างถึง)
 
@@ -266,5 +266,5 @@ error เป็นรหัสตัวใหญ่ (`ZONE_FULL`, `NOT_BAR_MANAG
 | PR เพศ LGBTQ | แสดงในป้าย PR + ร้านกรอกได้ใน `/merchant/settings` |
 | การเขียนจากหน้าบ้าน | RLS ปิดทั้งหมด · เขียนผ่าน NestJS → `app_*` (หัวข้อ 5.2) |
 | 10.3 ถือเงินมัดจำแทนร้าน | ตาราง deposits/payouts เป็น DRAFT — **ห้ามเปิดรับเงินจริงก่อนได้คำตอบจากที่ปรึกษากฎหมาย** |
-| 10.8 โปรแอลกอฮอล์ | ร้านเดโมยังมี "โปรเบียร์ก่อน 2 ทุ่ม" (มาจาก `@nightlist/mock`) — รอตัดสินใจ |
+| 10.8 โปรแอลกอฮอล์ | ร้านเดโมยังมี "โปรเบียร์ก่อน 2 ทุ่ม" (มาจาก `@nightout/mock`) — รอตัดสินใจ |
 | 10.1, 10.2, 10.4–10.7, 10.9 | ยังเลื่อน/รอตัดสินใจตาม spec |

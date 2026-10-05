@@ -1,5 +1,5 @@
 import { Camera, Trash, UserCircle } from '@phosphor-icons/react';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import {
   App,
   Avatar,

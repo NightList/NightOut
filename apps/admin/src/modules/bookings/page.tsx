@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { Input, Table, Timeline } from 'antd';
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';

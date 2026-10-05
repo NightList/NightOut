@@ -37,7 +37,7 @@ export function ConfirmStep({ bar, f }: { bar: BarWithTier; f: BookingForm }) {
           <span className="font-semibold text-gold-text">{baht(f.deposit)}</span>
           <span className="text-muted">
             {' '}
-            ({bar.deposit.unit === 'PER_PERSON' ? 'ต่อคน' : 'ต่อโต๊ะ'}) · โอนเข้า NightList
+            ({bar.deposit.unit === 'PER_PERSON' ? 'ต่อคน' : 'ต่อโต๊ะ'}) · โอนเข้า NightOut
           </span>
         </dd>
       </dl>
@@ -45,7 +45,7 @@ export function ConfirmStep({ bar, f }: { bar: BarWithTier; f: BookingForm }) {
         className="mt-4"
         type="info"
         showIcon
-        title="มัดจำเข้า NightList ไม่ใช่เข้าร้านโดยตรง"
+        title="มัดจำเข้า NightOut ไม่ใช่เข้าร้านโดยตรง"
         description={`เราถือเงินไว้ให้จนกว่าคุณจะเช็กอิน แล้วจึงส่งต่อให้ร้าน · ${bar.deposit.policy}`}
       />
       <Input.TextArea

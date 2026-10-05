@@ -1,6 +1,6 @@
 import { MoonStars, SignOut } from '@phosphor-icons/react';
 import { ProLayout } from '@ant-design/pro-components';
-import { ThemeToggle } from '@nightlist/ui';
+import { ThemeToggle } from '@nightout/ui';
 import { Button, Spin, Tooltip } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { ADMIN_ROUTES } from '@/configs/menu';
@@ -15,7 +15,7 @@ export function MainLayout() {
   if (!auth.canEnter) return <Navigate to="/login" replace />;
   return (
     <ProLayout
-      title="NightList Admin"
+      title="NightOut Admin"
       logo={<MoonStars size={28} weight="fill" color="#E8B64C" />}
       layout="mix"
       fixSiderbar

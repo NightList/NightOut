@@ -1,4 +1,4 @@
-import type { BarCategory, BookingStatus, CrowdStatus, Tier, UserRole } from '@nightlist/types';
+import type { BarCategory, BookingStatus, CrowdStatus, Tier, UserRole } from '@nightout/types';
 
 export type SafetyKey =
   | 'SECURITY'

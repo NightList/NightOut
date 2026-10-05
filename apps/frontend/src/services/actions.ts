@@ -1,12 +1,12 @@
-import type { BarPromotion, MenuItem, ReviewMedia, SafetyValue } from '@nightlist/mock';
-import type { BookingStatus, CrowdStatus } from '@nightlist/types';
-import { Rest } from '@nightlist/utils/rest';
+import type { BarPromotion, MenuItem, ReviewMedia, SafetyValue } from '@nightout/mock';
+import type { BookingStatus, CrowdStatus } from '@nightout/types';
+import { Rest } from '@nightout/utils/rest';
 import { uploadDepositSlip, uploadPromoSlip, uploadReviewMedia, uploadSafetyEvidence } from '@/services/storage';
 import { currentProfile, refresh, setProfileName } from '@/services/sync';
 
 /**
  * การบันทึกทั้งหมดของหน้าเว็บ → Rest (Axios) → NestJS (/api/...) → ฟังก์ชันใน DB → โหลดข้อมูลใหม่ผ่าน API
- * แทนฟังก์ชันเขียนของ @nightlist/mock เดิม (createBooking, transition, updateBar …) — คืน Promise ทุกตัว
+ * แทนฟังก์ชันเขียนของ @nightout/mock เดิม (createBooking, transition, updateBar …) — คืน Promise ทุกตัว
  */
 const me = () => {
   const p = currentProfile();
@@ -180,7 +180,7 @@ export async function setSafety(barId: string, key: string, value: SafetyValue) 
   await refresh({ public: true });
 }
 
-/** อัปโหลดหลักฐาน (รูป/PDF) เข้า bar-verifications แล้วให้ทีม NightList ตรวจ */
+/** อัปโหลดหลักฐาน (รูป/PDF) เข้า bar-verifications แล้วให้ทีม NightOut ตรวจ */
 export async function uploadSafetyProof(barId: string, key: string, file: Blob) {
   const path = await uploadSafetyEvidence(barId, key, file);
   await Rest.put(`/merchant/bars/${barId}/safety/${key}/evidence`, { path });

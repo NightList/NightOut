@@ -10,8 +10,8 @@ import axios, { AxiosError, AxiosHeaders, type AxiosInstance, type AxiosRequestC
  *
  * - แนบ `Authorization: Bearer <token>` ให้อัตโนมัติ (ถ้า getAccessToken คืนค่า และ request ไม่ได้ใส่เอง)
  * - error ทุกแบบ → ApiError(status, code) พร้อมข้อความภาษาไทยจาก ERROR_MESSAGES
- * - log ทุก request ผ่าน logger ของแอป (ป้าย NightList ใน Console)
- * แยก entry `@nightlist/utils/rest` จาก index — backend ที่ใช้ @nightlist/utils จะไม่ต้องโหลด axios
+ * - log ทุก request ผ่าน logger ของแอป (ป้าย NightOut ใน Console)
+ * แยก entry `@nightout/utils/rest` จาก index — backend ที่ใช้ @nightout/utils จะไม่ต้องโหลด axios
  */
 
 /** ข้อความภาษาไทยของรหัส error จาก NestJS / ฟังก์ชันใน DB (ใช้ร่วมทุกแอป) */
@@ -45,7 +45,7 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   INVALID_FEES: 'ค่าธรรมเนียมไม่ถูกต้อง',
   INVALID_PAYOUT_ACCOUNT: 'ข้อมูลบัญชีไม่ครบ',
   PACKAGE_NOT_FOUND: 'ไม่พบแพ็กเกจนี้',
-  INVITEE_NOT_REGISTERED: 'อีเมลนี้ยังไม่ได้สมัคร NightList — ให้พนักงานสมัครก่อนแล้วค่อยเชิญ',
+  INVITEE_NOT_REGISTERED: 'อีเมลนี้ยังไม่ได้สมัคร NightOut — ให้พนักงานสมัครก่อนแล้วค่อยเชิญ',
   ALREADY_MEMBER: 'คนนี้อยู่ในทีมแล้ว',
   INVITE_NOT_FOUND: 'ไม่พบคำเชิญ (อาจถูกยกเลิกแล้ว)',
   CANNOT_REMOVE_SELF: 'นำตัวเองออกจากทีมไม่ได้',

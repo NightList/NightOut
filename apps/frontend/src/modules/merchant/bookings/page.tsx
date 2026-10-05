@@ -1,6 +1,6 @@
 import { barBookings, setBookingStatus, type Booking } from '@/services/data';
-import type { BookingStatus } from '@nightlist/types';
-import { nextStatuses } from '@nightlist/utils';
+import type { BookingStatus } from '@nightout/types';
+import { nextStatuses } from '@nightout/utils';
 import { App, Button, Card, Drawer, Segmented, Space, Table, Timeline } from 'antd';
 import { useState } from 'react';
 import { BookingStatusTag } from '@/ui/components/bookingStatusTag';

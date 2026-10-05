@@ -12,7 +12,7 @@ export type BarCategory = z.infer<typeof BarCategory>;
 export const BarStatus = z.enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'SUSPENDED']);
 export type BarStatus = z.infer<typeof BarStatus>;
 
-/** สถานะการจอง (ดู state machine ใน @nightlist/utils) */
+/** สถานะการจอง (ดู state machine ใน @nightout/utils) */
 export const BookingStatus = z.enum([
   'PENDING',
   'AWAITING_DEPOSIT',

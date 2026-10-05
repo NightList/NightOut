@@ -1,2 +1,2 @@
-import { react } from '@nightlist/config/eslint';
+import { react } from '@nightout/config/eslint';
 export default react;

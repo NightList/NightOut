@@ -1,8 +1,8 @@
 /**
  * log ใน DevTools Console — ดูได้ว่าเว็บต่อ Supabase / API จริงแล้วหรือยัง
- * เปิด DevTools (F12) → Console → พิมพ์ "NightList" ในช่องกรอง
+ * เปิด DevTools (F12) → Console → พิมพ์ "NightOut" ในช่องกรอง
  */
-const TAG = '%c NightList ';
+const TAG = '%c NightOut ';
 const STYLE = {
   ok: 'background:#16a34a;color:#fff;border-radius:4px;font-weight:600',
   info: 'background:#7c3aed;color:#fff;border-radius:4px;font-weight:600',

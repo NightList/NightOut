@@ -1,4 +1,4 @@
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
 
 /** ย่อรูปฝั่งเบราว์เซอร์ก่อนอัปโหลด — ด้านยาวสุด 800px · webp (รูปจากกล้องหลาย MB เหลือ ~50–150KB) */
 async function toWebp(file: File, max = 800, quality = 0.85): Promise<Blob> {

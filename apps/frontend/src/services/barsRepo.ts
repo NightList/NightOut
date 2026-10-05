@@ -1,12 +1,12 @@
-import type { Bar } from '@nightlist/mock';
+import type { Bar } from '@nightout/mock';
 
 /**
  * แปลงแถวจาก view `bar_detail` (ร้านสาธารณะ) / `my_bar_detail` (ร้านของฉัน ทุกสถานะ) → รูปแบบ Bar ที่หน้าเว็บใช้
- * ข้อมูลร้านมาจาก Supabase เท่านั้น — services/sync.ts เอาไปใส่ store ของ @nightlist/mock (ใช้เป็น cache)
+ * ข้อมูลร้านมาจาก Supabase เท่านั้น — services/sync.ts เอาไปใส่ store ของ @nightout/mock (ใช้เป็น cache)
  * หน้าเว็บจึงยังเรียก listBars() / getBarBySlug() ได้เหมือนเดิม
  */
 
-/** รูปแบบ key ตาม view (snake_case ตามหลังบ้าน — ดู Db.BarDetail ใน @nightlist/types) */
+/** รูปแบบ key ตาม view (snake_case ตามหลังบ้าน — ดู Db.BarDetail ใน @nightout/types) */
 export interface BarDetailRow {
   id: string;
   slug: string;

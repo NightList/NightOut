@@ -1,12 +1,12 @@
 /**
- * NightList — Data structures (packages/types/src/database.ts)
+ * NightOut — Data structures (packages/types/src/database.ts)
  *
  * ชนิดตาราง/enum/function มาจาก `supabase gen types` (database.generated.ts — ห้ามแก้มือ)
- *   สร้างใหม่หลังแก้ migration: pnpm --filter @nightlist/backend db:types
+ *   สร้างใหม่หลังแก้ migration: pnpm --filter @nightout/backend db:types
  * ไฟล์นี้ override เฉพาะ view ที่หน้าบ้านใช้ (jsonb → ชนิดจริง, คอลัมน์ที่ไม่มีทางเป็น null → non-null)
  * ตามสัญญาใน docs/DATABASE_CHANGES.md หัวข้อ 5 (กฎ "ไม่มีข้อมูล")
  *
- * ใช้: import { Db } from '@nightlist/types'  →  Db.BarCard, Db.BarDetail, Db.Enums<'booking_status'>, Db.BOOKING_TRANSITIONS
+ * ใช้: import { Db } from '@nightout/types'  →  Db.BarCard, Db.BarDetail, Db.Enums<'booking_status'>, Db.BOOKING_TRANSITIONS
  * ชื่อ key เป็น snake_case ตามหลังบ้าน (ไม่มีชั้นแปลงชื่อ)
  */
 import type { Database, Json } from './database.generated';

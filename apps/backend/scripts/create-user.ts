@@ -1,9 +1,9 @@
 /**
  * สร้างบัญชีแอดมิน / เจ้าของร้าน / พนักงานร้าน (ใช้ Secret key — รันในเครื่องทีมเท่านั้น)
  *
- *   pnpm --filter @nightlist/backend user:create --email admin@nightlist.co --name "แอดมิน" --role ADMIN
- *   pnpm --filter @nightlist/backend user:create --email owner@bar.com --name "เจ้าของร้าน" --role MERCHANT --bar moonlit-cellar
- *   pnpm --filter @nightlist/backend user:create --email staff@bar.com --name "พนักงาน" --role STAFF --bar moonlit-cellar
+ *   pnpm --filter @nightout/backend user:create --email admin@nightout.co --name "แอดมิน" --role ADMIN
+ *   pnpm --filter @nightout/backend user:create --email owner@bar.com --name "เจ้าของร้าน" --role MERCHANT --bar moonlit-cellar
+ *   pnpm --filter @nightout/backend user:create --email staff@bar.com --name "พนักงาน" --role STAFF --bar moonlit-cellar
  *
  * ตัวเลือก
  *   --email       (บังคับ)

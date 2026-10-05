@@ -1,4 +1,4 @@
-import type { BookingStatus, CrowdStatus } from '@nightlist/types';
+import type { BookingStatus, CrowdStatus } from '@nightout/types';
 
 export const baht = (n: number) =>
   `฿${n.toLocaleString('th-TH', { maximumFractionDigits: 2, minimumFractionDigits: n % 1 ? 2 : 0 })}`;

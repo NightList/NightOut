@@ -1,6 +1,6 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { UserPlus } from '@phosphor-icons/react';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { App, Button, Input, Select, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';

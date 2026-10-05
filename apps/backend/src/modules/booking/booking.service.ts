@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import type { BookingStatus, UserRole } from '@nightlist/types';
-import { canTransition, nextStatuses } from '@nightlist/utils';
+import type { BookingStatus, UserRole } from '@nightout/types';
+import { canTransition, nextStatuses } from '@nightout/utils';
 
 type Actor = UserRole | 'SYSTEM';
 

@@ -10,15 +10,15 @@ import {
   type PromotionOrder,
   type Review,
   type ReviewMedia,
-} from '@nightlist/mock';
-import type { BookingStatus, UserRole } from '@nightlist/types';
+} from '@nightout/mock';
+import type { BookingStatus, UserRole } from '@nightout/types';
 import { STYLE_LABELS, toBar, type BarDetailRow } from '@/services/barsRepo';
 import { log, since } from '@/services/log';
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
 import { signedUrls } from '@/services/storage';
 
 /**
- * ดึงข้อมูลจาก NestJS API (Rest → GET /public/catalog, /me/overview) มาใส่ store ของ @nightlist/mock (cache ฝั่งหน้าเว็บ) — ไม่ query DB ตรง (ADR 0002)
+ * ดึงข้อมูลจาก NestJS API (Rest → GET /public/catalog, /me/overview) มาใส่ store ของ @nightout/mock (cache ฝั่งหน้าเว็บ) — ไม่ query DB ตรง (ADR 0002)
  * - สาธารณะ (ตอนเปิดเว็บ): ร้าน (bar_detail) · รีวิว (public_reviews) · ย่าน/สไตล์/แพ็กเกจโปรโมท/PromptPay
  * - ผู้ใช้ (หลังล็อกอิน): การจอง · มัดจำ · แจ้งเตือน · ร้านโปรด · รีวิวของฉัน · ร้านของฉัน (ทุกสถานะ) + การจองของร้าน
  * หน้าเว็บอ่านจาก store แบบเดิม (listBars, myBookings, ...) · การเขียนทั้งหมดไป NestJS (services/actions.ts) แล้วโหลดใหม่
@@ -167,7 +167,7 @@ function historyBy(reason: string | null, customer: string): string {
       return customer;
     case 'deposit verified':
     case 'slip rejected':
-      return 'NightList';
+      return 'NightOut';
     case 'timeout':
       return 'ระบบ';
     case null:
@@ -297,7 +297,7 @@ function applyPublic(raw: PublicRaw, urls: Map<string, string>) {
   publicReviews = raw.reviews.map((r) => ({
     id: r.id,
     barId: r.bar_id,
-    userName: r.display_name ?? 'ผู้ใช้ NightList',
+    userName: r.display_name ?? 'ผู้ใช้ NightOut',
     rating: r.rating,
     comment: r.comment ?? '',
     createdAt: r.created_at,
@@ -311,7 +311,7 @@ function applyPublic(raw: PublicRaw, urls: Map<string, string>) {
 // snapshot ข้อมูลสาธารณะในเครื่อง — เปิดเว็บครั้งถัดไปแสดงได้ทันที แล้วค่อยโหลดของใหม่เบื้องหลัง
 // (URL รูปรีวิวเป็นลิงก์ชั่วคราว 6 ชม. → ไม่เก็บ ขอใหม่ทุกครั้ง)
 // ---------------------------------------------------------------------
-const SNAPSHOT_KEY = 'nightlist-public-v1';
+const SNAPSHOT_KEY = 'nightout-public-v1';
 const SNAPSHOT_MAX_AGE = 24 * 3600_000;
 
 function saveSnapshot(raw: PublicRaw) {
@@ -507,9 +507,9 @@ export function setProfileName(displayName: string) {
   if (lastProfile) lastProfile = { ...lastProfile, displayName };
 }
 
-/** ใช้ใน dev tools: window.__nightlist() ดูข้อมูลใน cache */
+/** ใช้ใน dev tools: window.__nightout() ดูข้อมูลใน cache */
 if (typeof window !== 'undefined') {
-  (window as unknown as { __nightlist: () => unknown }).__nightlist = () => ({
+  (window as unknown as { __nightout: () => unknown }).__nightout = () => ({
     api: Rest.baseURL,
     bars: getState().bars.length,
     bookings: getState().bookings.length,

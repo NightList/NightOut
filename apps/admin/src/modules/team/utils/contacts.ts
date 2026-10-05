@@ -1,4 +1,4 @@
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 
 type TeamContacts = Db.TeamContacts;
 

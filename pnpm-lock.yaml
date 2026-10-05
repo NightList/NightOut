@@ -8,7 +8,7 @@ importers:
 
   .:
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:packages/config
       eslint:
@@ -32,16 +32,16 @@ importers:
       '@ant-design/pro-components':
         specifier: 3.1.15-2
         version: 3.1.15-2(antd@6.6.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@nightlist/mock':
+      '@nightout/mock':
         specifier: workspace:*
         version: link:../../packages/mock
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@nightlist/ui':
+      '@nightout/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@nightlist/utils':
+      '@nightout/utils':
         specifier: workspace:*
         version: link:../../packages/utils
       '@phosphor-icons/react':
@@ -72,7 +72,7 @@ importers:
         specifier: ^8.4.0
         version: 8.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/vite':
@@ -117,10 +117,10 @@ importers:
       '@nestjs/throttler':
         specifier: ^6.7.1
         version: 6.7.1(@nestjs/common@11.2.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.6)(reflect-metadata@0.2.2)
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@nightlist/utils':
+      '@nightout/utils':
         specifier: workspace:*
         version: link:../../packages/utils
       jose:
@@ -142,7 +142,7 @@ importers:
       '@nestjs/testing':
         specifier: ^11.2.6
         version: 11.2.6(@nestjs/common@11.2.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.6)(@nestjs/platform-express@11.2.6)
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@swc/core':
@@ -184,16 +184,16 @@ importers:
       '@maplibre/maplibre-gl-leaflet':
         specifier: ^0.1.4
         version: 0.1.4(@types/leaflet@1.9.22)(leaflet@1.9.4)(maplibre-gl@6.11.2)
-      '@nightlist/mock':
+      '@nightout/mock':
         specifier: workspace:*
         version: link:../../packages/mock
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@nightlist/ui':
+      '@nightout/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@nightlist/utils':
+      '@nightout/utils':
         specifier: workspace:*
         version: link:../../packages/utils
       '@phosphor-icons/react':
@@ -242,7 +242,7 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/vite':
@@ -287,14 +287,14 @@ importers:
 
   packages/mock:
     dependencies:
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../types
-      '@nightlist/utils':
+      '@nightout/utils':
         specifier: workspace:*
         version: link:../utils
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../config
       tsup:
@@ -313,7 +313,7 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../config
       tsup:
@@ -325,17 +325,17 @@ importers:
 
   packages/ui:
     dependencies:
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../types
-      '@nightlist/utils':
+      '@nightout/utils':
         specifier: workspace:*
         version: link:../utils
     devDependencies:
       '@ant-design/cssinjs':
         specifier: ^2.1.2
         version: 2.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../config
       '@phosphor-icons/react':
@@ -374,14 +374,14 @@ importers:
 
   packages/utils:
     dependencies:
-      '@nightlist/types':
+      '@nightout/types':
         specifier: workspace:*
         version: link:../types
       axios:
         specifier: ^1.20.0
         version: 1.20.0
     devDependencies:
-      '@nightlist/config':
+      '@nightout/config':
         specifier: workspace:*
         version: link:../config
       tsup:

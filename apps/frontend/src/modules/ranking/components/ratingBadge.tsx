@@ -1,4 +1,4 @@
-import type { Tier } from '@nightlist/types';
+import type { Tier } from '@nightout/types';
 
 /**
  * ป้ายคะแนนรีวิว (Figma "จัดอันดับ"): สี่เหลี่ยมมุมมน ตัวเลขสีเข้ม สีพื้นตามระดับดาวของร้าน

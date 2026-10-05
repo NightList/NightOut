@@ -1,4 +1,4 @@
-import type { CrowdStatus } from '@nightlist/types';
+import type { CrowdStatus } from '@nightout/types';
 import { useNow } from '@/hooks/useNow';
 import { CROWD, timeAgo } from '@/ui/utils/format';
 

@@ -2,7 +2,7 @@
  * พักไฟล์วิดีโอรีวิวที่เลือกไว้ใน IndexedDB ระหว่างกรอกฟอร์ม (state ของ React เก็บไฟล์ใหญ่ไม่สะดวก)
  * กดส่งรีวิว → services/storage.ts อัปโหลดเข้า Supabase Storage `review-media/<user_id>/<review_id>/<file>`
  */
-const DB = 'nightlist-media';
+const DB = 'nightout-media';
 const STORE = 'files';
 
 function open(): Promise<IDBDatabase> {

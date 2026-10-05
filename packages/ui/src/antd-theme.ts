@@ -6,7 +6,7 @@ export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
   const c = colors[mode];
   return {
     algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-    cssVar: { key: 'nightlist' },
+    cssVar: { key: 'nightout' },
     token: {
       colorPrimary: c.gold,
       colorInfo: c.purple,

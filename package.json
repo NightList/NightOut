@@ -4,8 +4,8 @@
   "packageManager": "pnpm@10.28.0",
   "engines": { "node": ">=22" },
   "scripts": {
-    "db": "pnpm --filter @nightlist/backend db:start",
-    "db:stop": "pnpm --filter @nightlist/backend db:stop",
+    "db": "pnpm --filter @nightout/backend db:start",
+    "db:stop": "pnpm --filter @nightout/backend db:stop",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
@@ -15,7 +15,7 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "eslint": "^10.11.0",
     "prettier": "^3.6.0",
     "turbo": "^2.11.5",

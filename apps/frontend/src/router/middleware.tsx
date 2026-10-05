@@ -1,4 +1,4 @@
-import type { UserRole } from '@nightlist/types';
+import type { UserRole } from '@nightout/types';
 import { Button, Result, Spin } from 'antd';
 import { Link, Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '@/services/auth';

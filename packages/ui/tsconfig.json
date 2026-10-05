@@ -1,5 +1,5 @@
 {
-  "extends": "@nightlist/config/tsconfig/library.json",
+  "extends": "@nightout/config/tsconfig/library.json",
   "compilerOptions": { "types": ["node"] },
   "include": ["src"]
 }

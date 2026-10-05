@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · เฟส 2 / 13 — ค่าคอม · billing · invoice
+-- NightOut · เฟส 2 / 13 — ค่าคอม · billing · invoice
 -- ค่าคอมคิดจาก price snapshot (รอตัดสินใจ ข้อ 10.7 — อนาคตใช้ checkins.actual_spend)
 -- =====================================================================
 set search_path = public, extensions;

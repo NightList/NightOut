@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · Backoffice "เพิ่มผู้ใช้" (หน้า /users)
+-- NightOut · Backoffice "เพิ่มผู้ใช้" (หน้า /users)
 -- NestJS สร้างบัญชีใน Supabase Auth (service_role) → trigger handle_new_auth_user สร้าง public.users (CUSTOMER)
 -- แล้วเรียก admin_finish_new_user ตั้งสิทธิ์ + ผูกร้าน + audit ในธุรกรรมเดียว (แบบเดียวกับ scripts/create-user.ts)
 -- =====================================================================

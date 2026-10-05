@@ -1,7 +1,7 @@
-import type { ReviewMedia } from '@nightlist/mock';
+import type { ReviewMedia } from '@nightout/mock';
 import { getBlob } from '@/services/mediaStore';
 import { log } from '@/services/log';
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
 
 /**
  * อัปโหลดไฟล์ตาม policy ของแต่ละ bucket (โฟลเดอร์แรก = เจ้าของ)

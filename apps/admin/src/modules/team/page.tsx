@@ -8,7 +8,7 @@ import {
   Trash,
   UserCircle,
 } from '@phosphor-icons/react';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { Avatar, Button, Popconfirm, Space, Switch, Table, Tag, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useAdminAction, useAdminView } from '@/services/adminData';

@@ -1,11 +1,11 @@
-import type { BarCategory, BookingStatus, CrowdStatus, Tier } from '@nightlist/types';
+import type { BarCategory, BookingStatus, CrowdStatus, Tier } from '@nightout/types';
 import {
   canTransition,
   HOLDING_STATUSES,
   isNewBar,
   scoreToStars,
   starsToTier,
-} from '@nightlist/utils';
+} from '@nightout/utils';
 import type {
   AppNotification,
   Bar,
@@ -407,18 +407,18 @@ export function submitDeposit(id: string, slipDataUrl: string): void {
     const bk = s.bookings.find((x) => x.id === id)!;
     const amount = depositFor(bar, bk.pax);
     bk.deposit = { amount, slipDataUrl, status: 'SUBMITTED', submittedAt: nowIso() };
-    // เงินเข้าแพลตฟอร์ม → แอดมิน NightList เป็นคนตรวจสลิป ร้านแค่รับทราบ
+    // เงินเข้าแพลตฟอร์ม → แอดมิน NightOut เป็นคนตรวจสลิป ร้านแค่รับทราบ
     adminIds().forEach((a) =>
       notify(a, 'มีสลิปมัดจำรอตรวจ', `${bar.name} · ${bk.userName} · ${amount} บาท`, '/deposits'),
     );
     merchantIdsOf(bar.id).forEach((m) =>
-      notify(m, 'ลูกค้าโอนมัดจำแล้ว (รอ NightList ตรวจ)', `${bk.userName} · ${amount} บาท`, '/merchant/bookings'),
+      notify(m, 'ลูกค้าโอนมัดจำแล้ว (รอ NightOut ตรวจ)', `${bk.userName} · ${amount} บาท`, '/merchant/bookings'),
     );
   });
   transition(id, 'DEPOSIT_SUBMITTED', 'CUSTOMER', b.userName);
 }
 
-/** แอดมิน NightList ตรวจสลิป — ผ่าน = แพลตฟอร์มถือเงินไว้ (HELD) และยืนยันโต๊ะให้ */
+/** แอดมิน NightOut ตรวจสลิป — ผ่าน = แพลตฟอร์มถือเงินไว้ (HELD) และยืนยันโต๊ะให้ */
 export function reviewDeposit(id: string, ok: boolean, by: string): void {
   mutate((s) => {
     const bk = s.bookings.find((x) => x.id === id);
@@ -479,7 +479,7 @@ export function platformDeposits() {
 export function checkInByCode(barId: string, codeOrToken: string, by: string): Booking {
   const v = codeOrToken.trim().toUpperCase();
   const b = getState().bookings.find(
-    (x) => x.barId === barId && (x.code === v || `NIGHTLIST:${x.id}`.toUpperCase() === v),
+    (x) => x.barId === barId && (x.code === v || [`NIGHTOUT:${x.id}`, `NIGHTLIST:${x.id}`].some((q) => q.toUpperCase() === v)),
   );
   if (!b) throw new Error('ไม่พบการจองนี้ในร้านของคุณ');
   if (b.status !== 'CONFIRMED') throw new Error(`สถานะปัจจุบันคือ ${b.status} — เช็กอินไม่ได้`);

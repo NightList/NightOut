@@ -1,4 +1,4 @@
-import type { BarCategory, CrowdStatus } from '@nightlist/types';
+import type { BarCategory, CrowdStatus } from '@nightout/types';
 import type {
   AppNotification,
   AuditLog,
@@ -124,7 +124,7 @@ function menuFor(barId: string, rand: () => number): MenuItem[] {
 
 /** PromptPay ของแพลตฟอร์ม — ลูกค้าโอนมัดจำเข้าที่นี่ (เดโม: เบอร์สมมติ) */
 export const PLATFORM = {
-  name: 'NightList Co., Ltd.',
+  name: 'NightOut Co., Ltd.',
   promptpayId: '0812345678',
 } as const;
 
@@ -151,7 +151,7 @@ function promotionsFor(barId: string, i: number): BarPromotion[] {
     list.push({
       id: `${barId}-pr3`,
       title: 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน',
-      description: 'จองผ่าน NightList และเช็กอินครบตามจำนวน',
+      description: 'จองผ่าน NightOut และเช็กอินครบตามจำนวน',
       active: true,
     });
   return list;
@@ -346,7 +346,7 @@ export function createSeed(): DemoState {
       },
       gracePeriodMinutes: [15, 30, 60][i % 3]!,
       perks: [
-        'น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList',
+        'น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut',
         i % 2 === 0 ? 'ยกเว้นค่าเข้า' : 'ส่วนลดอาหาร 10%',
       ],
     };
@@ -450,7 +450,7 @@ export function createSeed(): DemoState {
   const users: DemoUser[] = [
     {
       id: DEMO_USERS.customer,
-      email: 'demo@nightlist.app',
+      email: 'demo@nightout.app',
       displayName: 'Demo Customer',
       role: 'CUSTOMER',
       createdAt: isoDaysAgo(30),
@@ -476,8 +476,8 @@ export function createSeed(): DemoState {
     },
     {
       id: DEMO_USERS.admin,
-      email: 'admin@nightlist.app',
-      displayName: 'NightList Admin',
+      email: 'admin@nightout.app',
+      displayName: 'NightOut Admin',
       role: 'ADMIN',
       createdAt: isoDaysAgo(120),
       preferences: { styles: [], districts: [] },
@@ -542,14 +542,14 @@ export function createSeed(): DemoState {
     audit: [
       {
         id: 'au-1',
-        actor: 'admin@nightlist.app',
+        actor: 'admin@nightout.app',
         action: 'APPROVE_BAR',
         target: 'Moonlit Cellar',
         at: isoDaysAgo(80),
       },
       {
         id: 'au-2',
-        actor: 'admin@nightlist.app',
+        actor: 'admin@nightout.app',
         action: 'VERIFY_SAFETY',
         target: 'Jazz Hideaway · CCTV',
         at: isoDaysAgo(20),

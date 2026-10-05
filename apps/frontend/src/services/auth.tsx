@@ -1,8 +1,8 @@
 import type { Session } from '@supabase/supabase-js';
-import type { UserRole } from '@nightlist/types';
+import type { UserRole } from '@nightout/types';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useDemo } from '@/hooks/useDemo';
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
 import { log } from '@/services/log';
 import { supabase } from '@/services/supabase';
 import { clearUser, currentProfile, startUser } from '@/services/sync';

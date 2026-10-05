@@ -1,4 +1,4 @@
-# NightList — Architecture
+# NightOut — Architecture
 
 > สถานะ: **Draft v0.4** · ใช้คู่กับ [`PROMPT.md`](PROMPT.md) (สเปค) และ [`SITEMAP.md`](SITEMAP.md) (หน้าเว็บ)
 
@@ -9,7 +9,7 @@ flowchart LR
   subgraph Clients["ผู้ใช้งาน"]
     C["ลูกค้า<br/>(มือถือ / เว็บ PWA)"]
     M["เจ้าของร้าน + Staff<br/>(/merchant, Scanner)"]
-    A["ทีม NightList<br/>(Backoffice)"]
+    A["ทีม NightOut<br/>(Backoffice)"]
     F["เพื่อนที่ได้ลิงก์แชร์<br/>(ไม่ต้องล็อกอิน)"]
   end
 
@@ -117,8 +117,8 @@ apps/frontend/src/
 - กติกา: ของที่ใช้ **หน้าเดียว** อยู่ใน `modules/<หน้า>/components|type|form|modal|utils` · ใช้ **หลายหน้า** ย้ายไป `ui/` หรือ `hooks/`
 - ชื่อไฟล์ component เป็น camelCase (`barCard.tsx`) ส่วน export เป็น PascalCase (`BarCard`)
 - รูป/วิดีโอใน `public/images/<module>/` และ `public/videos/`
-- `@nightlist/*` ใน dev ถูก alias ไปที่ `packages/*/src` (vite.config.ts) — แก้ package แล้วเห็นผลทันที ไม่ต้องรอ build
-- **API client** = class `Rest` ใน `packages/utils/src/rest.ts` (`import { Rest } from '@nightlist/utils/rest'`) ใช้ร่วมกันทั้ง `apps/frontend` และ `apps/admin` — ดูหัวข้อ Data Flow Standard ด้านล่าง · (แผนต่อไป: generate type จาก OpenAPI ของ NestJS ด้วย `openapi-typescript`)
+- `@nightout/*` ใน dev ถูก alias ไปที่ `packages/*/src` (vite.config.ts) — แก้ package แล้วเห็นผลทันที ไม่ต้องรอ build
+- **API client** = class `Rest` ใน `packages/utils/src/rest.ts` (`import { Rest } from '@nightout/utils/rest'`) ใช้ร่วมกันทั้ง `apps/frontend` และ `apps/admin` — ดูหัวข้อ Data Flow Standard ด้านล่าง · (แผนต่อไป: generate type จาก OpenAPI ของ NestJS ด้วย `openapi-typescript`)
 - **Guard ของ route** (`RequireAuth`, `RequireRole`) ห่อที่ระดับ layout route ใน React Router
 
 ### Data Flow Standard (ADR 0002) — ✅
@@ -131,7 +131,7 @@ Component → TanStack Query Hook → API Service Layer (Rest) → Axios Client 
 sequenceDiagram
   participant C as Component
   participant H as Hook (useQuery / useMutation)<br/>services/data.ts
-  participant R as Rest.get/post/put/patch/delete<T><br/>@nightlist/utils/rest
+  participant R as Rest.get/post/put/patch/delete<T><br/>@nightout/utils/rest
   participant X as Axios instance<br/>(interceptors)
   participant API as NestJS /api
   participant DB as Supabase PostgREST / Storage
@@ -177,7 +177,7 @@ sequenceDiagram
 **กติกา**
 - ใช้ `supabase` ได้เฉพาะ `supabase.auth.*` ทั้ง `apps/frontend` และ `apps/admin` — ESLint (`eslint.config.js` ของแต่ละแอป) บล็อก `supabase.from / rpc / storage / schema / channel`
 - Backoffice ใช้ชั้นเดียวกัน: `apps/admin/src/services/adminData.ts` (hook) → `Rest` ตัวเดียวกับหน้าเว็บ (ตั้ง `unauthorizedCode: 'MFA_REQUIRED'`)
-- `Rest` อยู่ใน entry แยก `@nightlist/utils/rest` — backend ที่ import `@nightlist/utils` (ตัวคำนวณราคา ฯลฯ) จึงไม่โหลด axios · ดู [ADR 0004](adr/0004-shared-rest-client.md)
+- `Rest` อยู่ใน entry แยก `@nightout/utils/rest` — backend ที่ import `@nightout/utils` (ตัวคำนวณราคา ฯลฯ) จึงไม่โหลด axios · ดู [ADR 0004](adr/0004-shared-rest-client.md)
 - ข้อมูลใหม่ที่ต้องอ่าน: เพิ่ม endpoint ใน backend (มี `@ApiDoc`) → เพิ่ม hook ใน `services/data.ts` ที่เรียก `Rest.get<T>()`
 - การเขียน: เพิ่มฟังก์ชันใน `services/actions.ts` ที่เรียก `Rest.post/put/patch/delete<T>()` (ใช้กับ `useMutation` ได้ตรงๆ เช่น `useMutation({ mutationFn: (v) => cancelBooking(v.id) })`)
 - `VITE_API_BASE_URL` ว่างได้: dev = `http://localhost:3000/api`, deploy = `/api` (same-origin) · `VITE_API_URL` เดิมยังอ่านเป็นค่าสำรอง
@@ -199,7 +199,7 @@ apps/backend/
 │   ├── app.module.ts            # รวม modules + guard/pipe ระดับแอป
 │   ├── auth/ health/ jobs/ config/   # guard, endpoint ระบบ, env
 │   └── modules/<domain>/        # 1 โดเมน = module + service (+ controller ถ้ามี HTTP): booking, pricing, ranking, notification
-├── supabase/                    # config.toml, migrations/, seed.sql — รันด้วย pnpm --filter @nightlist/backend db:*
+├── supabase/                    # config.toml, migrations/, seed.sql — รันด้วย pnpm --filter @nightout/backend db:*
 ├── api/index.js                 # Vercel Function entry
 └── test/                        # e2e (vitest + supertest)
 ```
@@ -255,10 +255,10 @@ sequenceDiagram
   W->>A: POST /bookings (โต๊ะ + โปรโมชันของร้านถ้ามี — ไม่มีสั่งอาหาร/เครื่องดื่ม)
   A->>D: BEGIN · lock zone · INSERT booking (exclusion constraint) · outbox · COMMIT
   A-->>W: booking = AWAITING_DEPOSIT (ทุกการจองต้องมัดจำ)
-  U->>W: โอน PromptPay ของ NightList + อัปโหลดสลิป
+  U->>W: โอน PromptPay ของ NightOut + อัปโหลดสลิป
   W->>A: POST /bookings/:id/deposit
   A->>D: deposit = SUBMITTED · booking = DEPOSIT_SUBMITTED
-  actor AD as แอดมิน NightList
+  actor AD as แอดมิน NightOut
   AD->>A: ตรวจสลิป → ผ่าน
   A->>D: deposit VERIFIED · settlement = HELD · booking = CONFIRMED · outbox (แจ้งลูกค้า+ร้าน)
   S->>A: ลูกค้าเช็กอิน / ระบบ NO_SHOW
@@ -267,7 +267,7 @@ sequenceDiagram
   A->>D: settlement = PAID_OUT / CREDIT · audit log
 ```
 
-**เงินมัดจำเข้าแพลตฟอร์ม ไม่เข้าร้านโดยตรง:** ลูกค้าโอนเข้า PromptPay ของ NightList (`platform_settings.deposit_promptpay`) · แอดมินเป็นคนตรวจสลิป (ร้านไม่เห็นสลิป) · `deposits.settlement` บอกว่าเงินอยู่ที่ไหน: `HELD` (เราถือไว้) → `PAYOUT_PENDING` (ลูกค้าเช็กอิน/ไม่มา → เป็นของร้าน) → `PAID_OUT` (โอนเข้าบัญชีที่ร้านตั้งใน `/merchant/settings`) หรือ `CREDIT` (เก็บเป็นเครดิตในร้าน) · ยกเลิก/ปฏิเสธ → `REFUNDED` คืนลูกค้า · ร้านดูสรุปที่ `/merchant/deposits` แอดมินจัดการที่ `/deposits`
+**เงินมัดจำเข้าแพลตฟอร์ม ไม่เข้าร้านโดยตรง:** ลูกค้าโอนเข้า PromptPay ของ NightOut (`platform_settings.deposit_promptpay`) · แอดมินเป็นคนตรวจสลิป (ร้านไม่เห็นสลิป) · `deposits.settlement` บอกว่าเงินอยู่ที่ไหน: `HELD` (เราถือไว้) → `PAYOUT_PENDING` (ลูกค้าเช็กอิน/ไม่มา → เป็นของร้าน) → `PAID_OUT` (โอนเข้าบัญชีที่ร้านตั้งใน `/merchant/settings`) หรือ `CREDIT` (เก็บเป็นเครดิตในร้าน) · ยกเลิก/ปฏิเสธ → `REFUNDED` คืนลูกค้า · ร้านดูสรุปที่ `/merchant/deposits` แอดมินจัดการที่ `/deposits`
 
 ### 5.2 เช็กอินด้วย QR
 ```mermaid
@@ -331,9 +331,9 @@ sequenceDiagram
 
 | Env | Vercel | Supabase | Deploy |
 |---|---|---|---|
-| dev | preview ต่อ PR | `nightlist-dev` | อัตโนมัติทุก PR |
-| staging | `staging.nightlist.app` | `nightlist-staging` | merge เข้า `main` |
-| prod | `nightlist.app` | `nightlist-prod` | manual approval |
+| dev | preview ต่อ PR | `nightout-dev` | อัตโนมัติทุก PR |
+| staging | `staging.nightout.app` | `nightout-staging` | merge เข้า `main` |
+| prod | `nightout.app` | `nightout-prod` | manual approval |
 
 **Vercel services (project เดียว, โดเมนเดียว):** `vercel.json` ที่ root กำหนด 3 services และ rewrites — `frontend` → `/`, `admin` → `/admin/*` (Vite `base: /admin/`), `backend` → `/api/*` (NestJS `setGlobalPrefix('api')`, Swagger ที่ `/api/docs`) · เว็บและแอดมินเรียก API แบบ same-origin จึงไม่ต้องตั้ง `VITE_API_URL` ตอน deploy · ยังไม่มี binding เพราะไม่มี service เรียกกันเองฝั่ง server · frontend/admin เป็น SPA จึงมี rewrite ในแต่ละ service ให้ path ที่ไม่ใช่ไฟล์ (เช่น `/ranking`, `/admin/bars`) ไปที่ `index.html` — ไม่งั้นกด refresh จะเจอ 404 ของ Vercel · ทดสอบรวมด้วย `vercel dev`
 

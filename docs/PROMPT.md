@@ -1,13 +1,13 @@
-# Prompt: NightList — เว็บแอปรวมร้านกลางคืน + Tier List + จองโต๊ะ (v2.8)
+# Prompt: NightOut — เว็บแอปรวมร้านกลางคืน + Tier List + จองโต๊ะ (v2.8)
 
 > คัดลอกทั้งหมดด้านล่างไปใช้กับ AI สร้างโค้ด (Claude, Cursor, v0, Lovable, Bolt ฯลฯ)
 
 ---
 
 ## บทบาท
-คุณเป็น Full-stack Developer และ UX Designer ช่วยสร้างเว็บแอป **"NightList"** (Responsive, Mobile-first, ทำเป็น PWA ได้) UI เป็นภาษาไทยทั้งหมด
+คุณเป็น Full-stack Developer และ UX Designer ช่วยสร้างเว็บแอป **"NightOut"** (Responsive, Mobile-first, ทำเป็น PWA ได้) UI เป็นภาษาไทยทั้งหมด
 
-NightList เป็นแพลตฟอร์มสำหรับค้นหา จัดอันดับ และจองโต๊ะร้านกลางคืน โดยเริ่มจากกรุงเทพฯ แล้วค่อยขยายไปทั่วประเทศ ร้านแบ่งเป็น 3 ประเภทหลัก คือ **ผับ/บาร์**, **ร้านนั่งชิล** และ **ร้านอาหารที่มีเครื่องดื่ม**
+NightOut เป็นแพลตฟอร์มสำหรับค้นหา จัดอันดับ และจองโต๊ะร้านกลางคืน โดยเริ่มจากกรุงเทพฯ แล้วค่อยขยายไปทั่วประเทศ ร้านแบ่งเป็น 3 ประเภทหลัก คือ **ผับ/บาร์**, **ร้านนั่งชิล** และ **ร้านอาหารที่มีเครื่องดื่ม**
 
 **Core Loop:** Discover → Estimate → Check Availability → Book → Check-in → Review
 
@@ -69,7 +69,7 @@ Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Sea
   - ระบบคำนวณคะแนนรวม 0–100 แล้วแปลงเป็นดาว: 90+ = 5 ดาว, 75–89 = 4 ดาว, 60–74 = 3 ดาว, 40–59 = 2 ดาว, ต่ำกว่า 40 = 1 ดาว
   - ร้านที่มีรีวิวจากการเช็กอินจริงน้อยกว่า 5 รีวิว ให้แสดงเป็น "ร้านใหม่" แทนดาว
   - หน้าจัดอันดับแบ่งแถวตาม **ดาว** (5★ → 4★ → 3★ → 1–2★) ไม่แสดงตัวอักษร S/A/B/C ให้ผู้ใช้เห็น ดูหัวข้อ "ระดับร้าน = ดาว" ในส่วนดีไซน์
-  - ดาวของ NightList ต่างจากคะแนนรีวิว (rating ที่ลูกค้าให้) ต้องแสดงแยกกันให้ชัด
+  - ดาวของ NightOut ต่างจากคะแนนรีวิว (rating ที่ลูกค้าให้) ต้องแสดงแยกกันให้ชัด
 - **คะแนนคำนวณจาก:**
   - รีวิวที่มาจากการเช็กอินจริงเท่านั้น (ถ่วงน้ำหนักตามความใหม่ของรีวิว)
   - จำนวนการเช็กอินจริงผ่านแอป
@@ -91,7 +91,7 @@ Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Sea
   - ร้านที่ถูกระงับหรือมี Safety Score ต่ำกว่าเกณฑ์ ซื้อโปรโมทไม่ได้
   - เนื้อหาโปรโมทต้องทำตามนโยบายถ้อยคำ (ห้ามโฆษณาเครื่องดื่มแอลกอฮอล์)
 - **การจ่ายเงินใน MVP:**
-  - ร้านเลือกแพ็กเกจใน Merchant Dashboard → โอน PromptPay ของ NightList → อัปโหลดสลิป
+  - ร้านเลือกแพ็กเกจใน Merchant Dashboard → โอน PromptPay ของ NightOut → อัปโหลดสลิป
   - แอดมินตรวจแล้วเปิดใช้งาน ระบบเริ่มและหมดอายุตามวันที่อัตโนมัติ
   - payment gateway อัตโนมัติอยู่ใน Phase 2
 - **Analytics ของร้าน:** impressions, clicks และจำนวนการจองที่มาจากตำแหน่งโปรโมท
@@ -118,7 +118,7 @@ Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Sea
 
 **ระดับความน่าเชื่อถือของข้อมูล:**
 - "ร้านแจ้งเอง": ร้านกรอกข้อมูลเอง
-- "ยืนยันโดย NightList": แอดมินตรวจจากรูป/เอกสาร หรือไปดูหน้างานแล้ว
+- "ยืนยันโดย NightOut": แอดมินตรวจจากรูป/เอกสาร หรือไปดูหน้างานแล้ว
 - ลูกค้าที่เช็กอินแล้วโหวตได้ว่าข้อมูลตรงหรือไม่ ถ้ามีรายงานว่าไม่ตรงหลายครั้ง ระบบจะเปิดเรื่องให้แอดมินตรวจ
 
 **คะแนนความปลอดภัย (Safety Score):** คิดเป็น 0-100 แสดงบนการ์ดร้าน และใช้เป็นตัวกรองได้
@@ -297,7 +297,7 @@ Age Gate (20+) → Onboarding (ความชอบ) → Home / Tier List / Sea
 - **ใช้คำแสลงหรือคำเลี่ยงมาแทนชื่อเครื่องดื่มเพื่อทำโปรที่ผิดกฎหมาย** เพราะกฎหมายดูที่เนื้อหาและเจตนา การเปลี่ยนคำไม่ทำให้ถูกกฎหมาย
 
 **ให้ใช้:**
-- คำกลางๆ เชิงข้อมูล เช่น "เครื่องดื่ม", "เซ็ตโต๊ะ", "แพ็กเกจโต๊ะ 3-4 คน", "สิทธิพิเศษเมื่อจองผ่าน NightList"
+- คำกลางๆ เชิงข้อมูล เช่น "เครื่องดื่ม", "เซ็ตโต๊ะ", "แพ็กเกจโต๊ะ 3-4 คน", "สิทธิพิเศษเมื่อจองผ่าน NightOut"
 - ราคาเมนูแสดงเป็นข้อมูลรายการในหน้าร้านได้ แต่ไม่ทำเป็นแบนเนอร์หรือโฆษณาดัน
 
 **อื่นๆ:**
@@ -375,7 +375,7 @@ night-list/
 ├── apps/
 │   ├── frontend/           # React (Vite) — ฝั่งลูกค้า + ฝั่งร้าน (/merchant) + Staff Scanner (PWA)
 │   │   └── api/og/         # Vercel Function สร้าง meta/OG image ให้ /bars/:slug และ /share/:token
-│   ├── admin/              # React (Vite) + Ant Design v6 + ProComponents — Backoffice ทีม NightList (อนุมัติร้าน, Safety, ดาว, โปรโมท, Review, Billing, Audit)
+│   ├── admin/              # React (Vite) + Ant Design v6 + ProComponents — Backoffice ทีม NightOut (อนุมัติร้าน, Safety, ดาว, โปรโมท, Review, Billing, Audit)
 │   └── backend/            # NestJS app (Vercel Function): src/ = HTTP entry (controllers, guards, pipes)
 │                           #   src/modules/ = domain modules (booking, pricing, ranking, notification, jobs ...)
 │                           #   supabase/ = migrations (SQL), RLS policies, DB functions, seed data
@@ -404,7 +404,7 @@ night-list/
 - การอ่านข้อมูลสาธารณะ (รายชื่อร้าน, เมนู) และ Realtime (Crowd Status, สถานะ booking) ใช้ Supabase client + RLS จาก frontend ได้โดยตรง เพราะ NestJS บน Vercel เป็น serverless จึงถือ websocket ไม่ได้
 - `apps/backend` แยกเป็น controller (ชั้นบาง: guard + validation) กับ `src/modules/*` (business logic ของ booking, pricing, ranking, notification) เพื่อให้ jobs และ API ใช้ logic เดียวกัน
 - Status transition map, ตัวคำนวณราคา และตัวคำนวณดาว อยู่ใน `packages/utils` ให้ทั้ง frontend (แสดงผล) และ NestJS (validate) ใช้โค้ดเดียวกัน
-- `apps/admin` deploy แยกโดเมน (เช่น admin.nightlist.app) และเข้าได้เฉพาะ role ADMIN
+- `apps/admin` deploy แยกโดเมน (เช่น admin.nightout.app) และเข้าได้เฉพาะ role ADMIN
 
 ## Sitemap
 รายชื่อหน้าทั้งหมด (path, access, ส่วนประกอบหลัก, สถานะใน Figma) และ user flow อยู่ใน **[`SITEMAP.md`](SITEMAP.md)** ให้ยึดไฟล์นั้นเป็นหลัก
@@ -440,7 +440,7 @@ night-list/
 
 ## Infrastructure as Code (Terraform)
 - **จัดการด้วย Terraform:**
-  - Vercel: สร้าง 3 projects (`web`, `admin`, `api`) ผูก Git repo, root directory, build command, environment variables ต่อ environment, custom domains (nightlist.app, admin.nightlist.app, api.nightlist.app)
+  - Vercel: สร้าง 3 projects (`web`, `admin`, `api`) ผูก Git repo, root directory, build command, environment variables ต่อ environment, custom domains (nightout.app, admin.nightout.app, api.nightout.app)
   - Supabase: project ต่อ environment (dev / staging / prod), region `ap-southeast-1` (Singapore), ตั้งค่า Auth (เปิดเฉพาะ Email provider, MFA TOTP), redirect URLs, storage buckets
   - Secrets (Supabase keys, LINE channel secret/token, JOB_SECRET, QR signing key) ส่งเป็นตัวแปร `sensitive` จาก Terraform Cloud / GitHub Secrets และห้าม commit ลง repo
 - **ไม่ใช้ Terraform จัดการ schema:** migrations, RLS และ DB functions อยู่ใน `apps/backend/supabase` แล้วรันด้วย `supabase db push` ใน CI
@@ -506,7 +506,7 @@ night-list/
   - ค่าเริ่มต้นคือ **มืด** ถ้าอ่านค่าที่ผู้ใช้บันทึกไว้ไม่ได้ให้ใช้ **Dark**
 - **ปุ่มสลับ:** อยู่ใน header (ไอคอนพระจันทร์/ดวงอาทิตย์) และในหน้า `settings`
 - **การบันทึก:**
-  - ผู้ใช้ทั่วไป: เก็บใน `localStorage` (`nightlist-theme`)
+  - ผู้ใช้ทั่วไป: เก็บใน `localStorage` (`nightout-theme`)
   - ถ้าล็อกอิน: sync ไปที่ `user_preferences.theme` (`LIGHT` / `DARK` / `SYSTEM`) ด้วย
 - **Implementation:**
   - Tailwind `darkMode: 'class'`: ใส่ class `dark` / `light` ที่ `<html>` และสลับค่า CSS variables ตาม class
@@ -602,7 +602,7 @@ night-list/
 
 ### Layout อ้างอิงจาก Mockup (ใช้ token ของธีม Midnight Gold)
 **Desktop (Home)**
-- **Header:** โลโก้ NightList (พระจันทร์เสี้ยว gradient ม่วง→ทอง) + เมนู: จัดอันดับ / จองโต๊ะ / แนะนำ / ค้นหา / โปรไฟล์
+- **Header:** โลโก้ NightOut (พระจันทร์เสี้ยว gradient ม่วง→ทอง) + เมนู: จัดอันดับ / จองโต๊ะ / แนะนำ / ค้นหา / โปรไฟล์
   - เมนูปกติเป็นสีเทา var(--muted) ส่วนเมนูที่เลือกอยู่เป็นทอง พร้อมขีดล่างทอง
 - **Hero "ร้านแนะนำสุดฮอตในกรุงเทพฯ":**
   - พื้น gradient ดำ → ม่วงเข้ม (var(--background) → #1E0B33) และขอบบาง ทองจาง (rgba ของ #E8B64C ที่ 30%)
@@ -620,7 +620,7 @@ night-list/
     - ฟิลด์: วันที่, เวลา, จำนวนคน, โซน, รายการเมนู
     - ยอดรวมโดยประมาณ (Estimated Total) ตัวใหญ่สีทอง
     - ปุ่มหลัก "คำนวณและจองเลย" พื้นทอง ตัวอักษรดำ
-  - **การ์ด "ข้อมูลความปลอดภัย":** แต่ละรายการแสดง **สถานะเดียว** ✅ มี / ❌ ไม่มี / ⚪ ยังไม่มีข้อมูล (ไม่แสดง ✅ และ ❌ คู่กันแบบใน mockup) พร้อมป้าย "ร้านแจ้งเอง" หรือ "ยืนยันโดย NightList"
+  - **การ์ด "ข้อมูลความปลอดภัย":** แต่ละรายการแสดง **สถานะเดียว** ✅ มี / ❌ ไม่มี / ⚪ ยังไม่มีข้อมูล (ไม่แสดง ✅ และ ❌ คู่กันแบบใน mockup) พร้อมป้าย "ร้านแจ้งเอง" หรือ "ยืนยันโดย NightOut"
 - **Footer:** เกี่ยวกับเรา, เงื่อนไขการใช้งาน, นโยบายความเป็นส่วนตัว, ติดต่อเรา และบรรทัด "20+ · ดื่มไม่ขับ · PDPA" สีเทา
 
 **Mobile**

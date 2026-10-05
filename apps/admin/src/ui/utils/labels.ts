@@ -1,4 +1,4 @@
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 
 /** ป้ายภาษาไทย + สี Tag ของ enum ต่าง ๆ (แสดงให้ทีมอ่าน ไม่ใช่รหัสระบบ) */
 export interface TagLabel {

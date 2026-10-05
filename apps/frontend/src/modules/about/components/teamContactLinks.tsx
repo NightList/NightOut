@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { teamContactLinks } from '../utils/teamContacts';
 
 /** ช่องทางติดต่อของทีมงาน — ไอคอนวงกลม 44px อย่างเดียว (ชื่อช่องทางอยู่ใน Tooltip + aria-label) · ไม่มีเลย → ไม่แสดงอะไร */

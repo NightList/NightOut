@@ -1,5 +1,5 @@
 {
-  "name": "@nightlist/frontend",
+  "name": "@nightout/frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,10 +14,10 @@
     "@ant-design/cssinjs": "^2.1.2",
     "@gsap/react": "^2.1.2",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
-    "@nightlist/mock": "workspace:*",
-    "@nightlist/types": "workspace:*",
-    "@nightlist/ui": "workspace:*",
-    "@nightlist/utils": "workspace:*",
+    "@nightout/mock": "workspace:*",
+    "@nightout/types": "workspace:*",
+    "@nightout/ui": "workspace:*",
+    "@nightout/utils": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-query": "^5.104.0",
@@ -35,7 +35,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@types/leaflet": "^1.9.22",
     "@types/react": "^19.3.0",

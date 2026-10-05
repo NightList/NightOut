@@ -1,6 +1,6 @@
 import { PageContainer } from '@ant-design/pro-components';
-import type { Db } from '@nightlist/types';
-import { TierStars } from '@nightlist/ui';
+import type { Db } from '@nightout/types';
+import { TierStars } from '@nightout/ui';
 import { Table, Tag } from 'antd';
 import { useMemo } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';

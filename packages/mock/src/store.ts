@@ -1,7 +1,7 @@
 import { createSeed, type DemoState } from './seed';
 
-const KEY = 'nightlist-demo-v1';
-const SESSION_KEY = 'nightlist-demo-session';
+const KEY = 'nightout-demo-v1';
+const SESSION_KEY = 'nightout-demo-session';
 
 type Listener = () => void;
 

@@ -1,4 +1,4 @@
-// Shared flat ESLint config for NightList
+// Shared flat ESLint config for NightOut
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';

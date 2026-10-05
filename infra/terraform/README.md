@@ -14,6 +14,6 @@ terraform plan  -var-file=envs/dev.tfvars
 terraform apply -var-file=envs/dev.tfvars
 ```
 
-- Schema / RLS ไม่ได้อยู่ใน Terraform — ใช้ `supabase db push` จาก `apps/backend` (`pnpm --filter @nightlist/backend db:push`)
+- Schema / RLS ไม่ได้อยู่ใน Terraform — ใช้ `supabase db push` จาก `apps/backend` (`pnpm --filter @nightout/backend db:push`)
 - `supabase_anon_key` / `supabase_service_role_key` ได้หลังสร้าง project ครั้งแรก แล้ว apply อีกรอบ
 - ⚠️ ยังไม่ได้ `terraform validate` กับ provider จริง — ตรวจ `terraform plan` ก่อน apply ครั้งแรก

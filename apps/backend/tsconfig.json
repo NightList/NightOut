@@ -1,5 +1,5 @@
 {
-  "extends": "@nightlist/config/tsconfig/nest.json",
+  "extends": "@nightout/config/tsconfig/nest.json",
   "compilerOptions": { "outDir": "dist", "rootDir": ".", "types": ["node"] },
   "include": ["src", "test"]
 }

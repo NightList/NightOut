@@ -49,7 +49,7 @@ function Item({ icon, title, children }: { icon: ReactNode; title: string; child
 const icon = 'size-[clamp(32px,2.8vw,46px)]';
 
 /**
- * ติดต่อเรา (Figma: การ์ดกระจก — หัวข้อกลางบน · 4 ช่องมีเส้นคั่น · โซเชียลมุมขวาล่าง · NIGHTLIST ยักษ์จม ๆ อยู่ด้านหลัง)
+ * ติดต่อเรา (Figma: การ์ดกระจก — หัวข้อกลางบน · 4 ช่องมีเส้นคั่น · โซเชียลมุมขวาล่าง · NIGHTOUT ยักษ์จม ๆ อยู่ด้านหลัง)
  * การ์ดเป็นกระจกเบลอ → ตัวหนังสือยักษ์ส่วนที่อยู่หลังการ์ดจะเบลอ ส่วนที่ล้นลงมาคมชัด
  */
 export function ContactSection() {
@@ -122,10 +122,10 @@ export function ContactSection() {
         </ul>
       </div>
 
-      {/* NIGHTLIST ยักษ์ — ครึ่งบนจมอยู่หลังการ์ด (เบลอ) ล้นลงมาแล้วถูกตัดที่ขอบล่างหน้า */}
+      {/* NIGHTOUT ยักษ์ — ครึ่งบนจมอยู่หลังการ์ด (เบลอ) ล้นลงมาแล้วถูกตัดที่ขอบล่างหน้า */}
       <div aria-hidden="true" className="relative -mt-[8.3vw] h-[13.2vw] overflow-hidden">
         <p className="font-poppins about-giant whitespace-nowrap text-center text-[19.15vw] font-bold leading-[0.7] tracking-[-0.02em]">
-          NIGHTLIST
+          NIGHTOUT
         </p>
       </div>
     </section>

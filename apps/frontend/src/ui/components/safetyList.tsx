@@ -19,7 +19,7 @@ export function SafetyList({ bar }: { bar: Bar }) {
           <p className="font-semibold">Safety Score</p>
           <p className="text-sm text-muted">
             คิดจากมาตรการที่ร้านมี · <SealCheck className="inline text-gold-text" /> = ยืนยันโดย
-            NightList
+            NightOut
           </p>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function SafetyList({ bar }: { bar: Bar }) {
               <Question weight="fill" className="shrink-0 text-muted" aria-label="ยังไม่มีข้อมูล" />
             )}
             <span className="flex-1 text-sm">{SAFETY_LABELS[s.key]}</span>
-            <Tooltip title={s.source === 'ADMIN_VERIFIED' ? 'ยืนยันโดย NightList' : 'ร้านแจ้งเอง'}>
+            <Tooltip title={s.source === 'ADMIN_VERIFIED' ? 'ยืนยันโดย NightOut' : 'ร้านแจ้งเอง'}>
               {s.source === 'ADMIN_VERIFIED' ? (
                 <SealCheck weight="fill" className="text-gold-text" />
               ) : (

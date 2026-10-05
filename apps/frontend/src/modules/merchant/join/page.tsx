@@ -31,7 +31,7 @@ export function MerchantJoinPage() {
             try {
               await merchantJoin({ name: v.name, category: v.category, district_id: v.district ?? null, address: v.address, license: v.license });
               await reload(); // role เปลี่ยนเป็นร้านค้า → เมนูร้านค้าเปิดให้เตรียมข้อมูลระหว่างรอตรวจ
-              message.success('ส่งข้อมูลแล้ว ทีม NightList จะตรวจภายใน 1–2 วันทำการ');
+              message.success('ส่งข้อมูลแล้ว ทีม NightOut จะตรวจภายใน 1–2 วันทำการ');
               navigate('/merchant/status');
             } catch (e) {
               message.error((e as Error).message);

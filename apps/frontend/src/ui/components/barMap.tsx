@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, Marker, Popup, useMap } from 'react-leaflet';
 import { Link } from 'react-router';
 import { useEffect } from 'react';
-import { useThemeMode } from '@nightlist/ui';
+import { useThemeMode } from '@nightout/ui';
 import { MapBaseLayer } from './mapBaseLayer';
 
 /** หมุดทอง (ไม่ใช้รูป marker ของ Leaflet — bundler จัดการ path รูปยาก) */

@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
-import type { UserRole } from '@nightlist/types';
+import type { UserRole } from '@nightout/types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
 import { supabase } from '@/services/supabase';
 
 /**

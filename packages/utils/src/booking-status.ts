@@ -1,4 +1,4 @@
-import type { BookingStatus, UserRole } from '@nightlist/types';
+import type { BookingStatus, UserRole } from '@nightout/types';
 
 type Actor = UserRole | 'SYSTEM';
 
@@ -21,7 +21,7 @@ export const BOOKING_TRANSITIONS: Readonly<
     { to: 'CANCELLED_BY_CUSTOMER', by: ['CUSTOMER'] },
     { to: 'EXPIRED', by: ['SYSTEM'] },
   ],
-  // มัดจำเข้าแพลตฟอร์ม → แอดมิน NightList เป็นคนตรวจสลิป (ร้านไม่เห็นเงินจนกว่าจะ payout)
+  // มัดจำเข้าแพลตฟอร์ม → แอดมิน NightOut เป็นคนตรวจสลิป (ร้านไม่เห็นเงินจนกว่าจะ payout)
   DEPOSIT_SUBMITTED: [
     { to: 'CONFIRMED', by: ['ADMIN'] },
     { to: 'AWAITING_DEPOSIT', by: ['ADMIN'] },

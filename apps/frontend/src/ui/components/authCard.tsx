@@ -22,7 +22,7 @@ export function AuthCard({
       <div className="rounded-2xl border border-purple/45 bg-grey/5 px-6 pb-8 pt-7 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-lg sm:px-14">
         <img
           src="/images/common/logo.png"
-          alt="NightList"
+          alt="NightOut"
           width={177}
           height={172}
           className="mx-auto mb-5 w-30"

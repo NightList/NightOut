@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { Card, Space, Table, Tag } from 'antd';
 import { useMasterTable } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';

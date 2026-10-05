@@ -13,7 +13,7 @@ interface Enrollment {
   secret: string;
 }
 
-const ISSUER = 'NightList Admin';
+const ISSUER = 'NightOut Admin';
 
 function toThai(message: string): string {
   if (/invalid login credentials/i.test(message)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
@@ -142,7 +142,7 @@ export function LoginPage() {
         className="w-full max-w-md"
         title={
           <span className="flex items-center gap-2">
-            <ShieldStar className="text-gold" /> NightList Backoffice
+            <ShieldStar className="text-gold" /> NightOut Backoffice
           </span>
         }
       >

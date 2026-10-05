@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · Backoffice "จัดการทีมงาน" (ทีมงานหน้า /about — ตาราง team_members จาก …001800)
+-- NightOut · Backoffice "จัดการทีมงาน" (ทีมงานหน้า /about — ตาราง team_members จาก …001800)
 --   - view admin_team_members: แอดมินเห็นทุกคน (รวมที่ซ่อนอยู่)
 --   - admin_save_team_member / admin_delete_team_member / admin_reorder_team_members
 --     เรียกจาก NestJS (service_role) เท่านั้น · ตรวจ ADMIN + บันทึก audit_logs ในธุรกรรมเดียว (แบบ …001600)

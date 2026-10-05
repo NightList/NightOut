@@ -172,7 +172,7 @@ export class MerchantController {
   @Put('bars/:barId/payout-account')
   @ApiDoc({
     summary: "ตั้งบัญชีรับเงินของร้าน",
-    description: "บัญชีที่ NightList โอนเงินมัดจำให้หลังลูกค้าเช็กอิน · เลขบัญชีถูกเข้ารหัสที่ API ก่อนลง DB · เจ้าของร้านเท่านั้น",
+    description: "บัญชีที่ NightOut โอนเงินมัดจำให้หลังลูกค้าเช็กอิน · เลขบัญชีถูกเข้ารหัสที่ API ก่อนลง DB · เจ้าของร้านเท่านั้น",
     returns: "`id` รหัสบัญชี · `account_no_last4` เลขบัญชี 4 ตัวท้าย",
     forbidden: "ไม่ใช่ทีมของร้านนี้ หรือบทบาทไม่พอ (STAFF ทำได้แค่การจอง/เช็กอิน/ความแน่น)",
   })

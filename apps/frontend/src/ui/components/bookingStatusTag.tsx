@@ -1,4 +1,4 @@
-import type { BookingStatus } from '@nightlist/types';
+import type { BookingStatus } from '@nightout/types';
 import { Tag } from 'antd';
 import { BOOKING_STATUS } from '@/ui/utils/format';
 

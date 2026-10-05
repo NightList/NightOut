@@ -1,5 +1,5 @@
 import { CATEGORY_LABELS, listBars, rankingByPeriod, type RankingPeriod } from '@/services/data';
-import type { BarCategory } from '@nightlist/types';
+import type { BarCategory } from '@nightout/types';
 import { Empty, Segmented } from 'antd';
 import { useSearchParams } from 'react-router';
 import { useDemo } from '@/hooks/useDemo';

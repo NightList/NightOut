@@ -14,8 +14,8 @@ terraform {
 
   # แยก state ต่อ environment ด้วย workspace: terraform workspace select dev|staging|prod
   # backend "remote" {
-  #   organization = "nightlist"
-  #   workspaces { prefix = "nightlist-" }
+  #   organization = "nightout"
+  #   workspaces { prefix = "nightout-" }
   # }
 }
 

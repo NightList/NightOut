@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 import { Button, Popconfirm, Space, Statistic, Table, Tabs, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useMemo } from 'react';
@@ -15,7 +15,7 @@ import { BOOKING_STATUS, SETTLEMENT } from '@/ui/utils/labels';
 type Row = Db.AdminDeposit;
 
 /**
- * /deposits — เงินมัดจำทั้งระบบ (เงินเข้า NightList)
+ * /deposits — เงินมัดจำทั้งระบบ (เงินเข้า NightOut)
  * 1) ตรวจสลิปที่ลูกค้าโอนเข้า PromptPay ของเรา → ยืนยันโต๊ะ
  * 2) หลังลูกค้าเช็กอิน/ไม่มา → โอนให้ร้านตามบัญชีที่ร้านตั้งไว้ หรือเก็บเป็นเครดิตร้าน · ยกเลิกทันเวลา → คืนลูกค้า
  */
@@ -72,7 +72,7 @@ export function DepositsPage() {
   return (
     <PageContainer
       title="เงินมัดจำ"
-      subTitle="ลูกค้าโอนเข้า PromptPay ของ NightList · เราถือไว้จนเช็กอิน แล้วส่งต่อให้ร้าน"
+      subTitle="ลูกค้าโอนเข้า PromptPay ของ NightOut · เราถือไว้จนเช็กอิน แล้วส่งต่อให้ร้าน"
       extra={
         <Space size="large">
           <Statistic title="รอตรวจสลิป" value={g.toVerify.length} suffix="รายการ" />

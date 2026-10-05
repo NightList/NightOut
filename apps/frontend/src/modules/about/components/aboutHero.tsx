@@ -25,7 +25,7 @@ export function AboutHero() {
       >
         <img
           src="/images/about/phone.webp"
-          alt="หน้าแรกของ NightList บนมือถือ"
+          alt="หน้าแรกของ NightOut บนมือถือ"
           width={484}
           height={653}
           fetchPriority="high"

@@ -1,5 +1,5 @@
 {
-  "name": "@nightlist/mock",
+  "name": "@nightout/mock",
   "version": "0.0.0",
   "private": true,
   "description": "Demo mode data layer: fictional seed data + localStorage store (ใช้จนกว่าจะต่อ Supabase / API จริง)",
@@ -23,11 +23,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@nightlist/types": "workspace:*",
-    "@nightlist/utils": "workspace:*"
+    "@nightout/types": "workspace:*",
+    "@nightout/utils": "workspace:*"
   },
   "devDependencies": {
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
     "vitest": "^5.0.2"

@@ -6,7 +6,7 @@ export const SETTLEMENT_LABEL: Record<
   NonNullable<NonNullable<Booking['deposit']>['settlement']>,
   { label: string; color: string }
 > = {
-  HELD: { label: 'NightList ถือไว้', color: 'blue' },
+  HELD: { label: 'NightOut ถือไว้', color: 'blue' },
   PAYOUT_PENDING: { label: 'รอโอนให้ร้าน', color: 'gold' },
   PAID_OUT: { label: 'โอนให้ร้านแล้ว', color: 'green' },
   CREDIT: { label: 'เก็บเป็นเครดิตร้าน', color: 'purple' },
@@ -22,7 +22,7 @@ export function DepositSummary({ booking: b }: { booking: Booking }) {
       <dt className="text-muted">ยอด</dt>
       <dd className="font-semibold text-gold-text">{baht(d.amount)}</dd>
       <dt className="text-muted">โอนเข้า</dt>
-      <dd>NightList (แพลตฟอร์มถือเงินไว้ให้ก่อน)</dd>
+      <dd>NightOut (แพลตฟอร์มถือเงินไว้ให้ก่อน)</dd>
       <dt className="text-muted">สลิป</dt>
       <dd>
         {d.status === 'VERIFIED' ? 'ตรวจแล้ว' : d.status === 'REJECTED' ? 'ไม่ผ่าน' : 'รอตรวจ'} ·{' '}

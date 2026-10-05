@@ -41,7 +41,7 @@ export function BookingDetailPage() {
     const text = `ไป ${bar.name} กัน! ${dateTime(b.datetime)} · ${zone?.name}\n${shareUrl}`;
     if (navigator.share) {
       await navigator
-        .share({ title: 'บัตรจอง NightList', text, url: shareUrl })
+        .share({ title: 'บัตรจอง NightOut', text, url: shareUrl })
         .catch(() => undefined);
     } else {
       await navigator.clipboard.writeText(text);
@@ -156,7 +156,7 @@ export function BookingDetailPage() {
           <>
             <p className="mb-3 font-semibold">แสดง QR นี้ให้การ์ดหน้าร้าน</p>
             <div className="inline-block rounded-2xl bg-white p-4">
-              <QRCodeSVG value={`NIGHTLIST:${b.id}`} size={200} level="M" />
+              <QRCodeSVG value={`NIGHTOUT:${b.id}`} size={200} level="M" />
             </div>
             <p className="mt-3 font-mono text-lg tracking-widest">{b.code}</p>
             {countdown ? (
@@ -174,7 +174,7 @@ export function BookingDetailPage() {
               {b.status === 'CHECKED_IN' || b.status === 'COMPLETED'
                 ? `เช็กอินแล้ว${b.checkedInAt ? ` · ${dateTime(b.checkedInAt)}` : ''} ขอให้สนุกนะ!`
                 : ['PENDING', 'AWAITING_DEPOSIT', 'DEPOSIT_SUBMITTED'].includes(b.status)
-                  ? 'จะแสดงเมื่อ NightList ตรวจสลิปมัดจำแล้ว'
+                  ? 'จะแสดงเมื่อ NightOut ตรวจสลิปมัดจำแล้ว'
                   : 'การจองนี้ไม่สามารถเช็กอินได้แล้ว'}
             </p>
           </div>

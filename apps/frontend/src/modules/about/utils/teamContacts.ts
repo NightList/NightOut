@@ -9,7 +9,7 @@ import {
   TiktokLogo,
   type Icon,
 } from '@phosphor-icons/react';
-import type { Db } from '@nightlist/types';
+import type { Db } from '@nightout/types';
 
 export interface TeamContactLink {
   key: keyof Db.TeamContacts;

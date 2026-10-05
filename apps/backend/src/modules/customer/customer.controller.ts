@@ -52,7 +52,7 @@ export class CustomerController {
   @HttpCode(200)
   @ApiDoc({
     summary: "ส่งสลิปมัดจำ",
-    description: "หลังโอนมัดจำเข้า PromptPay ของ NightList ให้อัปโหลดสลิปเข้า Storage `slips/<user_id>/<booking_id>.jpg` เองก่อน แล้วส่ง `slip_path` มาที่เส้นนี้ · ใช้ได้เฉพาะการจองของตัวเองที่ยังรอมัดจำ",
+    description: "หลังโอนมัดจำเข้า PromptPay ของ NightOut ให้อัปโหลดสลิปเข้า Storage `slips/<user_id>/<booking_id>.jpg` เองก่อน แล้วส่ง `slip_path` มาที่เส้นนี้ · ใช้ได้เฉพาะการจองของตัวเองที่ยังรอมัดจำ",
     returns: "`id` รหัสมัดจำ · `booking_id` · `status` = SUBMITTED (รอแอดมินตรวจ)",
   })
   submitDeposit(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: SubmitDepositDto) {
