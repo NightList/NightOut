@@ -10,6 +10,7 @@ export const SETTLEMENT_LABEL: Record<
   PAYOUT_PENDING: { label: 'รอโอนให้ร้าน', color: 'gold' },
   PAID_OUT: { label: 'โอนให้ร้านแล้ว', color: 'green' },
   CREDIT: { label: 'เก็บเป็นเครดิตร้าน', color: 'purple' },
+  REFUND_PENDING: { label: 'รอ NightOut โอนคืนลูกค้า', color: 'orange' },
   REFUNDED: { label: 'คืนลูกค้าแล้ว', color: 'default' },
 };
 

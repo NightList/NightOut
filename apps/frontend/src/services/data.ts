@@ -50,7 +50,7 @@ export type {
   ReviewMedia,
   SafetyValue,
 } from '@nightout/mock';
-export { DISTRICTS, MASTER, STYLES, myPrefs } from '@/services/sync';
+export { DISTRICTS, MASTER, STYLES, currentProfile, myPrefs } from '@/services/sync';
 export * from '@/services/actions';
 
 
@@ -118,6 +118,25 @@ export interface LedgerRow {
 }
 export const useBarLedger = (barId: string) =>
   useQuery({ queryKey: ['bar_deposit_ledger', barId], queryFn: () => Rest.get<LedgerRow[]>(`/merchant/bars/${barId}/deposit-ledger`) });
+
+/** โซน/โต๊ะที่ย้ายการจองไปได้ (ปุ่ม "ย้ายโต๊ะ") */
+export interface TableOption {
+  zone_id: string;
+  zone_name: string;
+  table_id: string | null;
+  table_name: string | null;
+  seats: number | null;
+  available: boolean;
+  is_current: boolean;
+  zone_remaining_pax: number;
+}
+export const useTableOptions = (barId: string, bookingId: string | null) =>
+  useQuery({
+    queryKey: ['table_options', bookingId],
+    enabled: !!bookingId,
+    staleTime: 0,
+    queryFn: () => Rest.get<TableOption[]>(`/merchant/bars/${barId}/bookings/${bookingId}/table-options`),
+  });
 
 export interface BillingRow {
   id: string;

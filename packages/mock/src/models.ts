@@ -117,6 +117,8 @@ export interface Bar {
     amount: number;
     unit: 'PER_TABLE' | 'PER_PERSON';
     policy: string;
+    /** ยกเลิกล่วงหน้ากี่ชั่วโมงถึงได้มัดจำคืน (bar_booking_settings.refund_before_hours · ไม่มี = 24) */
+    refundBeforeHours?: number;
   };
   payout: BarPayout;
   gracePeriodMinutes: number;
@@ -157,7 +159,7 @@ export interface Review {
   status?: 'PUBLISHED' | 'HIDDEN' | 'REMOVED';
 }
 
-export type DepositSettlement = 'HELD' | 'PAYOUT_PENDING' | 'PAID_OUT' | 'CREDIT' | 'REFUNDED';
+export type DepositSettlement = 'HELD' | 'PAYOUT_PENDING' | 'PAID_OUT' | 'CREDIT' | 'REFUND_PENDING' | 'REFUNDED';
 
 export interface Booking {
   id: string;
@@ -185,7 +187,7 @@ export interface Booking {
     status: 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
     submittedAt: string;
     verifiedAt?: string;
-    /** เงินอยู่ที่ไหน: HELD = แพลตฟอร์มถือไว้ · PAYOUT_PENDING = รอโอนให้ร้าน · PAID_OUT = โอนแล้ว · CREDIT = เก็บเป็นเครดิตร้าน · REFUNDED = คืนลูกค้า */
+    /** เงินอยู่ที่ไหน: HELD = แพลตฟอร์มถือไว้ · PAYOUT_PENDING = รอโอนให้ร้าน · PAID_OUT = โอนแล้ว · CREDIT = เก็บเป็นเครดิตร้าน · REFUND_PENDING = รอคืนลูกค้า · REFUNDED = คืนลูกค้า */
     settlement?: DepositSettlement;
     settledAt?: string;
   };

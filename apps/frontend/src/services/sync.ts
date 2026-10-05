@@ -203,7 +203,7 @@ function toBooking(r: BookingDetailRow): Booking {
           submittedAt: r.deposit.created_at,
           verifiedAt: r.deposit.verified_at ?? undefined,
           settlement:
-            settlement && settlement !== 'NONE' && settlement !== 'REFUND_PENDING'
+            settlement && settlement !== 'NONE'
               ? (settlement as NonNullable<Booking['deposit']>['settlement'])
               : undefined,
         }
@@ -380,6 +380,10 @@ export interface SessionProfile {
   email: string;
   displayName: string;
   role: UserRole;
+  /** เบอร์ล่าสุดที่ใช้จอง (E.164) — หน้า Checkout เติมให้ */
+  phoneE164?: string | null;
+  /** ถูกระงับการจอง (สลิปปลอมซ้ำ) */
+  bannedAt?: string | null;
 }
 export interface UserPrefs {
   styleIds: string[];
@@ -505,6 +509,9 @@ export function currentProfile(): SessionProfile | null {
 }
 export function setProfileName(displayName: string) {
   if (lastProfile) lastProfile = { ...lastProfile, displayName };
+}
+export function setProfilePhone(phoneE164: string) {
+  if (lastProfile) lastProfile = { ...lastProfile, phoneE164 };
 }
 
 /** ใช้ใน dev tools: window.__nightout() ดูข้อมูลใน cache */

@@ -37,6 +37,7 @@ export interface BarDetailRow {
     deposit_amount: number;
     deposit_unit: Bar['deposit']['unit'];
     deposit_policy: string | null;
+    refund_before_hours?: number;
     grace_minutes: number;
   } | null;
   fees: { fee_type: string; calc: string; value: number }[];
@@ -179,6 +180,7 @@ export function toBar(r: BarDetailRow): Bar {
       amount: Number(settings?.deposit_amount ?? 0),
       unit: settings?.deposit_unit ?? 'PER_TABLE',
       policy: settings?.deposit_policy ?? '',
+      refundBeforeHours: settings?.refund_before_hours ?? 24,
     },
     // เลขบัญชีเต็มไม่ออกจาก DB (เข้ารหัส) — แสดงแค่ 4 ตัวท้าย
     payout: r.payout_account

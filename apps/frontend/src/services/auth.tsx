@@ -13,6 +13,10 @@ export interface AppUser {
   displayName: string;
   role: UserRole;
   barId?: string;
+  /** เบอร์ล่าสุดที่ใช้จอง (E.164) */
+  phoneE164?: string | null;
+  /** ถูกระงับการจอง */
+  bannedAt?: string | null;
 }
 
 interface AuthContextValue {
@@ -30,9 +34,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** โปรไฟล์จาก public.users ผ่าน API (GET /me/profile) — role อ่านจาก DB ไม่ใช่ user_metadata */
 async function loadProfile(session: Session): Promise<AppUser | null> {
-  let u: { id: string; display_name: string; role: UserRole };
+  let u: { id: string; display_name: string; role: UserRole; phone_e164?: string | null; banned_at?: string | null };
   try {
-    u = await Rest.get<{ id: string; display_name: string; role: UserRole }>('/me/profile', {
+    u = await Rest.get<typeof u>('/me/profile', {
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
   } catch (e) {
@@ -44,6 +48,8 @@ async function loadProfile(session: Session): Promise<AppUser | null> {
     email: session.user.email ?? '',
     displayName: u.display_name,
     role: u.role,
+    phoneE164: u.phone_e164 ?? null,
+    bannedAt: u.banned_at ?? null,
   };
   // ข้อมูลของผู้ใช้ (การจอง แจ้งเตือน ร้านของฉัน …) โหลดให้เสร็จก่อนเปิดหน้าที่ต้องล็อกอิน
   const { barId } = await startUser(profile).catch((e: Error) => {

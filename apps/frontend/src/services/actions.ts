@@ -2,7 +2,7 @@ import type { BarPromotion, MenuItem, ReviewMedia, SafetyValue } from '@nightout
 import type { BookingStatus, CrowdStatus } from '@nightout/types';
 import { Rest } from '@nightout/utils/rest';
 import { uploadDepositSlip, uploadPromoSlip, uploadReviewMedia, uploadSafetyEvidence } from '@/services/storage';
-import { currentProfile, refresh, setProfileName } from '@/services/sync';
+import { currentProfile, refresh, setProfileName, setProfilePhone } from '@/services/sync';
 
 /**
  * การบันทึกทั้งหมดของหน้าเว็บ → Rest (Axios) → NestJS (/api/...) → ฟังก์ชันใน DB → โหลดข้อมูลใหม่ผ่าน API
@@ -22,15 +22,24 @@ export async function createBooking(input: {
   pax: number;
   promotionId?: string;
   note?: string;
+  /** เบอร์ติดต่อ E.164 (toThaiE164) */
+  contactPhone: string;
+  /** ข้อความเงื่อนไขมัดจำที่ลูกค้าติ๊กยอมรับ (DB เก็บเป็นหลักฐาน) */
+  depositTerms: { version: string; text: string } | null;
 }) {
   const r = await Rest.post<{ id: string; code: string; status: BookingStatus; deposit_required: number }>('/bookings', {
-      bar_id: input.barId,
-      zone_id: input.zoneId,
-      datetime: input.datetime,
-      pax: input.pax,
-      promotion_id: input.promotionId ?? null,
-      note: input.note?.trim() || null,
-    });
+    bar_id: input.barId,
+    zone_id: input.zoneId,
+    datetime: input.datetime,
+    pax: input.pax,
+    promotion_id: input.promotionId ?? null,
+    note: input.note?.trim() || null,
+    contact_phone: input.contactPhone,
+    deposit_terms: input.depositTerms
+      ? { accepted: true, terms_version: input.depositTerms.version, terms_text: input.depositTerms.text }
+      : null,
+  });
+  setProfilePhone(input.contactPhone);
   await refresh();
   return r;
 }
@@ -104,6 +113,26 @@ export async function merchantJoin(input: { name: string; category: string; dist
 export async function setBookingStatus(bookingId: string, to: BookingStatus, reason?: string) {
   await Rest.post(`/merchant/bookings/${bookingId}/status`, { to, reason: reason ?? null });
   await refresh();
+}
+
+/** ย้ายโต๊ะ (ทีมร้านทุกบทบาท) · tableId null = ไม่ระบุโต๊ะ */
+export async function moveBooking(bookingId: string, zoneId: string, tableId: string | null, reason?: string) {
+  const r = await Rest.post<{ zone_name: string; table_name: string | null }>(`/merchant/bookings/${bookingId}/move`, {
+    zone_id: zoneId,
+    table_id: tableId,
+    reason: reason?.trim() || null,
+  });
+  await refresh();
+  return r;
+}
+
+/** ร้านยืนยันคืนมัดจำลูกค้า → NightOut โอนคืน (ทีมร้านทุกบทบาท) */
+export async function refundDeposit(bookingId: string, reason: string) {
+  const r = await Rest.post<{ amount: number; booking_status: BookingStatus }>(`/merchant/bookings/${bookingId}/refund`, {
+    reason: reason.trim(),
+  });
+  await refresh();
+  return r;
 }
 
 export async function checkIn(barId: string, code: string) {
