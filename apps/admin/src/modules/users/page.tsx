@@ -1,12 +1,13 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { UserPlus } from '@phosphor-icons/react';
 import type { Db } from '@nightout/types';
-import { App, Button, Input, Select, Space, Table, Tag } from 'antd';
+import { App, Button, Input, Select, Space, Table, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminAuth } from '@/services/adminAuth';
 import { useAdminAction, useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
+import { formatThaiPhone } from '@nightout/utils';
 import { dateTime } from '@/ui/utils/format';
 import { STAFF_ROLE, USER_ROLE } from '@/ui/utils/labels';
 import { CreateUserModal } from './modal/createUserModal';
@@ -32,9 +33,28 @@ export function UsersPage() {
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
     return (data ?? []).filter(
-      (u) => !k || u.email.toLowerCase().includes(k) || u.display_name.toLowerCase().includes(k),
+      (u) =>
+        !k ||
+        u.email.toLowerCase().includes(k) ||
+        u.display_name.toLowerCase().includes(k) ||
+        (!!u.phone_e164 && k.replace(/\D/g, '').length >= 4 && u.phone_e164.includes(k.replace(/\D/g, '').replace(/^0/, ''))),
     );
   }, [data, q]);
+
+  const unban = (u: Db.AdminUser) =>
+    modal.confirm({
+      title: `ปลดแบน ${u.display_name}?`,
+      content: `จองโต๊ะได้อีกครั้ง · ปลดเบอร์ ${u.banned_phones.map(formatThaiPhone).join(', ') || '-'} · ล้างธงสลิปปลอม ${u.fake_slip_count} ครั้ง (บันทึกใน Audit Log)`,
+      okText: 'ปลดแบน',
+      cancelText: 'ยกเลิก',
+      onOk: () =>
+        act.mutateAsync({
+          method: 'POST',
+          path: `users/${u.id}/unban`,
+          body: {},
+          success: `${u.display_name} จองโต๊ะได้แล้ว`,
+        }),
+    });
 
   const changeRole = (u: Db.AdminUser, role: Role) =>
     modal.confirm({
@@ -56,7 +76,7 @@ export function UsersPage() {
       title="ผู้ใช้"
       extra={
         <Space wrap>
-          <Input.Search placeholder="ชื่อ / อีเมล" allowClear onSearch={setQ} className="w-64" />
+          <Input.Search placeholder="ชื่อ / อีเมล / เบอร์" allowClear onSearch={setQ} className="w-64" />
           <Button type="primary" icon={<UserPlus size={16} weight="bold" />} onClick={() => setCreating(true)}>
             เพิ่มผู้ใช้
           </Button>
@@ -69,10 +89,11 @@ export function UsersPage() {
         loading={isLoading}
         dataSource={rows}
         pagination={{ pageSize: PAGE_SIZE }}
-        scroll={{ x: 900 }}
+        scroll={{ x: 1100 }}
         columns={[
           { title: 'ชื่อ', dataIndex: 'display_name' },
           { title: 'อีเมล', dataIndex: 'email' },
+          { title: 'เบอร์', dataIndex: 'phone_e164', render: (v: string | null) => (v ? formatThaiPhone(v) : '-') },
           {
             title: 'สิทธิ์',
             dataIndex: 'role',
@@ -103,6 +124,30 @@ export function UsersPage() {
                 </Space>
               ) : (
                 '-'
+              ),
+          },
+          {
+            title: 'การจอง',
+            key: 'ban',
+            filters: [
+              { text: 'ถูกแบน', value: 'banned' },
+              { text: 'มีธงสลิปปลอม', value: 'flagged' },
+            ],
+            onFilter: (v, u) => (v === 'banned' ? !!u.banned_at : u.fake_slip_count > 0),
+            render: (_, u) =>
+              u.banned_at ? (
+                <Space size={4} wrap>
+                  <Tag color="red" title={u.ban_reason ?? undefined}>
+                    ถูกแบน · {dateTime(u.banned_at)}
+                  </Tag>
+                  <Button size="small" onClick={() => unban(u)}>
+                    ปลดแบน
+                  </Button>
+                </Space>
+              ) : u.fake_slip_count > 0 ? (
+                <Tag color="orange">สลิปปลอม {u.fake_slip_count} ครั้ง</Tag>
+              ) : (
+                <Typography.Text type="secondary">ปกติ</Typography.Text>
               ),
           },
           {

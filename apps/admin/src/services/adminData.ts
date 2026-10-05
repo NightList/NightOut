@@ -81,8 +81,8 @@ interface ActionInput {
   method: 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
   body?: unknown;
-  /** ข้อความเมื่อสำเร็จ */
-  success: string;
+  /** ข้อความเมื่อสำเร็จ (ฟังก์ชัน = สร้างจากผลที่ API ตอบกลับ) */
+  success: string | ((result: unknown) => string);
 }
 
 /** ส่งการกระทำของแอดมินไป NestJS → สำเร็จแล้วแจ้ง + โหลดข้อมูลทุกหน้าใหม่ · ล้มเหลวแจ้งเหตุผลเป็นภาษาไทย */
@@ -97,8 +97,8 @@ export function useAdminAction() {
       if (method === 'DELETE') return Rest.delete(url);
       return Rest.post(url, body);
     },
-    onSuccess: (_d, v) => {
-      void message.success(v.success);
+    onSuccess: (d, v) => {
+      void message.success(typeof v.success === 'function' ? v.success(d) : v.success);
       void qc.invalidateQueries({ queryKey: ['admin'] });
     },
     onError: (e: Error) => {

@@ -1,16 +1,16 @@
 import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
-import { Button, Popconfirm, Space, Statistic, Table, Tabs, Tag } from 'antd';
+import { Button, Popconfirm, Space, Statistic, Table, Tabs, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useMemo } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminAction, useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
-import { RejectButton } from '@/ui/components/RejectButton';
 import { SlipImage } from '@/ui/components/SlipImage';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { baht, dateTime } from '@/ui/utils/format';
 import { BOOKING_STATUS, SETTLEMENT } from '@/ui/utils/labels';
+import { RejectSlipButton } from './components/rejectSlipButton';
 
 type Row = Db.AdminDeposit;
 
@@ -30,7 +30,8 @@ export function DepositsPage() {
     return {
       toVerify: all.filter((d) => d.status === 'SUBMITTED'),
       toPayout: all.filter((d) => d.status === 'VERIFIED' && d.settlement === 'PAYOUT_PENDING'),
-      toRefund: all.filter((d) => d.status === 'VERIFIED' && d.settlement === 'REFUND_PENDING'),
+      // รวมสลิปที่ยังไม่ตรวจแต่ลูกค้ายกเลิกแล้ว (SUBMITTED + REFUND_PENDING) — เดิมหลุดจากแท็บนี้
+      toRefund: all.filter((d) => d.status !== 'REJECTED' && d.settlement === 'REFUND_PENDING'),
       held: all.filter((d) => d.status === 'VERIFIED' && d.settlement === 'HELD'),
       settled: all
         .filter((d) => ['PAID_OUT', 'CREDIT', 'REFUNDED'].includes(d.settlement) || d.status === 'REJECTED')
@@ -45,7 +46,20 @@ export function DepositsPage() {
   const base: ColumnsType<Row> = [
     { title: 'รหัสจอง', key: 'code', width: 110, render: (_, d) => d.booking.code },
     { title: 'ร้าน', key: 'bar', render: (_, d) => d.bar.name },
-    { title: 'ลูกค้า', key: 'customer', render: (_, d) => d.customer?.display_name ?? 'บัญชีถูกลบ' },
+    {
+      title: 'ลูกค้า',
+      key: 'customer',
+      render: (_, d) => (
+        <Space size={4} wrap>
+          <span>{d.customer?.display_name ?? 'บัญชีถูกลบ'}</span>
+          {d.customer_banned ? (
+            <Tag color="red">ถูกแบน</Tag>
+          ) : d.customer_fake_slip_count > 0 ? (
+            <Tag color="orange">สลิปปลอม {d.customer_fake_slip_count} ครั้ง</Tag>
+          ) : null}
+        </Space>
+      ),
+    },
     { title: 'วันที่จอง', key: 'at', render: (_, d) => dateTime(d.booking.booking_datetime) },
     { title: 'ยอด', dataIndex: 'amount', align: 'right', render: (v: number) => baht(v) },
   ];
@@ -112,16 +126,18 @@ export function DepositsPage() {
                       >
                         สลิปผ่าน
                       </Button>
-                      <RejectButton
-                        label="ไม่ผ่าน"
-                        title="สลิปไม่ผ่าน? ลูกค้าจะต้องส่งสลิปใหม่"
+                      <RejectSlipButton
+                        fakeSlipCount={d.customer_fake_slip_count}
                         loading={act.isPending}
-                        onReject={(reason) =>
+                        onReject={(code, note) =>
                           act.mutate({
                             method: 'POST',
                             path: `deposits/${d.id}/review`,
-                            body: { approve: false, reason },
-                            success: 'แจ้งลูกค้าให้ส่งสลิปใหม่แล้ว',
+                            body: { approve: false, reason_code: code, reason: note || undefined },
+                            success: (r) =>
+                              (r as { banned?: boolean }).banned
+                                ? 'สลิปไม่ผ่าน · ลูกค้าส่งสลิปปลอมครบ 2 ครั้ง ระบบแบนบัญชีและเบอร์โทรแล้ว'
+                                : 'แจ้งลูกค้าให้ส่งสลิปใหม่แล้ว',
                           })
                         }
                       />
@@ -177,20 +193,44 @@ export function DepositsPage() {
               [
                 { title: 'ผล', key: 'result', render: (_, d) => <StatusTag map={BOOKING_STATUS} value={d.booking.status} /> },
                 {
+                  title: 'เหตุผล',
+                  key: 'why',
+                  render: (_, d) =>
+                    d.refund_reason ? (
+                      <span>
+                        {d.refund_reason}
+                        <br />
+                        <Typography.Text type="secondary" className="text-xs">
+                          ร้านอนุมัติ{d.refund_requested_by_name ? ` โดย ${d.refund_requested_by_name}` : ''}
+                          {d.refund_requested_at ? ` · ${dateTime(d.refund_requested_at)}` : ''}
+                        </Typography.Text>
+                      </span>
+                    ) : d.status === 'SUBMITTED' ? (
+                      'ลูกค้ายกเลิกระหว่างรอตรวจสลิป — ตรวจสลิปก่อนคืน'
+                    ) : (
+                      'ยกเลิกตามเงื่อนไข'
+                    ),
+                },
+                {
                   title: '',
                   key: 'a',
-                  render: (_, d) => (
-                    <Popconfirm
-                      title={`คืน ${baht(d.amount)} ให้ลูกค้าแล้ว?`}
-                      okText="บันทึกว่าคืนแล้ว"
-                      cancelText="ยกเลิก"
-                      onConfirm={() => settle(d, 'REFUNDED', 'บันทึกว่าคืนเงินลูกค้าแล้ว')}
-                    >
-                      <Button type="primary" loading={act.isPending}>
-                        คืนเงินแล้ว
-                      </Button>
-                    </Popconfirm>
-                  ),
+                  render: (_, d) =>
+                    d.status === 'SUBMITTED' ? (
+                      <Typography.Text type="secondary" className="text-xs">
+                        ตรวจสลิปในแท็บ “ตรวจสลิป” ก่อน
+                      </Typography.Text>
+                    ) : (
+                      <Popconfirm
+                        title={`คืน ${baht(d.amount)} ให้ลูกค้าแล้ว?`}
+                        okText="บันทึกว่าคืนแล้ว"
+                        cancelText="ยกเลิก"
+                        onConfirm={() => settle(d, 'REFUNDED', 'บันทึกว่าคืนเงินลูกค้าแล้ว')}
+                      >
+                        <Button type="primary" loading={act.isPending}>
+                          คืนเงินแล้ว
+                        </Button>
+                      </Popconfirm>
+                    ),
                 },
               ],
               'ไม่มียอดรอคืน',
