@@ -57,6 +57,20 @@ pnpm dev                             # frontend :5173 · admin :5174 · (api: pn
 | `pnpm lint` / `pnpm typecheck` | ตรวจโค้ด |
 | `pnpm --filter @nightout/frontend dev` | รันแอปเดียว |
 
+### 🐳 รันทั้งสแต็กด้วย Docker
+
+ใช้เมื่ออยากได้ frontend/admin/backend เป็น container (Supabase ยังรันด้วย CLI บนเครื่อง)
+
+```bash
+pnpm --filter @nightout/backend db:start   # Supabase local (kong :54321 · DB :54322 · Studio :54323)
+docker compose up -d --build               # frontend :5173 · admin :5174/admin · api :3001/api
+```
+
+- ค่าของ frontend/admin ถูก **อบตอน build** (Vite) — แก้ `.env` แล้วต้อง `docker compose up -d --build frontend admin` ใหม่
+- backend อ่าน Supabase ผ่าน `host.docker.internal` (`DOCKER_SUPABASE_URL` / `DOCKER_DATABASE_URL` ถ้าอยากชี้ที่อื่น)
+- ครั้งแรกให้สร้างบัญชีแอดมิน: `pnpm --filter @nightout/backend user:create --email owner@nightout.co --name "ซูเปอร์แอดมิน" --role SUPER_ADMIN`
+- หยุด: `docker compose down` (ข้อมูล Supabase ยังอยู่ที่ volume ของ CLI)
+
 ## 🧱 Tech Stack
 
 | ชั้น | เทคโนโลยี |

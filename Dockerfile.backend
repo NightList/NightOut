@@ -1,0 +1,26 @@
+# NightOut Backend (NestJS API)
+# Single-stage production build with dependencies
+
+FROM node:22-alpine
+WORKDIR /app
+
+RUN npm install -g pnpm@10.28.0 && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy workspace structure
+COPY --chown=nodejs:nodejs pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json ./
+COPY --chown=nodejs:nodejs packages/ ./packages/
+COPY --chown=nodejs:nodejs apps/ ./apps/
+
+# Install and build
+RUN pnpm install && pnpm build
+
+USER nodejs
+WORKDIR /app/apps/backend
+
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:3000/api || exit 1
+
+CMD ["node", "dist/main.js"]
