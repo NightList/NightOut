@@ -2893,6 +2893,10 @@ export type Database = {
           updated_at: string
           verified_at: string | null
           verified_by: string | null
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_requested_by: string | null
+          reject_code: string | null
         }
         Insert: {
           amount: number
@@ -2915,6 +2919,10 @@ export type Database = {
           updated_at?: string
           verified_at?: string | null
           verified_by?: string | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_requested_by?: string | null
+          reject_code?: string | null
         }
         Update: {
           amount?: number
@@ -2937,6 +2945,10 @@ export type Database = {
           updated_at?: string
           verified_at?: string | null
           verified_by?: string | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_requested_by?: string | null
+          reject_code?: string | null
         }
         Relationships: [
           {
@@ -5291,6 +5303,8 @@ export type Database = {
           phone_verified_at: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
+          ban_reason: string | null
+          banned_at: string | null
         }
         Insert: {
           age_verification_method?:
@@ -5311,6 +5325,8 @@ export type Database = {
           phone_verified_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          ban_reason?: string | null
+          banned_at?: string | null
         }
         Update: {
           age_verification_method?:
@@ -5331,6 +5347,8 @@ export type Database = {
           phone_verified_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          ban_reason?: string | null
+          banned_at?: string | null
         }
         Relationships: []
       }
@@ -5421,6 +5439,8 @@ export type Database = {
           status_history: Json | null
           table_name: string | null
           zone_name: string | null
+          contact_phone: string | null
+          deposit_consent: Json | null
         }
         Relationships: []
       }
@@ -5440,6 +5460,12 @@ export type Database = {
           slip_ref: string | null
           status: Database["public"]["Enums"]["deposit_status"] | null
           verified_at: string | null
+          customer_banned: boolean | null
+          customer_fake_slip_count: number | null
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_requested_by_name: string | null
+          reject_code: string | null
         }
         Relationships: []
       }
@@ -5506,6 +5532,11 @@ export type Database = {
           email: string | null
           id: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          ban_reason: string | null
+          banned_at: string | null
+          banned_phones: Json | null
+          fake_slip_count: number | null
+          phone_e164: string | null
         }
         Insert: {
           bars?: never
