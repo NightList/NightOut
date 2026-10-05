@@ -1,4 +1,5 @@
 import { createZodDto } from 'nestjs-zod';
+import { DEPOSIT_TERMS_VERSION, toThaiE164 } from '@nightout/utils';
 import { z } from 'zod';
 
 const uuid = z.uuid();
@@ -12,6 +13,23 @@ export class CreateBookingDto extends createZodDto(
     pax: z.number().int().min(1).max(50),
     promotion_id: uuid.nullish(),
     note: text(200).nullish(),
+    contact_phone: z
+      .string()
+      .max(20)
+      .transform((v, ctx) => {
+        const e164 = toThaiE164(v);
+        if (!e164) ctx.addIssue({ code: 'custom', message: 'INVALID_PHONE' });
+        return e164 ?? v;
+      })
+      .describe('เบอร์โทรที่ติดต่อได้ (เบอร์ไทย เช่น 081-234-5678) — เก็บเป็น E.164 · เบอร์ที่โดนแบนจองไม่ได้'),
+    deposit_terms: z
+      .object({
+        accepted: z.literal(true).describe('ลูกค้าติ๊กยอมรับเงื่อนไขริบมัดจำแล้ว'),
+        terms_version: z.string().trim().min(1).max(40).describe(`เวอร์ชันของข้อความเงื่อนไข (ปัจจุบัน ${DEPOSIT_TERMS_VERSION})`),
+        terms_text: z.string().trim().min(20).max(4000).describe('ข้อความเงื่อนไขที่แสดงข้าง checkbox (เก็บเป็นหลักฐาน)'),
+      })
+      .nullish()
+      .describe('ต้องส่งเมื่อการจองมีมัดจำ (ทุกร้านเก็บมัดจำ) — ไม่ส่ง = DEPOSIT_TERMS_REQUIRED'),
   }),
 ) {}
 

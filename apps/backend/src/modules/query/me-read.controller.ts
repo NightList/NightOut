@@ -21,13 +21,13 @@ export class MeReadController {
   @ApiDoc({
     summary: 'โปรไฟล์ของฉัน',
     description: 'แถวของผู้ใช้ใน public.users — role อ่านจาก DB (ไม่ใช่ user_metadata)',
-    returns: '`id` · `display_name` · `role`',
+    returns: '`id` · `display_name` · `role` · `phone_e164` เบอร์ล่าสุดที่ใช้จอง (หน้า Checkout เติมให้) · `banned_at` ถูกระงับการจองเมื่อ (null = ปกติ)',
     validates: false,
   })
   async profile(@Req() req: AuthedRequest, @CurrentUser() me: AuthUser) {
     const rows = await this.db.selectAs<{ id: string; display_name: string; role: string }[]>(
       bearerOf(req),
-      `users?select=id,display_name,role&id=eq.${me.id}`,
+      `users?select=id,display_name,role,phone_e164,banned_at&id=eq.${me.id}`,
     );
     if (!rows[0]) throw new NotFoundException('USER_NOT_FOUND');
     return rows[0];

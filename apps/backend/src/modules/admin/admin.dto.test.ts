@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CreateUserBody, ReorderTeamDto, TeamMemberBody, UpdateTeamMemberDto } from './admin.dto';
+import { CreateUserBody, ReorderTeamDto, ReviewDepositDto, TeamMemberBody, UpdateTeamMemberDto } from './admin.dto';
 
 describe('team member DTOs', () => {
   it('accepts a full member and applies defaults', () => {
@@ -38,5 +38,19 @@ describe('CreateUserBody', () => {
     young.setFullYear(young.getFullYear() - 19);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'CUSTOMER', birthdate: young.toISOString().slice(0, 10) }).success).toBe(false);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'CUSTOMER', password: 'short' }).success).toBe(false);
+  });
+});
+
+describe('ReviewDepositDto', () => {
+  const s = ReviewDepositDto.schema;
+  it('approve needs no reason', () => {
+    expect(s.safeParse({ approve: true }).success).toBe(true);
+  });
+  it('reject needs a reason code, OTHER needs text', () => {
+    expect(s.safeParse({ approve: false }).success).toBe(false);
+    expect(s.safeParse({ approve: false, reason_code: 'NOPE' }).success).toBe(false);
+    expect(s.safeParse({ approve: false, reason_code: 'FAKE_SLIP' }).success).toBe(true);
+    expect(s.safeParse({ approve: false, reason_code: 'OTHER' }).success).toBe(false);
+    expect(s.safeParse({ approve: false, reason_code: 'OTHER', reason: 'ชื่อบัญชีไม่ตรง' }).success).toBe(true);
   });
 });

@@ -11,11 +11,13 @@ import {
   CreateUserDto,
   ModerateReviewDto,
   ReorderTeamDto,
+  ReviewDepositDto,
   ReviewDto,
   SetBarStatusDto,
   SetEditorPickDto,
   SetUserRoleDto,
   SettleDepositDto,
+  UnbanUserDto,
   UpdateTeamMemberDto,
 } from './admin.dto';
 
@@ -73,12 +75,21 @@ export class AdminController {
   @HttpCode(200)
   @ApiDoc({
     summary: "ตรวจสลิปมัดจำ",
-    description: "อนุมัติ (การจองยืนยัน) หรือปฏิเสธสลิปพร้อมเหตุผล",
-    returns: "`id` รหัสมัดจำ · `status` VERIFIED / REJECTED",
+    description:
+      "อนุมัติ (การจองยืนยัน) หรือปฏิเสธสลิปพร้อม `reason_code` (FAKE_SLIP · AMOUNT_MISMATCH · WRONG_ACCOUNT · UNREADABLE · DUPLICATE · OTHER) · " +
+      "FAKE_SLIP ติดธงที่ลูกค้า — ธงครบ 2 ครั้ง (นับทั้งบัญชีและเบอร์โทร) แบนบัญชีและทุกเบอร์ที่บัญชีนั้นเคยใช้ จองไม่ได้อีก · " +
+      "ถ้าลูกค้ายกเลิกระหว่างรอตรวจ อนุมัติแล้วมัดจำจะอยู่ในคิวรอคืนลูกค้า",
+    returns: "`id` รหัสมัดจำ · `status` VERIFIED / REJECTED · `reject_code` · (FAKE_SLIP) `fake_slip_count` จำนวนธง · `banned` แบนแล้วหรือยัง",
     forbidden: "ไม่ใช่ ADMIN",
   })
-  reviewDeposit(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: ReviewDto) {
-    return this.db.rpc('admin_review_deposit', { p_actor: me.id, p_deposit: id, p_approve: b.approve, p_reason: b.reason ?? null });
+  reviewDeposit(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: ReviewDepositDto) {
+    return this.db.rpc('admin_review_deposit', {
+      p_actor: me.id,
+      p_deposit: id,
+      p_approve: b.approve,
+      p_reason: b.reason || null,
+      p_reason_code: b.approve ? null : (b.reason_code ?? null),
+    });
   }
 
   @Post('deposits/:id/settle')
@@ -140,6 +151,18 @@ export class AdminController {
   })
   createUser(@CurrentUser() me: AuthUser, @Body() b: CreateUserDto) {
     return this.users.create(me.id, b);
+  }
+
+  @Post('users/:id/unban')
+  @HttpCode(200)
+  @ApiDoc({
+    summary: "ปลดแบนผู้ใช้",
+    description: "ปลดแบนบัญชีที่โดนแบนจากสลิปปลอม + ปลดเบอร์โทรที่โดนแบนเพราะบัญชีนี้ + ล้างธงสลิปปลอมที่นับอยู่ (บันทึก audit log)",
+    returns: "`id` · `banned` = false · `phones_unbanned` จำนวนเบอร์ที่ปลด · `flags_cleared` จำนวนธงที่ล้าง",
+    forbidden: "ไม่ใช่ ADMIN",
+  })
+  unbanUser(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: UnbanUserDto) {
+    return this.db.rpc('admin_unban_user', { p_actor: me.id, p_user: id, p_reason: b.reason || null });
   }
 
   @Patch('users/:id/role')

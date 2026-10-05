@@ -27,6 +27,18 @@ export class MerchantReadController {
     return this.db.rpcAs<unknown[]>(bearerOf(req), 'bar_team', { p_bar: barId });
   }
 
+  @Get('bookings/:bookingId/table-options')
+  @ApiDoc({
+    summary: 'โซน/โต๊ะที่ย้ายการจองไปได้',
+    description: 'ทุกโต๊ะ (และโซนที่จองแบบไม่ระบุโต๊ะได้) ของร้าน พร้อมสถานะว่าง ณ ช่วงเวลาของการจองนี้ — ใช้กับปุ่ม "ย้ายโต๊ะ"',
+    returns:
+      'รายการ `zone_id` · `zone_name` · `table_id` (null = ไม่ระบุโต๊ะ) · `table_name` · `seats` · `available` ย้ายไปได้ · `is_current` ที่นั่งปัจจุบัน · `zone_remaining_pax` ที่ว่างในโซน',
+    forbidden: FORBIDDEN,
+  })
+  tableOptions(@Req() req: AuthedRequest, @Param('bookingId', new ParseUUIDPipe()) bookingId: string) {
+    return this.db.rpcAs<unknown[]>(bearerOf(req), 'bar_booking_table_options', { p_booking: bookingId });
+  }
+
   @Get('deposit-ledger')
   @ApiDoc({
     summary: 'สมุดมัดจำของร้าน',

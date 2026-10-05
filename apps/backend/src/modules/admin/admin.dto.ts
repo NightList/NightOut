@@ -1,4 +1,5 @@
 import { createZodDto } from 'nestjs-zod';
+import { DEPOSIT_REJECT_CODES } from '@nightout/utils';
 import { z } from 'zod';
 
 const reason = z.string().trim().min(1).max(500).optional();
@@ -8,6 +9,22 @@ export class SetBarStatusDto extends createZodDto(
 ) {}
 export class SetEditorPickDto extends createZodDto(z.object({ value: z.boolean() })) {}
 export class ReviewDto extends createZodDto(z.object({ approve: z.boolean(), reason })) {}
+export class ReviewDepositDto extends createZodDto(
+  z
+    .object({
+      approve: z.boolean(),
+      reason_code: z
+        .enum(DEPOSIT_REJECT_CODES)
+        .optional()
+        .describe('เหตุผลที่ปฏิเสธ (ต้องมีเมื่อ approve = false) · FAKE_SLIP = ติดธงลูกค้า ครบ 2 ครั้งแบนบัญชี + เบอร์โทร'),
+      reason: z.string().trim().max(500).optional().describe('รายละเอียดเพิ่มเติม (ต้องมีเมื่อ reason_code = OTHER)'),
+    })
+    .refine((b) => b.approve || b.reason_code, { message: 'REJECT_REASON_REQUIRED', path: ['reason_code'] })
+    .refine((b) => b.reason_code !== 'OTHER' || !!b.reason, { message: 'REJECT_REASON_REQUIRED', path: ['reason'] }),
+) {}
+export class UnbanUserDto extends createZodDto(
+  z.object({ reason: z.string().trim().max(300).optional().describe('เหตุผลที่ปลดแบน (บันทึกใน audit log)') }),
+) {}
 export class SettleDepositDto extends createZodDto(z.object({ how: z.enum(['PAID_OUT', 'CREDIT', 'REFUNDED']) })) {}
 export class ModerateReviewDto extends createZodDto(
   z.object({ action: z.enum(['KEEP', 'HIDE', 'REMOVE', 'RESTORE']), reason }),

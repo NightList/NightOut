@@ -14,8 +14,10 @@ import {
   FeesDto,
   InviteStaffDto,
   MenuDto,
+  MoveBookingDto,
   OrderPromotionDto,
   PayoutAccountDto,
+  RefundDepositDto,
   SafetyDto,
   TeamBookingStatusDto,
   ZonesDto,
@@ -48,6 +50,40 @@ export class MerchantController {
   })
   setBookingStatus(@CurrentUser() me: AuthUser, @Id('bookingId') id: string, @Body() b: TeamBookingStatusDto) {
     return this.db.rpc('app_team_set_booking_status', { p_actor: me.id, p_booking: id, p_to: b.to, p_reason: b.reason ?? null });
+  }
+
+  @Post('bookings/:bookingId/move')
+  @HttpCode(200)
+  @ApiDoc({
+    summary: "ย้ายโต๊ะ",
+    description:
+      "ทีมร้านทุกบทบาท (รวม PR/STAFF) ย้ายการจองที่ยังถือโต๊ะอยู่ (รอยืนยัน → เช็กอินแล้ว) ไปโซน/โต๊ะอื่น ช่วงเวลาเดิม · " +
+      "โต๊ะปลายทางต้องว่าง (TABLE_TAKEN) · ข้ามโซนต้องมีที่ว่างพอ (ZONE_FULL) · แจ้งลูกค้า + บันทึก audit log · ดูโต๊ะที่ว่างได้จาก GET merchant/bars/:barId/bookings/:bookingId/table-options",
+    returns: "`id` · `zone_id` · `zone_name` · `table_id` · `table_name`",
+    forbidden: "ไม่ใช่ทีมของร้านนี้",
+  })
+  moveBooking(@CurrentUser() me: AuthUser, @Id('bookingId') id: string, @Body() b: MoveBookingDto) {
+    return this.db.rpc('app_team_move_booking', {
+      p_actor: me.id,
+      p_booking: id,
+      p_zone: b.zone_id,
+      p_table: b.table_id ?? null,
+      p_reason: b.reason ?? null,
+    });
+  }
+
+  @Post('bookings/:bookingId/refund')
+  @HttpCode(200)
+  @ApiDoc({
+    summary: "ยืนยันการคืนเงินมัดจำ",
+    description:
+      "ทีมร้านทุกบทบาท (รวม PR/STAFF) อนุมัติให้คืนมัดจำลูกค้า (เคสหน้างาน เช่น ไม่มีโต๊ะให้) · การจองที่ยังไม่เช็กอิน → ยกเลิกฝั่งร้านและปล่อยโต๊ะ · " +
+      "เช็กอิน/ไม่มาแล้วแต่ยังไม่โอนให้ร้าน → สถานะการจองคงเดิม · มัดจำเข้าคิว \"รอคืนลูกค้า\" ให้ NightOut โอนคืน · แจ้งลูกค้าและแอดมิน",
+    returns: "`id` รหัสมัดจำ · `booking_id` · `settlement` = REFUND_PENDING · `amount` · `booking_status` สถานะการจองหลังทำรายการ",
+    forbidden: "ไม่ใช่ทีมของร้านนี้",
+  })
+  refundDeposit(@CurrentUser() me: AuthUser, @Id('bookingId') id: string, @Body() b: RefundDepositDto) {
+    return this.db.rpc('app_team_refund_deposit', { p_actor: me.id, p_booking: id, p_reason: b.reason });
   }
 
   @Post('bars/:barId/check-in')

@@ -11,6 +11,18 @@ export class TeamBookingStatusDto extends createZodDto(
   }),
 ) {}
 
+export class MoveBookingDto extends createZodDto(
+  z.object({
+    zone_id: uuid.describe('โซนปลายทาง'),
+    table_id: uuid.nullish().describe('โต๊ะปลายทาง (null = ไม่ระบุโต๊ะ ใช้ได้เฉพาะโซนที่ไม่มีโต๊ะ/เปิดจองแบบไม่ระบุโต๊ะ)'),
+    reason: z.string().trim().max(200).nullish().describe('เหตุผล (บันทึกใน audit log)'),
+  }),
+) {}
+
+export class RefundDepositDto extends createZodDto(
+  z.object({ reason: z.string().trim().min(3).max(300).describe('เหตุผลที่คืนมัดจำ เช่น ไม่มีโต๊ะให้ลูกค้า') }),
+) {}
+
 export class CheckInDto extends createZodDto(z.object({ code: z.string().trim().min(3).max(120) })) {}
 
 export class CrowdDto extends createZodDto(z.object({ status: z.enum(['AVAILABLE', 'ALMOST_FULL', 'FULL']) })) {}
