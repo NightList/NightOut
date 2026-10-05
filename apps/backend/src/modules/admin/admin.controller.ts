@@ -19,6 +19,7 @@ import {
   SettleDepositDto,
   UnbanUserDto,
   UpdateTeamMemberDto,
+  UpdateUserAccountDto,
 } from './admin.dto';
 
 const Id = () => Param('id', new ParseUUIDPipe());
@@ -163,6 +164,35 @@ export class AdminController {
   })
   unbanUser(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: UnbanUserDto) {
     return this.db.rpc('admin_unban_user', { p_actor: me.id, p_user: id, p_reason: b.reason || null });
+  }
+
+  @Patch('users/:id')
+  @ApiDoc({
+    summary: 'แก้ข้อมูลบัญชี',
+    description: 'SUPER_ADMIN แก้ได้ทุกบัญชี · ADMIN แก้ได้เฉพาะบัญชีตัวเอง · เปลี่ยนอีเมล/รหัสผ่านใน Supabase Auth และชื่อ/เบอร์ใน public.users',
+    returns: '`id` · `email` · `display_name` · `phone_e164`',
+    forbidden: 'ADMIN แก้ได้เฉพาะบัญชีตัวเอง',
+  })
+  updateUser(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: UpdateUserAccountDto) {
+    return this.users.update(me.id, me.role, id, b);
+  }
+
+  @Delete('users/:id')
+  @UseGuards(SuperAdminGuard)
+  @HttpCode(200)
+  @ApiDoc({
+    summary: 'ลบบัญชีผู้ใช้',
+    description: 'เฉพาะ SUPER_ADMIN ปิดบัญชีและระงับการเข้าสู่ระบบ โดยไม่ลบข้อมูลอ้างอิงการจอง',
+    returns: '`id` · `deleted` = true',
+    forbidden: 'ไม่ใช่ SUPER_ADMIN',
+  })
+  async deleteUser(@CurrentUser() me: AuthUser, @Id() id: string) {
+    const result = await this.db.rpc<{ id: string; deleted: boolean }>('admin_delete_user', {
+      p_actor: me.id,
+      p_user: id,
+    });
+    await this.db.banUser(id);
+    return result;
   }
 
   @Patch('users/:id/role')

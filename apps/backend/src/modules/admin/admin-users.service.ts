@@ -44,5 +44,29 @@ export class AdminUsersService {
       await this.db.deleteAuthUser(user.id).catch(() => undefined);
       throw e;
     }
+
+  }
+
+  async update(actorId: string, actorRole: string | undefined, userId: string, b: {
+    email?: string;
+    display_name?: string;
+    phone_e164?: string | null;
+    password?: string;
+  }) {
+    if (actorRole !== 'SUPER_ADMIN' && actorId !== userId) throw new ForbiddenException('SELF_ONLY');
+    if (b.email) {
+      const dup = await this.db.select<{ id: string }[]>(
+        `users?select=id&email=eq.${encodeURIComponent(b.email)}&id=neq.${encodeURIComponent(userId)}`,
+      );
+      if (dup.length) throw new ConflictException('EMAIL_EXISTS');
+    }
+    if (b.email || b.password) {
+      await this.db.updateAuthUser(userId, { email: b.email, password: b.password });
+    }
+    return this.db.rpc('admin_update_user_account', {
+      p_actor: actorId,
+      p_user: userId,
+      p: { display_name: b.display_name, phone_e164: b.phone_e164, email: b.email },
+    });
   }
 }

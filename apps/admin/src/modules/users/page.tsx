@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { UserPlus } from '@phosphor-icons/react';
+import { PencilSimple, Trash, UserPlus } from '@phosphor-icons/react';
 import type { Db } from '@nightout/types';
-import { App, Button, Input, Select, Space, Table, Tag, Typography } from 'antd';
+import { App, Button, Input, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminAuth } from '@/services/adminAuth';
@@ -11,6 +11,7 @@ import { formatThaiPhone } from '@nightout/utils';
 import { dateTime } from '@/ui/utils/format';
 import { STAFF_ROLE, USER_ROLE } from '@/ui/utils/labels';
 import { CreateUserModal } from './modal/createUserModal';
+import { EditUserModal } from './modal/editUserModal';
 
 type Role = Db.Enums<'user_role'>;
 /** ชั้นที่ไม่ผูกกับร้าน — แก้เป็นชั้นนี้แล้วหลุดจากทุกร้าน (admin_set_user_role) */
@@ -25,15 +26,19 @@ export function UsersPage() {
   const auth = useAdminAuth();
   const [q, setQ] = useState('');
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<Db.AdminUser | null>(null);
   const { data, isLoading, error, refetch } = useAdminView('admin_users', {
     order: { column: 'created_at', ascending: false },
   });
   const roles = useAccountRoles();
   const act = useAdminAction();
-  const roleText = (r: Role) => roles.data?.find((o) => o.code === r)?.label_th ?? USER_ROLE[r].text;
+  const roleText = (r: Role) =>
+    roles.data?.find((o) => o.code === r)?.label_th ?? USER_ROLE[r].text;
   const roleOptions = useMemo(
     () =>
-      (roles.data ?? []).filter((o) => o.can_assign).map((o) => ({ value: o.code, label: o.label_th })),
+      (roles.data ?? [])
+        .filter((o) => o.can_assign)
+        .map((o) => ({ value: o.code, label: o.label_th })),
     [roles.data],
   );
   const rows = useMemo(() => {
@@ -43,7 +48,9 @@ export function UsersPage() {
         !k ||
         u.email.toLowerCase().includes(k) ||
         u.display_name.toLowerCase().includes(k) ||
-        (!!u.phone_e164 && k.replace(/\D/g, '').length >= 4 && u.phone_e164.includes(k.replace(/\D/g, '').replace(/^0/, ''))),
+        (!!u.phone_e164 &&
+          k.replace(/\D/g, '').length >= 4 &&
+          u.phone_e164.includes(k.replace(/\D/g, '').replace(/^0/, ''))),
     );
   }, [data, q]);
 
@@ -70,7 +77,10 @@ export function UsersPage() {
       LEAVES_BARS.includes(role) &&
         u.bars.length > 0 &&
         `หลุดจากร้าน ${u.bars.map((b) => b.name).join(', ')} (เลิกเป็นเจ้าของและออกจากทีม)`,
-      self && u.role === 'SUPER_ADMIN' && role !== 'SUPER_ADMIN' && 'นี่คือบัญชีของคุณ — หลังเปลี่ยน คุณจะแก้ชั้นบัญชีไม่ได้อีก',
+      self &&
+        u.role === 'SUPER_ADMIN' &&
+        role !== 'SUPER_ADMIN' &&
+        'นี่คือบัญชีของคุณ — หลังเปลี่ยน คุณจะแก้ชั้นบัญชีไม่ได้อีก',
     ].filter((n): n is string => !!n);
     modal.confirm({
       title: `แก้ชั้นบัญชีของ ${u.display_name}?`,
@@ -105,10 +115,21 @@ export function UsersPage() {
       subTitle={auth.isSuperAdmin ? undefined : 'แก้ชั้นบัญชีได้เฉพาะซูเปอร์แอดมิน'}
       extra={
         <Space wrap>
-          <Input.Search placeholder="ชื่อ / อีเมล / เบอร์" allowClear onSearch={setQ} className="w-64" />
-          <Button type="primary" icon={<UserPlus size={16} weight="bold" />} onClick={() => setCreating(true)}>
-            เพิ่มผู้ใช้
-          </Button>
+          <Input.Search
+            placeholder="ชื่อ / อีเมล / เบอร์"
+            allowClear
+            onSearch={setQ}
+            className="w-64"
+          />
+          {auth.isSuperAdmin && (
+            <Button
+              type="primary"
+              icon={<UserPlus size={16} weight="bold" />}
+              onClick={() => setCreating(true)}
+            >
+              เพิ่มผู้ใช้
+            </Button>
+          )}
         </Space>
       }
     >
@@ -122,7 +143,11 @@ export function UsersPage() {
         columns={[
           { title: 'ชื่อ', dataIndex: 'display_name' },
           { title: 'อีเมล', dataIndex: 'email' },
-          { title: 'เบอร์', dataIndex: 'phone_e164', render: (v: string | null) => (v ? formatThaiPhone(v) : '-') },
+          {
+            title: 'เบอร์',
+            dataIndex: 'phone_e164',
+            render: (v: string | null) => (v ? formatThaiPhone(v) : '-'),
+          },
           {
             title: 'ชั้นบัญชี',
             dataIndex: 'role',
@@ -187,9 +212,52 @@ export function UsersPage() {
             dataIndex: 'created_at',
             render: (v: string, u) => (u.deleted_at ? <Tag>ลบบัญชีแล้ว</Tag> : dateTime(v)),
           },
+          {
+            title: 'จัดการ',
+            key: 'actions',
+            align: 'right',
+            render: (_, u) => {
+              const canEdit = auth.isSuperAdmin || u.id === auth.session?.user.id;
+              if (!canEdit && !auth.isSuperAdmin) return null;
+              return (
+                <Space size={4}>
+                  {canEdit && (
+                    <Button
+                      icon={<PencilSimple size={16} />}
+                      aria-label={`แก้ไข ${u.display_name}`}
+                      onClick={() => setEditing(u)}
+                    ></Button>
+                  )}
+                  {auth.isSuperAdmin && !u.deleted_at && (
+                    <Popconfirm
+                      title={`ลบบัญชี ${u.display_name}?`}
+                      description="บัญชีจะเข้าสู่สถานะลบและเข้าสู่ระบบไม่ได้"
+                      okText="ลบ"
+                      okButtonProps={{ danger: true }}
+                      cancelText="ยกเลิก"
+                      onConfirm={() =>
+                        act.mutateAsync({
+                          method: 'DELETE',
+                          path: `users/${u.id}`,
+                          success: `ลบบัญชี ${u.display_name} แล้ว`,
+                        })
+                      }
+                    >
+                      <Button
+                        danger
+                        icon={<Trash size={16} />}
+                        aria-label={`ลบบัญชี ${u.display_name}`}
+                      />
+                    </Popconfirm>
+                  )}
+                </Space>
+              );
+            },
+          },
         ]}
       />
       <CreateUserModal open={creating} onClose={() => setCreating(false)} />
+      <EditUserModal user={editing} open={!!editing} onClose={() => setEditing(null)} />
     </PageContainer>
   );
 }

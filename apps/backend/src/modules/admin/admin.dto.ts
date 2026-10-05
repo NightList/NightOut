@@ -33,6 +33,19 @@ export class ModerateReviewDto extends createZodDto(
 export class SetUserRoleDto extends createZodDto(
   z.object({ role: UserRole.describe('ชั้นบัญชีใหม่ (ตาราง roles)') }),
 ) {}
+export class UpdateUserAccountDto extends createZodDto(
+  z.object({
+    email: z.email().transform((v) => v.trim().toLowerCase()).optional(),
+    display_name: z.string().trim().min(1).max(60).optional(),
+    phone_e164: z
+      .string()
+      .trim()
+      .regex(/^\+[1-9][0-9]{7,14}$/, 'INVALID_PHONE')
+      .nullable()
+      .optional(),
+    password: z.string().min(10).max(72).optional(),
+  }),
+) {}
 
 // ----------------------------- ทีมงานหน้า /about -----------------------------
 const https = z.url().startsWith('https://').max(300);
