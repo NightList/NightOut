@@ -1,3 +1,4 @@
+import type { BarCategory } from '@nightout/types';
 import { CATEGORY_LABELS, MASTER, merchantJoin } from '@/services/data';
 import { useAuth } from '@/services/auth';
 import { useState } from 'react';
@@ -26,7 +27,7 @@ export function MerchantJoinPage() {
         <Form
           layout="vertical"
           size="large"
-          onFinish={async (v: { name: string; category: string; district?: string; address: string; license: string }) => {
+          onFinish={async (v: { name: string; category: BarCategory; district?: string; address: string; license: string }) => {
             setSending(true);
             try {
               await merchantJoin({ name: v.name, category: v.category, district_id: v.district ?? null, address: v.address, license: v.license });

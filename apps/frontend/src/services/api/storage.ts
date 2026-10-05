@@ -1,10 +1,11 @@
+import type { ReviewMediaItem, SignedUrlsResult, UploadBucket, UploadUrlResult } from '@nightout/contracts';
 import type { ReviewMedia } from '@nightout/mock';
-import { getBlob } from '@/services/mediaStore';
-import { log } from '@/services/log';
 import { Rest } from '@nightout/utils/rest';
+import { log } from '@/services/log';
+import { getBlob } from '@/services/mediaStore';
 
 /**
- * อัปโหลดไฟล์ตาม policy ของแต่ละ bucket (โฟลเดอร์แรก = เจ้าของ)
+ * storage — อัปโหลดไฟล์ตาม policy ของแต่ละ bucket (โฟลเดอร์แรก = เจ้าของ) · backend: domains/storage
  *   deposit-slips/<user_id>/...   review-media/<user_id>/<review_id>/...   promo-slips/<bar_id>/...
  * 1) ขอ URL อัปโหลดจาก API (POST /storage/upload-url — Storage policy ตรวจสิทธิ์ในนามผู้ใช้)
  * 2) PUT ไฟล์ตรงเข้า URL นั้น (ไฟล์ใหญ่อย่างวิดีโอรีวิวไม่ต้องผ่าน API) · NestJS รับแค่ path แล้วตรวจซ้ำใน DB
@@ -12,10 +13,10 @@ import { Rest } from '@nightout/utils/rest';
 const ext = (f: Blob) =>
   ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf', 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' })[f.type] ?? 'bin';
 
-export type UploadBucket = 'deposit-slips' | 'review-media' | 'promo-slips' | 'bar-verifications';
+export type { UploadBucket };
 
 async function upload(bucket: UploadBucket, path: string, file: Blob): Promise<string> {
-  const { upload_url } = await Rest.post<{ upload_url: string; path: string }>('/storage/upload-url', { bucket, path });
+  const { upload_url } = await Rest.post<UploadUrlResult>('/storage/upload-url', { bucket, path });
   try {
     // URL มี token ในตัว — Rest.upload ไม่แนบ baseURL / Bearer ของ API
     await Rest.upload(upload_url, file, { 'x-upsert': 'false' });
@@ -32,7 +33,7 @@ async function upload(bucket: UploadBucket, path: string, file: Blob): Promise<s
 export async function signedUrls(bucket: UploadBucket, paths: string[], seconds = 6 * 3600): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   for (let i = 0; i < paths.length; i += 500) {
-    const { urls } = await Rest.post<{ urls: Record<string, string> }>('/storage/signed-urls', {
+    const { urls } = await Rest.post<SignedUrlsResult>('/storage/signed-urls', {
       bucket,
       paths: paths.slice(i, i + 500),
       expires_in: seconds,
@@ -58,7 +59,7 @@ export function uploadSafetyEvidence(barId: string, key: string, file: Blob) {
 
 /** อัปโหลดรูป/วิดีโอจากตัวเลือกรีวิว (รูป = data URL ที่ย่อแล้ว · วิดีโอ = ไฟล์ใน IndexedDB) */
 export async function uploadReviewMedia(userId: string, reviewId: string, media: ReviewMedia[]) {
-  const out: { path: string; kind: 'IMAGE' | 'VIDEO'; thumb_path?: string; duration_sec?: number; size_bytes?: number }[] = [];
+  const out: ReviewMediaItem[] = [];
   for (const [i, m] of media.entries()) {
     const base = `${userId}/${reviewId}/${i + 1}`;
     if (m.type === 'image') {

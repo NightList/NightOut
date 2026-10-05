@@ -9,7 +9,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Rest } from '@nightout/utils/rest';
+import type { MyProfile } from '@nightout/contracts';
+import { fetchMyProfile } from '@/services/api/account';
 import { supabase } from '@/services/supabase';
 
 /**
@@ -34,20 +35,12 @@ interface AdminAuthValue {
   signOut: () => Promise<void>;
 }
 
-export interface AdminProfile {
-  id: string;
-  role: UserRole;
-  role_label: string;
-  can_enter_backoffice: boolean;
-  display_name: string;
-}
+export type AdminProfile = MyProfile;
 
 /** ชั้นบัญชี + ชื่อจาก public.users ผ่าน API (GET /me/profile) — null ถ้าไม่พบ/อ่านไม่ได้ */
 export async function fetchProfile(accessToken: string): Promise<AdminProfile | null> {
   try {
-    return await Rest.get<AdminProfile>('/me/profile', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    return await fetchMyProfile(accessToken);
   } catch {
     return null;
   }

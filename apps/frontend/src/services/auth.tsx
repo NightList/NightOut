@@ -1,10 +1,11 @@
 import type { Session } from '@supabase/supabase-js';
+import type * as C from '@nightout/contracts';
 import type { UserRole } from '@nightout/types';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useDemo } from '@/hooks/useDemo';
-import { Rest } from '@nightout/utils/rest';
 import { log } from '@/services/log';
 import { supabase } from '@/services/supabase';
+import { fetchMyProfile } from '@/services/api/account';
 import { clearUser, currentProfile, startUser } from '@/services/sync';
 
 export interface AppUser {
@@ -36,18 +37,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** โปรไฟล์จาก public.users ผ่าน API (GET /me/profile) — role อ่านจาก DB ไม่ใช่ user_metadata */
 async function loadProfile(session: Session): Promise<AppUser | null> {
-  let u: {
-    id: string;
-    display_name: string;
-    role: UserRole;
-    role_label: string;
-    phone_e164?: string | null;
-    banned_at?: string | null;
-  };
+  let u: C.MyProfile;
   try {
-    u = await Rest.get<typeof u>('/me/profile', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    });
+    u = await fetchMyProfile(session.access_token);
   } catch (e) {
     log.error('โหลดโปรไฟล์ไม่สำเร็จ', (e as Error).message);
     return null;

@@ -1,10 +1,10 @@
-import { useBarLedger, type LedgerRow } from '@/services/data';
+import { useBarLedger, type DepositLedgerRow } from '@/services/data';
 import { Alert, Card, Col, Row, Statistic, Table, Tag } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { baht, dateTime } from '@/ui/utils/format';
 import { useMerchantBar } from '@/hooks/useMerchantBar';
 
-const SETTLEMENT: Record<LedgerRow['settlement'], { label: string; color: string }> = {
+const SETTLEMENT: Record<DepositLedgerRow['settlement'], { label: string; color: string }> = {
   NONE: { label: 'รอ NightOut ตรวจสลิป', color: 'default' },
   HELD: { label: 'NightOut ถือไว้', color: 'blue' },
   PAYOUT_PENDING: { label: 'รอโอนให้ร้าน', color: 'gold' },
@@ -23,7 +23,7 @@ export function MerchantDepositsPage() {
   const bar = useMerchantBar();
   const { data = [], isLoading, error } = useBarLedger(bar.id);
   const rows = data.filter((r) => r.status !== 'REJECTED');
-  const sum = (k: LedgerRow['settlement']) => rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
+  const sum = (k: DepositLedgerRow['settlement']) => rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
   return (
     <div>
       <PageHeader
@@ -63,7 +63,7 @@ export function MerchantDepositsPage() {
           </Card>
         </Col>
       </Row>
-      <Table<LedgerRow>
+      <Table<DepositLedgerRow>
         rowKey="deposit_id"
         loading={isLoading}
         pagination={{ pageSize: 20 }}
@@ -78,7 +78,7 @@ export function MerchantDepositsPage() {
           {
             title: 'สถานะเงิน',
             dataIndex: 'settlement',
-            render: (s: LedgerRow['settlement']) => <Tag color={SETTLEMENT[s].color}>{SETTLEMENT[s].label}</Tag>,
+            render: (s: DepositLedgerRow['settlement']) => <Tag color={SETTLEMENT[s]?.color}>{SETTLEMENT[s]?.label ?? s}</Tag>,
           },
           {
             title: 'อัปเดต',

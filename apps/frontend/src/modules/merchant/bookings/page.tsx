@@ -1,4 +1,5 @@
 import { ArrowsLeftRight, HandCoins } from '@phosphor-icons/react';
+import type { TeamBookingStatusBody } from '@nightout/contracts';
 import { barBookings, setBookingStatus, type Booking } from '@/services/data';
 import type { BookingStatus } from '@nightout/types';
 import { nextStatuses } from '@nightout/utils';
@@ -14,6 +15,11 @@ import { canRefund, RefundModal } from './modal/refundModal';
 
 /** สถานะที่ยังถือโต๊ะอยู่ → ย้ายโต๊ะได้ */
 const MOVABLE: BookingStatus[] = ['PENDING', 'AWAITING_DEPOSIT', 'DEPOSIT_SUBMITTED', 'CONFIRMED', 'CHECKED_IN'];
+
+/** สถานะที่ทีมร้านสั่งได้ผ่าน API (ตรงกับ TeamBookingStatusBody) */
+type TeamAction = TeamBookingStatusBody['to'];
+const isTeamAction = (s: BookingStatus): s is TeamAction =>
+  s === 'CONFIRMED' || s === 'REJECTED' || s === 'CHECKED_IN' || s === 'COMPLETED' || s === 'CANCELLED_BY_MERCHANT';
 
 const ACTION_LABEL: Partial<Record<BookingStatus, string>> = {
   CONFIRMED: 'ยืนยัน',
@@ -45,7 +51,7 @@ export function MerchantBookingsPage() {
   const open = openId ? (barBookings(bar.id).find((b) => b.id === openId) ?? null) : null;
   const setOpen = (b: Booking | null) => setOpenId(b?.id ?? null);
 
-  const act = async (b: Booking, to: BookingStatus) => {
+  const act = async (b: Booking, to: TeamAction) => {
     setBusy(`${b.id}:${to}`);
     try {
       await setBookingStatus(b.id, to);
@@ -58,6 +64,7 @@ export function MerchantBookingsPage() {
   };
   const actions = (b: Booking) =>
     nextStatuses(b.status, actor)
+      .filter(isTeamAction)
       .filter((s) => ACTION_LABEL[s])
       .map((s) => (
         <Button

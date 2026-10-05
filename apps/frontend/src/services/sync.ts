@@ -9,19 +9,20 @@ import {
   type DemoUser,
   type PromotionOrder,
   type Review,
-  type ReviewMedia,
 } from '@nightout/mock';
-import type { BookingStatus, UserRole } from '@nightout/types';
+import type { UserRole } from '@nightout/types';
+import { Rest } from '@nightout/utils/rest';
 import { STYLE_LABELS, toBar, type BarDetailRow } from '@/services/barsRepo';
 import { log, since } from '@/services/log';
-import { Rest } from '@nightout/utils/rest';
-import { signedUrls } from '@/services/storage';
+import { toNotification, toPromotionOrder, type ListingRow, type NotificationRow } from '@/services/mappers/account';
+import { toBooking, type BookingDetailRow } from '@/services/mappers/booking';
+import { mediaPaths, signReviewPaths, toMyReview, toPublicReview, type MyReviewRow, type PublicReviewRow } from '@/services/mappers/review';
 
 /**
  * ดึงข้อมูลจาก NestJS API (Rest → GET /public/catalog, /me/overview) มาใส่ store ของ @nightout/mock (cache ฝั่งหน้าเว็บ) — ไม่ query DB ตรง (ADR 0002)
  * - สาธารณะ (ตอนเปิดเว็บ): ร้าน (bar_detail) · รีวิว (public_reviews) · ย่าน/สไตล์/แพ็กเกจโปรโมท/PromptPay
  * - ผู้ใช้ (หลังล็อกอิน): การจอง · มัดจำ · แจ้งเตือน · ร้านโปรด · รีวิวของฉัน · ร้านของฉัน (ทุกสถานะ) + การจองของร้าน
- * หน้าเว็บอ่านจาก store แบบเดิม (listBars, myBookings, ...) · การเขียนทั้งหมดไป NestJS (services/actions.ts) แล้วโหลดใหม่
+ * หน้าเว็บอ่านจาก store แบบเดิม (listBars, myBookings, ...) · การเขียนทั้งหมดไป NestJS (services/api/<domain>.ts) แล้วโหลดใหม่
  * ไม่มีข้อมูลเดโม: store ถูกล้างแล้วแทนด้วยข้อมูลจาก DB ทุกครั้ง
  */
 
@@ -59,178 +60,6 @@ export const DISTRICTS: string[] = [];
 /** ชื่อสไตล์ (เหมือน STYLES เดิม) */
 export const STYLES: string[] = [];
 
-
-// ---------------------------------------------------------------------
-// แปลงแถวจาก DB → รูปแบบที่หน้าเว็บใช้
-// ---------------------------------------------------------------------
-interface MediaRow {
-  id: string;
-  kind: 'IMAGE' | 'VIDEO';
-  storage_path: string;
-  thumb_path?: string | null;
-  duration_sec?: number | null;
-}
-interface PublicReviewRow {
-  id: string;
-  bar_id: string;
-  rating: number;
-  comment: string | null;
-  created_at: string;
-  display_name: string | null;
-  media: MediaRow[];
-}
-interface MyReviewRow extends Omit<PublicReviewRow, 'display_name'> {
-  booking_id: string;
-  status: Review['status'];
-}
-interface BookingDetailRow {
-  id: string;
-  code: string;
-  status: BookingStatus;
-  user_id: string;
-  booking_datetime: string;
-  pax: number;
-  customer_note: string | null;
-  cancel_reason: string | null;
-  deposit_required: number;
-  checked_in_at: string | null;
-  created_at: string;
-  bar: { id: string } | null;
-  zone: { id: string; name: string } | null;
-  table: { id: string; name: string } | null;
-  promotion: { id: string | null; title: string } | null;
-  deposit: {
-    id: string;
-    amount: number;
-    status: 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
-    reject_reason: string | null;
-    settlement: string;
-    verified_at: string | null;
-    created_at: string;
-  } | null;
-  status_history: { from_status: BookingStatus | null; to_status: BookingStatus; reason: string | null; created_at: string }[];
-  customer_name: string | null;
-  share_token: string | null;
-  has_review: boolean;
-}
-interface NotificationRow {
-  id: string;
-  user_id: string;
-  title: string;
-  body: string;
-  payload: { link?: string } | null;
-  read_at: string | null;
-  created_at: string;
-}
-interface ListingRow {
-  id: string;
-  bar_id: string;
-  placement: PromotionOrder['placement'];
-  price_paid: number;
-  status: string;
-  created_at: string;
-  promotion_packages: { name: string; duration_days: number } | null;
-}
-
-/** URL ชั่วคราวของไฟล์รีวิว (bucket review-media เป็น private) — ขอผ่าน API */
-async function signReviewPaths(paths: string[]): Promise<Map<string, string>> {
-  if (paths.length === 0) return new Map();
-  try {
-    return await signedUrls('review-media', paths, 6 * 3600);
-  } catch (e) {
-    log.warn('ขอ URL รูปรีวิวไม่สำเร็จ', (e as Error).message);
-    return new Map();
-  }
-}
-
-const mediaPaths = (rows: { media: MediaRow[] }[]) =>
-  rows.flatMap((r) => r.media.flatMap((m) => [m.storage_path, m.thumb_path].filter((p): p is string => !!p)));
-
-function toMedia(m: MediaRow, urls: Map<string, string>): ReviewMedia {
-  return m.kind === 'VIDEO'
-    ? {
-        id: m.id,
-        type: 'video',
-        src: urls.get(m.storage_path),
-        poster: m.thumb_path ? urls.get(m.thumb_path) : undefined,
-        duration: m.duration_sec ?? undefined,
-      }
-    : { id: m.id, type: 'image', src: urls.get(m.storage_path) };
-}
-
-/** ใครเปลี่ยนสถานะ (DB เก็บเหตุผล ไม่ได้เก็บชื่อให้ลูกค้าเห็น) */
-function historyBy(reason: string | null, customer: string): string {
-  switch (reason) {
-    case 'created':
-    case 'deposit submitted':
-    case 'customer cancelled':
-      return customer;
-    case 'deposit verified':
-    case 'slip rejected':
-      return 'NightOut';
-    case 'timeout':
-      return 'ระบบ';
-    case null:
-      return 'ร้าน';
-    default:
-      return reason === 'merchant' || reason === 'staff' || reason === 'check-in' ? 'ร้าน' : reason;
-  }
-}
-
-function toBooking(r: BookingDetailRow): Booking {
-  const userName = r.customer_name ?? 'ลูกค้า';
-  const settlement = r.deposit?.settlement;
-  return {
-    id: r.id,
-    code: r.code,
-    barId: r.bar?.id ?? '',
-    userId: r.user_id,
-    userName,
-    zoneId: r.zone?.id ?? '',
-    tableId: r.table?.id,
-    datetime: r.booking_datetime,
-    pax: r.pax,
-    status: r.status,
-    depositRequired: Number(r.deposit_required),
-    cancelReason: r.cancel_reason ?? undefined,
-    depositRejectReason: r.deposit?.status === 'REJECTED' ? (r.deposit.reject_reason ?? undefined) : undefined,
-    promotionId: r.promotion?.id ?? undefined,
-    promotionTitle: r.promotion?.title,
-    deposit: r.deposit
-      ? {
-          amount: Number(r.deposit.amount),
-          status: r.deposit.status,
-          submittedAt: r.deposit.created_at,
-          verifiedAt: r.deposit.verified_at ?? undefined,
-          settlement:
-            settlement && settlement !== 'NONE'
-              ? (settlement as NonNullable<Booking['deposit']>['settlement'])
-              : undefined,
-        }
-      : undefined,
-    note: r.customer_note ?? undefined,
-    createdAt: r.created_at,
-    history: r.status_history.map((h) => ({
-      from: h.from_status,
-      to: h.to_status,
-      by: historyBy(h.reason, userName),
-      at: h.created_at,
-    })),
-    checkedInAt: r.checked_in_at ?? undefined,
-    shareToken: r.share_token ?? '',
-    reviewed: r.has_review,
-  };
-}
-
-const toNotification = (n: NotificationRow): AppNotification => ({
-  id: n.id,
-  userId: n.user_id,
-  title: n.title,
-  body: n.body,
-  link: n.payload?.link,
-  createdAt: n.created_at,
-  readAt: n.read_at ?? undefined,
-});
 
 // ---------------------------------------------------------------------
 // cache ภายใน (แยกสาธารณะ / ผู้ใช้ แล้วรวมใส่ store)
@@ -294,16 +123,7 @@ function applyPublic(raw: PublicRaw, urls: Map<string, string>) {
   }
   MASTER.packages = raw.packages.map((p) => ({ id: p.id, name: p.name, placement: p.placement, days: p.duration_days, price: Number(p.price) }));
   publicBars = raw.bars.map(toBar);
-  publicReviews = raw.reviews.map((r) => ({
-    id: r.id,
-    barId: r.bar_id,
-    userName: r.display_name ?? 'ผู้ใช้ NightOut',
-    rating: r.rating,
-    comment: r.comment ?? '',
-    createdAt: r.created_at,
-    media: r.media.length ? r.media.map((m) => toMedia(m, urls)) : undefined,
-    status: 'PUBLISHED',
-  }));
+  publicReviews = raw.reviews.map((r) => toPublicReview(r, urls));
   commit();
 }
 
@@ -440,31 +260,11 @@ export async function loadUser(p: SessionProfile): Promise<{ barId?: string }> {
     },
     myBars: bars,
     bookings: [...allBookings.values()],
-    myReviews: myReviewRows.map((r) => ({
-      id: r.id,
-      barId: r.bar_id,
-      bookingId: r.booking_id,
-      userId: p.id,
-      userName: p.displayName,
-      rating: r.rating,
-      comment: r.comment ?? '',
-      createdAt: r.created_at,
-      media: r.media.length ? r.media.map((m) => toMedia(m, urls)) : undefined,
-      status: r.status,
-    })),
+    myReviews: myReviewRows.map((r) => toMyReview(r, p, urls)),
     reportedReviewIds: new Set(o.review_reports.map((x) => x.review_id)),
     favorites: o.favorites.map((f) => f.id),
     notifications: o.notifications.map(toNotification),
-    promotions: listings.map((l) => ({
-      id: l.id,
-      barId: l.bar_id,
-      packageName: `${l.promotion_packages?.name ?? 'แพ็กเกจ'} ${l.promotion_packages?.duration_days ?? ''} วัน`.trim(),
-      placement: l.placement,
-      days: l.promotion_packages?.duration_days ?? 0,
-      price: Number(l.price_paid),
-      status: l.status as PromotionOrder['status'],
-      createdAt: l.created_at,
-    })),
+    promotions: listings.map(toPromotionOrder),
   };
   setSessionUserId(p.id);
   commit();
@@ -498,7 +298,7 @@ export function clearUser() {
   commit();
 }
 
-/** โหลดใหม่หลังบันทึก (เรียกจาก services/actions.ts) */
+/** โหลดใหม่หลังบันทึก (เรียกจาก services/api/<domain>.ts) */
 export async function refresh(opts: { public?: boolean } = {}) {
   await Promise.all([opts.public ? loadPublic() : Promise.resolve(), lastProfile ? loadUser(lastProfile) : Promise.resolve()]);
 }
@@ -506,6 +306,12 @@ export async function refresh(opts: { public?: boolean } = {}) {
 /** ชื่อผู้ใช้ใน store (ใช้หลังแก้โปรไฟล์) */
 export function currentProfile(): SessionProfile | null {
   return lastProfile;
+}
+/** โปรไฟล์ที่ล็อกอินอยู่ — โยน error ถ้ายังไม่ได้เข้าสู่ระบบ (ใช้ใน services/api/* ที่ต้องรู้ user id) */
+export function me(): SessionProfile {
+  const p = lastProfile;
+  if (!p) throw new Error('กรุณาเข้าสู่ระบบ');
+  return p;
 }
 export function setProfileName(displayName: string) {
   if (lastProfile) lastProfile = { ...lastProfile, displayName };
