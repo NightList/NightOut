@@ -64,11 +64,11 @@ flowchart LR
 | Presentation | `apps/frontend`, `apps/admin` | UI, routing, state ฝั่ง client และ form validation |
 | Shared UI / Contract | `packages/ui`, `packages/types` | theme tokens, คอมโพเนนต์ร่วม, Zod schema / DTO |
 | Domain logic (pure) | `packages/utils` | price calculator, star → tier, status transition map |
-| Demo data | `packages/mock` | โหมดเดโม: ข้อมูลสมมติ + store ในเบราว์เซอร์ (ใช้เมื่อยังไม่ตั้ง Supabase) — ขั้นตอนเชื่อม Supabase ดู `docs/SUPABASE.md` |
+| Client cache | `packages/mock` | store ในเบราว์เซอร์ที่ `services/sync.ts` เติมข้อมูลจาก API (ชื่อเดิมจากยุคเดโม — ไม่มีโหมดเดโมแล้ว) + model ที่หน้าเว็บใช้ |
 | Map | `react-leaflet` + OpenStreetMap | แผนที่ร้าน (หน้าร้าน, หน้าค้นหา, หน้า `/map` เต็มจอ) พื้นแผนที่ vector tiles ฟรีจาก OpenFreeMap (ไม่ต้องมี key) + MapLibre ผ่าน `@maplibre/maplibre-gl-leaflet` แทนสีเป็นพาเลต Google Maps (ปกติ/กลางคืน) ใน `ui/utils/mapStyle.ts` · สำรอง: OSM raster + CSS filter หรือ `VITE_MAP_TILE_URL_*` ไม่ต้องมี API key · ปุ่มนำทางเปิด Google Maps |
 | API | `apps/backend/src` (controllers) | controller, guard, pipe, Swagger |
-| Application / Domain | `apps/backend/src/modules` | booking, pricing, ranking, notification ฯลฯ (NestJS modules) |
-| Data | `apps/backend/supabase` | migrations, RLS, DB functions, seed |
+| Application | `apps/backend/src/modules` | controller ตามคนเรียก (customer / merchant / admin / query) → ฟังก์ชัน DB · เป้าหมาย: จัดตามโดเมน ([ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md)) |
+| Data / Domain logic | `apps/backend/supabase` | migrations, RLS, **ฟังก์ชัน `app_*` / `admin_*` (กฎธุรกิจ + ธุรกรรม + ตรวจสิทธิ์)**, seed |
 | Infra | `infra/terraform`, `.github/workflows` | Vercel, Supabase, secrets, CI/CD |
 
 ---
@@ -192,50 +192,44 @@ sequenceDiagram
 
 ## 4. Backend (`apps/backend`)
 
+> หัวข้อนี้อธิบาย **ของที่มีจริงตอนนี้** · โครงเป้าหมาย (จัดตามโดเมน + `packages/contracts`) เสนอไว้ใน [ADR 0006](adr/0006-domain-sliced-api-and-shared-contracts.md) — เมื่อทีมรับ (Accepted) โค้ดใหม่ให้ทำตามนั้น
+
 ```
 apps/backend/
 ├── src/
-│   ├── main.ts / bootstrap.ts   # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function
-│   ├── app.module.ts            # รวม modules + guard/pipe ระดับแอป
-│   ├── auth/ health/ jobs/ config/   # guard, endpoint ระบบ, env
-│   └── modules/<domain>/        # 1 โดเมน = module + service (+ controller ถ้ามี HTTP): booking, pricing, ranking, notification
-├── supabase/                    # config.toml, migrations/, seed.sql — รันด้วย pnpm --filter @nightout/backend db:*
-├── api/index.js                 # Vercel Function entry
-└── test/                        # e2e (vitest + supertest)
+│   ├── main.ts / bootstrap.ts      # เริ่ม NestJS (local) / สร้าง app ให้ Vercel Function · prefix /api · Swagger /api/docs
+│   ├── auth/                       # SupabaseJwtGuard (JWKS → fallback /auth/v1/user) · AdminGuard (ADMIN/SUPER_ADMIN + aal2) · SuperAdminGuard
+│   ├── common/                     # @ApiDoc · clientInfo (IP/UA)
+│   ├── supabase/supabase.service.ts  # ตัวเดียวที่คุย Supabase: rpc (service_role) · selectAs/rpcAs (ในนามผู้เรียก) · storage · auth admin · แปลง errcode → HTTP
+│   ├── modules/
+│   │   ├── customer/  merchant/  admin/   # การเขียน แยกตามคนเรียก → db.rpc('app_*' | 'admin_*')
+│   │   ├── query/                  # การอ่าน: public-read · me-read · merchant-read (admin อ่านที่ admin/admin-read)
+│   │   └── pricing/                # คำนวณราคาสาธารณะ (ใช้ @nightout/utils)
+│   ├── jobs/  health/  config/     # /api/jobs/* ให้ pg_cron เรียก · health · ตรวจ env ด้วย zod
+├── supabase/                       # config.toml, migrations/, seed.sql — pnpm --filter @nightout/backend db:*
+└── api/index.js                    # Vercel Function entry
 ```
 
-
-### Request pipeline
+### Request pipeline (จริง)
 ```mermaid
 flowchart LR
-  R[Request] --> T[ThrottlerGuard] --> J[SupabaseJwtGuard] --> RG[RolesGuard] --> P[ZodValidationPipe] --> CT[Controller] --> S[Service] --> RP[Repository] --> DB[(Postgres)]
-  S --> O[(notification_outbox)]
-  CT --> I[AuditInterceptor]
+  R[Request] --> G[SupabaseJwtGuard / AdminGuard] --> P[ZodValidationPipe] --> C[Controller]
+  C -- อ่าน --> RA["db.selectAs / rpcAs<br/>(anon key + JWT ผู้เรียก → RLS)"] --> PG[(Postgres)]
+  C -- เขียน --> RW["db.rpc('app_*' | 'admin_*')<br/>(service_role + p_actor)"] --> F["plpgsql: ตรวจสิทธิ์ซ้ำ + ธุรกรรม + audit + แจ้งเตือน"] --> PG
 ```
 
-### NestJS modules
-| Module | รับผิดชอบ |
-|---|---|
-| `auth` | ตรวจ Supabase JWT, โหลด user + role, `@Roles()` decorator |
-| `bars` | ข้อมูลร้าน, เวลาเปิด-ปิด, styles, links, media, safety |
-| `menu` / `pricing` | เมนูราคา (แสดงเพื่อประเมินงบ ไม่มีสั่งล่วงหน้า), ค่าธรรมเนียม, โปรโมชันของร้าน (cutoff time / วัน), PR ชาย/หญิง |
-| `availability` | คำนวณโต๊ะว่างจาก reservation interval |
-| `booking` | สร้างการจอง (transaction + overlap), state machine, snapshot |
-| `deposit` | รับสลิป (เข้า PromptPay แพลตฟอร์ม), แอดมินยืนยัน/ปฏิเสธ, settlement: ถือไว้ → รอโอน → โอนให้ร้าน / เครดิตร้าน / คืนลูกค้า |
-| `checkin` | ออก QR token (signed JWT ใช้ครั้งเดียว) และสแกน |
-| `review` | สร้าง/แก้รีวิว, รายงาน, moderation |
-| `ranking` | คำนวณคะแนน → ดาว → Tier |
-| `promotion` | แพ็กเกจโปรโมท, สลิป, ช่องที่ว่าง |
-| `billing` | commission rules, billing events (CHECK_IN / NO_SHOW) |
-| `notification` | outbox → LINE / Web Push / In-app + retry |
-| `jobs` | endpoint `/jobs/*` ให้ pg_cron เรียก |
-| `audit` | บันทึก audit log |
+- **กฎธุรกิจ + ธุรกรรม + สิทธิ์ อยู่ในฟังก์ชัน DB** (`app_*` ลูกค้า/ร้าน, `admin_*` แอดมิน) — controller แค่ตรวจ body (zod) แล้วส่ง `p_actor` = ผู้ใช้จาก JWT
+- error จาก DB เป็นรหัสตัวใหญ่ (`ZONE_FULL`) → `SupabaseService` แปลง errcode เป็น HTTP (P0002→404, P0001/23505/23P01→409, 42501→403, 22023/23514→400) → หน้าเว็บแปลไทยด้วย `ERROR_MESSAGES`
+- ไม่มี Kysely / repository / outbox — NestJS ไม่ต่อ Postgres ตรง (ทุกอย่างผ่าน PostgREST ของ Supabase)
 
-### การเข้าถึงฐานข้อมูล
-- NestJS ต่อ Postgres ตรงผ่าน **Supavisor (transaction mode)** และใช้ **Kysely** + type ที่ generate จาก schema
-  - เหตุผล: การจองต้องใช้ transaction + `SELECT … FOR UPDATE` ซึ่ง `supabase-js` ทำไม่ได้
-- ใช้ `supabase-js` (service role) เฉพาะงาน Storage และ Auth admin
-- ตรวจสิทธิ์ใน service ทุกครั้ง (เช่น ร้านแก้ได้เฉพาะร้านตัวเอง) ไม่พึ่ง RLS อย่างเดียว
+### ไล่โค้ด 1 เรื่องต้องดูที่ไหน (จนกว่าจะย้ายตาม ADR 0006)
+| ชั้น | ที่ |
+|---|---|
+| endpoint เขียน | `modules/{customer,merchant,admin}/*.controller.ts` + DTO zod ใน `*.dto.ts` ข้างกัน |
+| endpoint อ่าน | `modules/query/{public,me,merchant}-read.controller.ts` · `modules/admin/admin-read.controller.ts` (`ADMIN_VIEWS`) |
+| ฟังก์ชัน DB ตัวล่าสุด | `grep -l "function public.<ชื่อ>(" apps/backend/supabase/migrations/* \| tail -1` (ไฟล์หลังสุดคือของจริง) |
+| หน้าเว็บเรียก | `apps/frontend/src/services/actions.ts` (เขียน) · `data.ts` (hook) · `sync.ts` (โหลด + แปลงลง store) · admin: `apps/admin/src/services/adminData.ts` |
+| type | `packages/types/src/database.ts` (`Db.*`) · ข้อความ error `packages/utils/src/rest.ts` |
 
 ---
 

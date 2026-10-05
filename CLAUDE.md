@@ -57,6 +57,29 @@
 - ธีมมืดเป็นค่าเริ่มต้น · หน้า Auth ไม่มีปุ่มเปลี่ยนธีม/ปุ่มเข้าสู่ระบบบน navbar (`<Navbar minimal />`)
 - ไม่มีโหมดเดโมแล้ว (เอาปุ่มเข้าเร็วเดโม/ปุ่มรีเซ็ตออก)
 
+## ชื่อโปรเจกต์
+- ชื่อแบรนด์ **NightOut** (เดิม NightList) · package `@nightout/*` · QR เช็กอิน `NIGHTOUT:<booking id>` · key ใน localStorage/IndexedDB ขึ้นต้น `nightout-` · repo GitHub ยังชื่อ `genminigpt/NightList`
+
+## เพิ่ม/แก้ endpoint (checklist ตามโครงปัจจุบัน — โครงเป้าหมาย: ADR 0006 ใน `docs/adr/`)
+1. **DB** — migration ใหม่ `apps/backend/supabase/migrations/<YYYYMMDDHHMMSS>_<โดเมน>_<เรื่อง>.sql` (ห้ามแก้ไฟล์ที่ push แล้ว)
+   - ฟังก์ชันเขียน `app_*` (ลูกค้า/ร้าน) / `admin_*` (แอดมิน): `language plpgsql set search_path = ''` · พารามิเตอร์แรก `p_actor uuid` · เริ่มด้วย `app_assert_user` / `admin_assert` · สิทธิ์ร้านใช้ `app_team_role` (ทุกบทบาท) หรือ `app_assert_manager` (ไม่รวม STAFF) · error = `raise exception 'UPPER_CODE' using errcode = …` · บันทึก `app_audit` / `admin_audit` · แจ้งเตือน `app_notify*`
+   - ท้ายไฟล์: `revoke all on function … from public, anon, authenticated; grant execute … to service_role;`
+   - ฟังก์ชันอ่านที่เป็น `security definer` ต้องเช็กสิทธิ์เองในตัว (`auth.uid()`, `is_bar_member()`, `is_admin()`) แล้ว grant ให้ `authenticated`
+   - ตารางใหม่: index บน FK + `enable row level security` + revoke write + **สร้าง policy `admin_read` เอง** (loop ใน `…001600` ทำครั้งเดียวกับตารางที่มีตอนนั้น)
+   - `bookings.contact_phone` ไม่ได้ grant ให้ `authenticated` → view แบบ `security_invoker` อ้างคอลัมน์นี้ตรงไม่ได้ (permission denied) ต้องอ่านผ่านฟังก์ชัน security definer (ดู `admin_booking_contact_phone`)
+   - ฟังก์ชันเดียวถูกประกาศซ้ำในหลาย migration ได้ — **ไฟล์หลังสุดคือของจริง**: `grep -l "function public.<ชื่อ>(" apps/backend/supabase/migrations/* | tail -1`
+   - ค่าใหม่ของ enum ต้องอยู่คนละ migration กับที่ใช้ค่านั้น
+2. **API** — controller ที่ตรงกับคนเรียก (`modules/customer|merchant|admin`, อ่านที่ `modules/query/*-read` / `admin-read`) · DTO zod + `.describe()` · `@ApiDoc` · อ่าน = `db.selectAs/rpcAs(bearerOf(req), …)` · เขียน = `db.rpc('app_*', { p_actor: me.id, … })` · view ใหม่ของ Backoffice ต้องเพิ่มใน `ADMIN_VIEWS`
+3. **รหัส error ใหม่** → ข้อความไทยใน `ERROR_MESSAGES` (`packages/utils/src/rest.ts`)
+4. **type** — `packages/types/src/database.ts` (`Db.*`) + รัน `db:types` หลัง `db:push` · response ที่หน้าเว็บใช้ต้องตรงกับ API (อย่าซ่อน/กรองค่าเงียบๆ ใน `sync.ts`)
+5. **หน้าเว็บ** — เขียน: `services/actions.ts` · อ่าน: hook ใน `services/data.ts` (TanStack Query) · Backoffice: `useAdminView` / `useAdminAction` (`method` POST/PATCH/PUT/DELETE · `success` เป็นข้อความหรือฟังก์ชันจากผล API)
+6. **logic ที่ทั้งหน้าเว็บและ backend ใช้** (ข้อความเงื่อนไข, เบอร์โทร, ราคา, state machine) → `packages/utils` + เทสต์
+7. **เอกสาร** — `docs/DATABASE.md` (migration + endpoint), `docs/SITEMAP.md` (หน้า), กฎธุรกิจใหม่ใส่หัวข้อด้านบนของไฟล์นี้, การตัดสินใจเชิงโครงสร้าง = ADR ใหม่ใน `docs/adr/`
+8. **ทดสอบ** — `pnpm lint && pnpm typecheck && pnpm test && pnpm build` · migration ลองกับ Postgres ในเครื่องก่อน push (`supabase db reset` หรือรันไฟล์ใน DB เปล่า) · เช็กสิทธิ์ด้วย token ของ role จริง (anon / ลูกค้า / ทีมร้าน / แอดมิน aal2)
+
+## หน้าแรก (Hero video)
+- `modules/home/components/heroBackdrop.tsx` + `public/videos/hero-loop-hf-{480,1080}.mp4` · วนแบบ crossfade 2 วิดีโอ: ตัวใหม่จางเข้า ~1 วิ ทับตัวเก่าที่ยังทึบเต็ม (ห้ามจางพร้อมกัน — ภาพจะโปร่ง) · **ห้ามใช้วิดีโอเล่นย้อน / ping-pong**
+
 ## การเชื่อมต่อ API (ADR 0002 — `docs/adr/0002-migrate-direct-db-calls-to-backend-api.md`)
 - `apps/frontend` และ `apps/admin` **ห้าม query DB / Storage ตรง** — `supabase` ใช้ได้เฉพาะ `supabase.auth.*` (ESLint บล็อก `supabase.from/rpc/storage`) · Backoffice: ADR 0003 (`/admin/views/:view`, `/admin/dashboard`, `/admin/master/:table`)
 - ลำดับชั้น: `Component → TanStack Query Hook (services/data.ts) → API Service Layer (services/*) → `Rest` (`@nightout/utils/rest` — class กลางใช้ร่วม frontend + admin) → Backend API`
