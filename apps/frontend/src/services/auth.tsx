@@ -12,6 +12,8 @@ export interface AppUser {
   email: string;
   displayName: string;
   role: UserRole;
+  /** ชื่อไทยของชั้นบัญชี (ตาราง roles) */
+  roleLabel: string;
   barId?: string;
   /** เบอร์ล่าสุดที่ใช้จอง (E.164) */
   phoneE164?: string | null;
@@ -34,7 +36,14 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** โปรไฟล์จาก public.users ผ่าน API (GET /me/profile) — role อ่านจาก DB ไม่ใช่ user_metadata */
 async function loadProfile(session: Session): Promise<AppUser | null> {
-  let u: { id: string; display_name: string; role: UserRole; phone_e164?: string | null; banned_at?: string | null };
+  let u: {
+    id: string;
+    display_name: string;
+    role: UserRole;
+    role_label: string;
+    phone_e164?: string | null;
+    banned_at?: string | null;
+  };
   try {
     u = await Rest.get<typeof u>('/me/profile', {
       headers: { Authorization: `Bearer ${session.access_token}` },
@@ -48,6 +57,7 @@ async function loadProfile(session: Session): Promise<AppUser | null> {
     email: session.user.email ?? '',
     displayName: u.display_name,
     role: u.role,
+    roleLabel: u.role_label,
     phoneE164: u.phone_e164 ?? null,
     bannedAt: u.banned_at ?? null,
   };
