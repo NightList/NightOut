@@ -454,7 +454,7 @@ night-list/
 - **สไตล์:** Nightlife, Premium, Minimal, Modern · Mobile-first
 - **ธีมหลัก: Midnight Gold** (ดำ · ทอง · ม่วง) ใช้ Gold กับปุ่มหลักและคะแนน ส่วน Purple ใช้กับ accent และลิงก์
 - รองรับ **Light / Dark mode** พร้อม motion ตอนสลับธีม (รายละเอียดด้านล่าง)
-- **ไฟล์ออกแบบ (Figma):** https://www.figma.com/design/FtXQS2NeyuHQZIA3chcvLL/NightList?node-id=7-4 ใช้เป็น reference ของ layout และคอมโพเนนต์ แต่ถ้าสีหรือข้อความใน Figma ไม่ตรงกับ token และกฎในเอกสารนี้ ให้ยึดเอกสารนี้
+- **ไฟล์ออกแบบ (Figma):** https://www.figma.com/design/FtXQS2NeyuHQZIA3chcvLL/NightOut?node-id=7-4 ใช้เป็น reference ของ layout และคอมโพเนนต์ แต่ถ้าสีหรือข้อความใน Figma ไม่ตรงกับ token และกฎในเอกสารนี้ ให้ยึดเอกสารนี้
 
 ### Design Tokens — Midnight Gold
 ประกาศเป็น CSS variables ใน `packages/ui` แล้วใช้ผ่าน Tailwind preset เช่น `bg-background`, `text-muted`, `bg-gold`, `text-link` ห้าม hard-code hex ในคอมโพเนนต์

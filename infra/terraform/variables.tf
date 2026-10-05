@@ -10,7 +10,7 @@ variable "environment" {
 variable "github_repo" {
   description = "owner/repo ที่ Vercel ผูก"
   type        = string
-  default     = "genminigpt/NightList"
+  default     = "genminigpt/NightOut"
 }
 
 variable "production_branch" {

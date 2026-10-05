@@ -479,7 +479,7 @@ export function platformDeposits() {
 export function checkInByCode(barId: string, codeOrToken: string, by: string): Booking {
   const v = codeOrToken.trim().toUpperCase();
   const b = getState().bookings.find(
-    (x) => x.barId === barId && (x.code === v || [`NIGHTOUT:${x.id}`, `NIGHTLIST:${x.id}`].some((q) => q.toUpperCase() === v)),
+    (x) => x.barId === barId && (x.code === v || [`NIGHTOUT:${x.id}`, `NIGHTOUT:${x.id}`].some((q) => q.toUpperCase() === v)),
   );
   if (!b) throw new Error('ไม่พบการจองนี้ในร้านของคุณ');
   if (b.status !== 'CONFIRMED') throw new Error(`สถานะปัจจุบันคือ ${b.status} — เช็กอินไม่ได้`);
@@ -735,15 +735,15 @@ export function billingEvents() {
       const bar = getBar(b.barId);
       const base = b.pax * (bar?.avgPerPerson ?? 0);
       return {
-      id: `be-${b.id}`,
-      bookingCode: b.code,
-      barId: b.barId,
-      barName: bar?.name ?? '-',
-      type: b.status === 'NO_SHOW' ? ('NO_SHOW' as const) : ('CHECK_IN' as const),
-      baseAmount: base,
-      amount: b.status === 'NO_SHOW' ? 0 : Math.round(base * 0.1),
-      status: b.status === 'NO_SHOW' ? ('WAIVED' as const) : ('PENDING' as const),
-      at: b.checkedInAt ?? b.datetime,
+        id: `be-${b.id}`,
+        bookingCode: b.code,
+        barId: b.barId,
+        barName: bar?.name ?? '-',
+        type: b.status === 'NO_SHOW' ? ('NO_SHOW' as const) : ('CHECK_IN' as const),
+        baseAmount: base,
+        amount: b.status === 'NO_SHOW' ? 0 : Math.round(base * 0.1),
+        status: b.status === 'NO_SHOW' ? ('WAIVED' as const) : ('PENDING' as const),
+        at: b.checkedInAt ?? b.datetime,
       };
     });
 }

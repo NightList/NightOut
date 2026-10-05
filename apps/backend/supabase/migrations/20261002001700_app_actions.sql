@@ -391,7 +391,7 @@ begin
    where bar_id = p_bar
      and (code = v
           or (v like 'NIGHTOUT:%' and id::text = lower(substr(v, 10)))
-          or (v like 'NIGHTLIST:%' and id::text = lower(substr(v, 11))))   -- QR เก่า (ชื่อเดิม NightList) ยังสแกนได้
+          or (v like 'NIGHTOUT:%' and id::text = lower(substr(v, 11))))   -- QR เก่า (ชื่อเดิม NightOut) ยังสแกนได้
    for update;
   if not found then raise exception 'BOOKING_NOT_FOUND' using errcode = 'P0002'; end if;
   if bk.status <> 'CONFIRMED' then raise exception 'BOOKING_NOT_CONFIRMED' using errcode = 'P0001'; end if;

@@ -18,5 +18,4 @@ infra/terraform/**/.terraform/
 apps/backend/supabase/.branches/
 apps/backend/supabase/.temp/
 # deploy key (never commit)
-nightlist_deploy_key*
 nightout_deploy_key*
