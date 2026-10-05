@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AdminGuard } from '../../auth/admin.guard';
+import { AdminGuard, SuperAdminGuard } from '../../auth/admin.guard';
 import { ApiDoc } from '../../common/api-doc';
 import { CurrentUser } from '../../auth/current-user.decorator';
 import { SupabaseJwtGuard, type AuthUser } from '../../auth/supabase-jwt.guard';
@@ -144,13 +144,13 @@ export class AdminController {
   @ApiDoc({
     summary: 'เพิ่มผู้ใช้',
     description:
-      'สร้างบัญชีที่ยืนยันอีเมลแล้ว ใช้เข้าสู่ระบบได้ทันที · เลือกประเภทบัญชี: ลูกค้า / แอดมิน / เจ้าของร้าน / ผู้จัดการร้าน / พนักงานร้าน (3 แบบหลังต้องเลือกร้าน) · ไม่ใส่รหัสผ่าน = ระบบสุ่มให้ · บันทึก audit log',
+      'สร้างบัญชีที่ยืนยันอีเมลแล้ว ใช้เข้าสู่ระบบได้ทันที · เลือกประเภทบัญชี: ลูกค้า / เจ้าของร้าน / ผู้จัดการร้าน / พนักงานร้าน (3 แบบนี้ต้องเลือกร้าน) / แอดมิน / ซูเปอร์แอดมิน (2 แบบหลังเฉพาะ SUPER_ADMIN) · ไม่ใส่รหัสผ่าน = ระบบสุ่มให้ · บันทึก audit log',
     returns: '`id` · `email` · `display_name` · `role` · `bar_id` · `bar_role` · `password` (เฉพาะเมื่อระบบสุ่มให้ — แสดงครั้งเดียว ไม่ถูกเก็บ)',
     status: 201,
-    forbidden: 'ไม่ใช่ ADMIN',
+    forbidden: 'ไม่ใช่ ADMIN · `SUPER_ADMIN_REQUIRED` เมื่อสร้างแอดมิน / ซูเปอร์แอดมิน โดยไม่ใช่ SUPER_ADMIN',
   })
   createUser(@CurrentUser() me: AuthUser, @Body() b: CreateUserDto) {
-    return this.users.create(me.id, b);
+    return this.users.create(me.id, me.role, b);
   }
 
   @Post('users/:id/unban')
@@ -166,11 +166,15 @@ export class AdminController {
   }
 
   @Patch('users/:id/role')
+  @UseGuards(SuperAdminGuard)
   @ApiDoc({
-    summary: "เปลี่ยนบทบาทผู้ใช้",
-    description: "ตั้งเป็น CUSTOMER / MERCHANT / STAFF / ADMIN · บันทึก audit log",
-    returns: "`id` รหัสผู้ใช้ · `role`",
-    forbidden: "ไม่ใช่ ADMIN",
+    summary: 'แก้ชั้นบัญชี',
+    description:
+      'เฉพาะ SUPER_ADMIN ใช้แก้บัญชีที่สร้างผิด · ตั้งเป็น CUSTOMER / MERCHANT / STAFF / ADMIN / SUPER_ADMIN · ' +
+      'ชั้นใหม่เป็น CUSTOMER / ADMIN / SUPER_ADMIN → หลุดจากทุกร้าน (เลิกเป็นเจ้าของ + ถอนจากทีม) · ' +
+      'ห้ามเหลือ SUPER_ADMIN เป็นศูนย์ (`LAST_SUPER_ADMIN`) · บันทึก audit log',
+    returns: '`id` รหัสผู้ใช้ · `role` · `bars_detached` จำนวนร้านที่หลุด',
+    forbidden: 'ไม่ใช่ SUPER_ADMIN (`SUPER_ADMIN_REQUIRED`)',
   })
   setUserRole(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: SetUserRoleDto) {
     return this.db.rpc('admin_set_user_role', { p_actor: me.id, p_user: id, p_role: b.role });

@@ -1,5 +1,14 @@
+import { UserRole } from '@nightout/types';
 import { describe, expect, it } from 'vitest';
-import { CreateUserBody, ReorderTeamDto, ReviewDepositDto, TeamMemberBody, UpdateTeamMemberDto } from './admin.dto';
+import {
+  canCreateRole,
+  CreateUserBody,
+  ReorderTeamDto,
+  ReviewDepositDto,
+  SetUserRoleDto,
+  TeamMemberBody,
+  UpdateTeamMemberDto,
+} from './admin.dto';
 
 describe('team member DTOs', () => {
   it('accepts a full member and applies defaults', () => {
@@ -32,12 +41,32 @@ describe('CreateUserBody', () => {
     expect(CreateUserBody.safeParse({ ...base, account_type: 'STAFF' }).success).toBe(false);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'OWNER', bar_id: '00000000-0000-4000-8000-000000000001' }).success).toBe(true);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'ADMIN', bar_id: '00000000-0000-4000-8000-000000000001' }).success).toBe(false);
+    expect(CreateUserBody.safeParse({ ...base, account_type: 'SUPER_ADMIN', bar_id: '00000000-0000-4000-8000-000000000001' }).success).toBe(false);
+    expect(CreateUserBody.safeParse({ ...base, account_type: 'SUPER_ADMIN' }).success).toBe(true);
   });
   it('rejects under 20, short passwords', () => {
     const young = new Date();
     young.setFullYear(young.getFullYear() - 19);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'CUSTOMER', birthdate: young.toISOString().slice(0, 10) }).success).toBe(false);
     expect(CreateUserBody.safeParse({ ...base, account_type: 'CUSTOMER', password: 'short' }).success).toBe(false);
+  });
+});
+
+describe('canCreateRole', () => {
+  it('admin creates only customer / merchant / staff', () => {
+    expect(['CUSTOMER', 'MERCHANT', 'STAFF'].every((r) => canCreateRole('ADMIN', r as UserRole))).toBe(true);
+    expect(canCreateRole('ADMIN', 'ADMIN')).toBe(false);
+    expect(canCreateRole('ADMIN', 'SUPER_ADMIN')).toBe(false);
+  });
+  it('super admin creates all five', () => {
+    expect(UserRole.options.every((r) => canCreateRole('SUPER_ADMIN', r))).toBe(true);
+  });
+});
+
+describe('SetUserRoleDto', () => {
+  it('accepts the five account roles only', () => {
+    expect(SetUserRoleDto.schema.safeParse({ role: 'SUPER_ADMIN' }).success).toBe(true);
+    expect(SetUserRoleDto.schema.safeParse({ role: 'ROOT' }).success).toBe(false);
   });
 });
 

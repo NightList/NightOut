@@ -1,12 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { ACCOUNT_TYPES, type CreateUserBody } from './admin.dto';
+import { ACCOUNT_TYPES, canCreateRole, type CreateUserBody } from './admin.dto';
 import type { z } from 'zod';
 
 /**
  * เพิ่มผู้ใช้จาก Backoffice (เหมือน scripts/create-user.ts แต่ทำผ่านหน้าเว็บ + มีผู้ทำใน audit log)
- * 1) ตรวจอีเมลซ้ำ / ร้านมีจริง ก่อนสร้าง (กันบัญชีค้าง)
+ * 1) ตรวจชั้นที่ผู้เรียกสร้างได้ / อีเมลซ้ำ / ร้านมีจริง ก่อนสร้าง (กันบัญชีค้าง)
  * 2) สร้างใน Supabase Auth (ยืนยันอีเมลให้แล้ว) → trigger สร้าง public.users เป็น CUSTOMER
  * 3) admin_finish_new_user: ตั้งสิทธิ์ + ผูกร้าน + audit — ถ้าพลาด ลบบัญชีที่เพิ่งสร้างทิ้ง
  */
@@ -14,8 +14,9 @@ import type { z } from 'zod';
 export class AdminUsersService {
   constructor(private readonly db: SupabaseService) {}
 
-  async create(actorId: string, b: z.output<typeof CreateUserBody>) {
+  async create(actorId: string, actorRole: string | undefined, b: z.output<typeof CreateUserBody>) {
     const type = ACCOUNT_TYPES[b.account_type];
+    if (!canCreateRole(actorRole, type.role)) throw new ForbiddenException('SUPER_ADMIN_REQUIRED');
     const dup = await this.db.select<{ id: string }[]>(`users?select=id&email=eq.${encodeURIComponent(b.email)}`);
     if (dup.length) throw new ConflictException('EMAIL_EXISTS');
     if (b.bar_id) {

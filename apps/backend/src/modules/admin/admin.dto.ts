@@ -1,4 +1,5 @@
 import { createZodDto } from 'nestjs-zod';
+import { UserRole } from '@nightout/types';
 import { DEPOSIT_REJECT_CODES } from '@nightout/utils';
 import { z } from 'zod';
 
@@ -30,7 +31,7 @@ export class ModerateReviewDto extends createZodDto(
   z.object({ action: z.enum(['KEEP', 'HIDE', 'REMOVE', 'RESTORE']), reason }),
 ) {}
 export class SetUserRoleDto extends createZodDto(
-  z.object({ role: z.enum(['CUSTOMER', 'MERCHANT', 'STAFF', 'ADMIN']) }),
+  z.object({ role: UserRole.describe('ชั้นบัญชีใหม่ (ตาราง roles)') }),
 ) {}
 
 // ----------------------------- ทีมงานหน้า /about -----------------------------
@@ -82,15 +83,20 @@ export class ReorderTeamDto extends createZodDto(
 ) {}
 
 // ----------------------------- เพิ่มผู้ใช้ -----------------------------
-/** ประเภทบัญชีที่แอดมินเลือก → role ของระบบ + บทบาทในร้าน */
+/** ประเภทบัญชีที่แอดมินเลือก → ชั้นบัญชี + บทบาทในร้าน · ADMIN / SUPER_ADMIN สร้างได้เฉพาะ SUPER_ADMIN */
 export const ACCOUNT_TYPES = {
   CUSTOMER: { role: 'CUSTOMER', bar_role: null },
-  ADMIN: { role: 'ADMIN', bar_role: null },
   OWNER: { role: 'MERCHANT', bar_role: 'OWNER' },
   MANAGER: { role: 'MERCHANT', bar_role: 'MANAGER' },
   STAFF: { role: 'STAFF', bar_role: 'STAFF' },
+  ADMIN: { role: 'ADMIN', bar_role: null },
+  SUPER_ADMIN: { role: 'SUPER_ADMIN', bar_role: null },
 } as const;
 export type AccountType = keyof typeof ACCOUNT_TYPES;
+
+/** ชั้นที่ผู้เรียกเลือกตอนสร้างบัญชีได้ */
+export const canCreateRole = (actorRole: string | undefined, role: UserRole) =>
+  actorRole === 'SUPER_ADMIN' || (role !== 'ADMIN' && role !== 'SUPER_ADMIN');
 
 const isAdult = (d: string) => {
   const limit = new Date();
@@ -102,13 +108,15 @@ export const CreateUserBody = z
   .object({
     email: z.string().trim().toLowerCase().max(254).pipe(z.email()).describe('อีเมลที่ใช้เข้าสู่ระบบ'),
     display_name: z.string().trim().min(1).max(60).describe('ชื่อที่แสดง'),
-    account_type: z.enum(['CUSTOMER', 'ADMIN', 'OWNER', 'MANAGER', 'STAFF']).describe('ลูกค้า / แอดมิน / เจ้าของร้าน / ผู้จัดการร้าน / พนักงานร้าน'),
+    account_type: z
+      .enum(['CUSTOMER', 'OWNER', 'MANAGER', 'STAFF', 'ADMIN', 'SUPER_ADMIN'])
+      .describe('ลูกค้า / เจ้าของร้าน / ผู้จัดการร้าน / พนักงานร้าน / แอดมิน / ซูเปอร์แอดมิน (2 แบบหลังเฉพาะ SUPER_ADMIN)'),
     bar_id: z.uuid().nullish().describe('ร้าน — ต้องใส่เมื่อเป็นเจ้าของ / ผู้จัดการ / พนักงานร้าน'),
     birthdate: z.iso.date().refine(isAdult, 'ต้องอายุ 20 ปีขึ้นไป').describe('YYYY-MM-DD · ต้องอายุ 20 ปีขึ้นไป'),
     password: z.string().min(10).max(72).optional().describe('ไม่ใส่ = ระบบสุ่มให้ แล้วตอบกลับครั้งเดียว'),
   })
   .refine((v) => (ACCOUNT_TYPES[v.account_type].bar_role === null) === !v.bar_id, {
-    message: 'เจ้าของ / ผู้จัดการ / พนักงานร้าน ต้องเลือกร้าน · ลูกค้า / แอดมิน ห้ามเลือกร้าน',
+    message: 'เจ้าของ / ผู้จัดการ / พนักงานร้าน ต้องเลือกร้าน · ลูกค้า / แอดมิน / ซูเปอร์แอดมิน ห้ามเลือกร้าน',
     path: ['bar_id'],
   });
 export class CreateUserDto extends createZodDto(CreateUserBody) {}

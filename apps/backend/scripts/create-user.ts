@@ -1,6 +1,8 @@
 /**
- * สร้างบัญชีแอดมิน / เจ้าของร้าน / พนักงานร้าน (ใช้ Secret key — รันในเครื่องทีมเท่านั้น)
+ * สร้างบัญชีซูเปอร์แอดมิน / แอดมิน / เจ้าของร้าน / พนักงานร้าน (ใช้ Secret key — รันในเครื่องทีมเท่านั้น)
+ * ซูเปอร์แอดมินคนแรกต้องตั้งจากสคริปต์นี้ (ADR 0005) — หลังจากนั้นแก้ชั้นบัญชีจาก Backoffice ได้
  *
+ *   pnpm --filter @nightout/backend user:create --email owner@nightout.co --name "ซูเปอร์แอดมิน" --role SUPER_ADMIN
  *   pnpm --filter @nightout/backend user:create --email admin@nightout.co --name "แอดมิน" --role ADMIN
  *   pnpm --filter @nightout/backend user:create --email owner@bar.com --name "เจ้าของร้าน" --role MERCHANT --bar moonlit-cellar
  *   pnpm --filter @nightout/backend user:create --email staff@bar.com --name "พนักงาน" --role STAFF --bar moonlit-cellar
@@ -8,7 +10,7 @@
  * ตัวเลือก
  *   --email       (บังคับ)
  *   --name        ชื่อที่แสดง (ไม่ใส่ = ส่วนหน้า @ ของอีเมล)
- *   --role        ADMIN | MERCHANT | STAFF | CUSTOMER (ค่าเริ่มต้น CUSTOMER)
+ *   --role        SUPER_ADMIN | ADMIN | MERCHANT | STAFF | CUSTOMER (ค่าเริ่มต้น CUSTOMER)
  *   --bar         slug ร้าน — MERCHANT = ตั้งเป็นเจ้าของร้าน · STAFF = เพิ่มเข้าทีมร้าน
  *   --password    ไม่ใส่ = สุ่มให้ 16 ตัว แล้วแสดงครั้งเดียว
  *   --birthdate   YYYY-MM-DD (ไม่ใส่ = 1990-01-01 · ต้องอายุ 20+)
@@ -19,7 +21,7 @@
 import { randomBytes } from 'node:crypto';
 import { parseArgs } from 'node:util';
 
-const ROLES = ['ADMIN', 'MERCHANT', 'STAFF', 'CUSTOMER'] as const;
+const ROLES = ['SUPER_ADMIN', 'ADMIN', 'MERCHANT', 'STAFF', 'CUSTOMER'] as const;
 type Role = (typeof ROLES)[number];
 
 const { values: args } = parseArgs({
@@ -81,7 +83,13 @@ async function main() {
   }
 
   // 1) หา / สร้างบัญชี
-  const existing = await rest<{ id: string }[]>(`users?select=id&email=eq.${encodeURIComponent(email!)}`);
+  const existing = await rest<{ id: string; role: Role }[]>(`users?select=id,role&email=eq.${encodeURIComponent(email!)}`);
+  if (existing[0]?.role === 'SUPER_ADMIN' && role !== 'SUPER_ADMIN') {
+    const others = await rest<{ id: string }[]>(
+      `users?select=id&role=eq.SUPER_ADMIN&deleted_at=is.null&id=neq.${existing[0].id}`,
+    );
+    if (!others.length) fail('บัญชีนี้เป็นซูเปอร์แอดมินคนสุดท้าย — ตั้งคนอื่นเป็น SUPER_ADMIN ก่อน');
+  }
   let userId = existing[0]?.id;
   let created = false;
   if (!userId) {

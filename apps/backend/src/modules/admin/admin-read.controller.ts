@@ -4,7 +4,9 @@ import { AdminGuard } from '../../auth/admin.guard';
 import { bearerOf } from '../../auth/bearer';
 import { SupabaseJwtGuard, type AuthedRequest } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
+import type { UserRole } from '@nightout/types';
 import { SupabaseService } from '../../supabase/supabase.service';
+import { canCreateRole } from './admin.dto';
 
 /** view ของ Backoffice ที่อ่านได้ (RLS ของแต่ละ view: ADMIN + MFA) */
 export const ADMIN_VIEWS = [
@@ -85,6 +87,25 @@ export class AdminReadController {
   async dashboard(@Req() req: AuthedRequest) {
     const rows = await this.db.rpcAs<unknown[]>(bearerOf(req), 'admin_dashboard', {});
     return rows?.[0] ?? null;
+  }
+
+  @Get('roles')
+  @ApiDoc({
+    summary: 'รายการชั้นบัญชี',
+    description:
+      'ห้าชั้นจากตาราง roles เรียงตาม sort_order พร้อมสิทธิ์ของผู้เรียก — แอดมินสร้างบัญชีได้แค่ลูกค้า / ร้านค้า / พนักงาน · แก้ชั้นของบัญชีที่มีอยู่ได้เฉพาะ SUPER_ADMIN',
+    returns:
+      'รายการ `code` · `label_th` · `sort_order` · `can_enter_backoffice` · `can_create` ผู้เรียกเลือกชั้นนี้ตอนสร้างบัญชีได้ · `can_assign` ผู้เรียกแก้บัญชีอื่นเป็นชั้นนี้ได้',
+    forbidden: 'ไม่ใช่ ADMIN หรือยังไม่ผ่าน MFA',
+    validates: false,
+  })
+  async roles(@Req() req: AuthedRequest) {
+    const rows = await this.db.selectAs<{ code: UserRole; label_th: string; sort_order: number; can_enter_backoffice: boolean }[]>(
+      bearerOf(req),
+      'roles?select=code,label_th,sort_order,can_enter_backoffice&order=sort_order',
+    );
+    const actor = req.user?.role;
+    return rows.map((r) => ({ ...r, can_create: canCreateRole(actor, r.code), can_assign: actor === 'SUPER_ADMIN' }));
   }
 
   @Get('views/:view')
