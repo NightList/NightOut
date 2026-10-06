@@ -86,8 +86,11 @@
 7. **เอกสาร** — `docs/DATABASE.md` (ข้อ 5.0 + migration + endpoint), `docs/SITEMAP.md` (หน้า), กฎธุรกิจใหม่ใส่หัวข้อด้านบนของไฟล์นี้, การตัดสินใจเชิงโครงสร้าง = ADR ใหม่ใน `docs/adr/`
 8. **ทดสอบ** — `pnpm lint && pnpm typecheck && pnpm test && pnpm build` · migration ลองกับ Postgres ในเครื่องก่อน push (`supabase db reset` หรือรันไฟล์ใน DB เปล่า) · เช็กสิทธิ์ด้วย token ของ role จริง (anon / ลูกค้า / ทีมร้าน / แอดมิน aal2)
 
-## หน้าแรก (Hero video)
-- `modules/home/components/heroBackdrop.tsx` + `public/videos/hero-loop-hf-{480,1080}.mp4` · วนแบบ crossfade 2 วิดีโอ: ตัวใหม่จางเข้า ~1 วิ ทับตัวเก่าที่ยังทึบเต็ม (ห้ามจางพร้อมกัน — ภาพจะโปร่ง) · **ห้ามใช้วิดีโอเล่นย้อน / ping-pong**
+## หน้าแรก (พื้นหลัง Hero)
+- `modules/home/components/skyBackdrop.tsx` + `skyBackdrop.css` · ภาพ `public/images/home/hero-night{,-2560,-1280}.jpg` (16:9 · 3840/2560/1280) · **ไม่ใช้วิดีโอ**
+- ภาพกับ SVG (ดาว/ไฟตึก/แสงผิวน้ำ) อยู่ในกล่อง 16:9 เดียวกัน (ขนาดแบบ cover คำนวณด้วย `cqw/cqh` · วางด้วย `--sky-x`) พิกัดใน SVG เป็นระบบ 736×414 → เปลี่ยนภาพแล้วต้องวางตำแหน่งใหม่ · เพิ่ม/ลดขนาดไฟล์ต้องแก้ `SKY_SET` / `SKY_SIZES` ใน `skyBackdrop.tsx` (ไม่ preload ใน `index.html` เพราะไฟล์นั้นใช้ทุกหน้า)
+- motion เบามาก ใช้ `transform`/`opacity` เท่านั้น หยุดเมื่อพ้นจอ/สลับแท็บ และต้องเคารพ `prefers-reduced-motion` + โหมดประหยัดเน็ต (ภาพนิ่ง)
+- ใต้ Hero (ธีมมืด): `modules/home/components/auroraBackdrop.tsx` aurora มืดแบบเรียบ — ม่านแสงม่วง/ทองจาง ๆ จาก token ธีม (`--purple` `--gold` `--link`) ไม่มีภาพ ไม่มี motion · ห้ามใช้ภาพที่ติดลิขสิทธิ์คนอื่น
 
 ## การเชื่อมต่อ API (ADR 0002 — `docs/adr/0002-migrate-direct-db-calls-to-backend-api.md`)
 - `apps/frontend` และ `apps/admin` **ห้าม query DB / Storage ตรง** — `supabase` ใช้ได้เฉพาะ `supabase.auth.*` (ESLint บล็อก `supabase.from/rpc/storage`) · Backoffice: ADR 0003 (`/admin/views/:view`, `/admin/dashboard`, `/admin/master/:table`)

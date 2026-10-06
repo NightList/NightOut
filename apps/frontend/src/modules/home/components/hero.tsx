@@ -3,12 +3,12 @@ import { DISTRICTS } from '@/services/data';
 import { Dropdown } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { HeroBackdrop } from './heroBackdrop';
+import { SkyBackdrop } from './skyBackdrop';
 
 const HERE = 'ตำแหน่งปัจจุบัน';
 
 /**
- * Hero (Figma: Main → Hero) — วิดีโอเมืองกลางคืนวนลูปเต็มจอ (<HeroBackdrop>)
+ * Hero (Figma: Main → Hero) — ภาพท้องฟ้ายามค่ำ + motion เบา ๆ เต็มจอ (<SkyBackdrop>)
  * หัวข้อ "คืนนี้ไป | ร้านไหน | ดี" (ตัวกลางใหญ่สีทอง) + ช่องค้นหากระจก มีเลือกย่าน/ตำแหน่ง
  */
 export function Hero() {
@@ -17,9 +17,10 @@ export function Hero() {
 
   return (
     <section className="relative isolate flex min-h-[540px] items-center overflow-hidden bg-[#07070d] pb-24 pt-20 md:min-h-[620px] md:pb-32 md:pt-24">
-      <HeroBackdrop />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-background to-transparent" />
+      <SkyBackdrop />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+      {/* ธีมสว่างเท่านั้น: ไล่ขอบล่างเข้าสีพื้น · ธีมมืดต่อกับพื้นหลัง aurora ของหน้าแรก (<AuroraBackdrop> ใน page.tsx) */}
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-background to-transparent dark:hidden" />
 
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center px-4 text-center md:px-8">
         <h1 className="flex items-end justify-center gap-x-2 font-bold leading-none text-white md:gap-x-5">
@@ -50,7 +51,7 @@ export function Hero() {
             name="q"
             aria-label="ค้นหาร้าน"
             placeholder="ค้นหาร้านที่โดนใจสำหรับคุณ"
-            className="min-w-0 flex-1 bg-transparent py-2.5 text-base text-white outline-none placeholder:text-white/55"
+            className="min-w-0 flex-1 bg-transparent py-2.5 text-base text-white outline-none placeholder:text-white/70"
           />
           <span className="hidden h-7 w-px bg-white/20 sm:block" aria-hidden />
           <Dropdown
