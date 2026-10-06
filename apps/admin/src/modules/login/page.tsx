@@ -208,13 +208,13 @@ export function LoginPage() {
               </Typography.Paragraph>
             )}
             <div className="flex justify-center">
-            <Input.OTP
-              length={6}
-              value={code}
-              onChange={(v) => setCode(v)}
-              formatter={(v) => v.replace(/\D/g, '')}
-              disabled={busy}
-            />
+              <Input.OTP
+                length={6}
+                value={code}
+                onChange={(v) => setCode(v)}
+                formatter={(v) => v.replace(/\D/g, '')}
+                disabled={busy}
+              />
             </div>
             <Button
               type="primary"
