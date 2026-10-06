@@ -8,7 +8,9 @@ import { AppModule } from './app.module';
 
 /** สร้างแอป (ใช้ทั้ง local server และ Vercel Function) */
 export async function createApp(): Promise<INestApplication> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  // abortOnError: false — บูตพัง (เช่น env ไม่ผ่าน validateEnv) ให้ throw กลับมา แทน process.exit(1)
+  // ที่ทำให้ Vercel ตอบ 500 FUNCTION_INVOCATION_FAILED โดยไม่บอกสาเหตุ (api/index.js ตอบสาเหตุเป็น JSON ให้)
+  const app = await NestFactory.create(AppModule, { bufferLogs: true, abortOnError: false });
   const config = app.get(ConfigService);
 
   app.setGlobalPrefix('api'); // public path บน Vercel: /api/*

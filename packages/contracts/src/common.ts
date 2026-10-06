@@ -28,6 +28,7 @@ export const COMMON_ERRORS = {
   SUPER_ADMIN_REQUIRED: 'เฉพาะซูเปอร์แอดมิน — แอดมินสร้างได้แค่บัญชีลูกค้า ร้านค้า และพนักงาน และแก้ชั้นบัญชีไม่ได้',
   PAYOUT_ENCRYPTION_KEY: 'หลังบ้านยังไม่ได้ตั้ง PAYOUT_ENCRYPTION_KEY',
   // เซิร์ฟเวอร์คุยกับ Supabase ไม่ได้ (ดูสาเหตุเต็มใน log ของ Vercel หรือ GET /api/health?deep=1)
+  API_BOOT_FAILED: 'เซิร์ฟเวอร์เริ่มทำงานไม่สำเร็จ — ส่วนใหญ่ Environment Variables ของ deploy ไม่ถูกต้อง (รายละเอียดอยู่ใต้ปุ่ม / ที่ /api/health)',
   SUPABASE_URL_NOT_CONFIGURED: 'เซิร์ฟเวอร์ยังไม่ได้ตั้ง SUPABASE_URL — ใส่ใน Environment Variables ของ deploy แล้ว Redeploy',
   SUPABASE_UNREACHABLE: 'เซิร์ฟเวอร์ติดต่อฐานข้อมูล (Supabase) ไม่ได้ ลองใหม่อีกครั้ง',
   SUPABASE_BAD_RESPONSE: 'ฐานข้อมูล (Supabase) ตอบกลับผิดปกติ — อาจถูกพักหรือเกินโควตา ลองใหม่อีกครั้ง',
