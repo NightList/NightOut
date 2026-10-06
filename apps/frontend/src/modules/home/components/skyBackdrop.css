@@ -1,0 +1,109 @@
+/* พื้นหลัง Hero (skyBackdrop.tsx) — 1) กล่องภาพ  2) ค่าเริ่มต้นของจุดแสง  3) motion  4) keyframes */
+
+/* ---------- 1) กล่องภาพ ----------
+ * กล่องสัดส่วน 16:9 ขนาดเท่ากับ object-fit: cover ของ .sky แต่ตำแหน่งปรับได้ด้วย --sky-x (0 = ชิดซ้าย · 1 = ชิดขวา)
+ * ไม่ใช้ object-position เพราะ SVG ไม่รองรับ (ดาว/ไฟจะเพี้ยนจากภาพ) · .sky เป็น size container เพื่อใช้หน่วย cqw/cqh
+ */
+.sky {
+  container-type: size;
+}
+
+.sky-layer {
+  --w: max(100cqw, 177.7778cqh);
+  --h: max(100cqh, 56.25cqw);
+  position: absolute;
+  width: var(--w);
+  height: var(--h);
+  left: calc((100cqw - var(--w)) * var(--sky-x, 0.5));
+  top: calc((100cqh - var(--h)) * 0.5);
+  transform: translate3d(0, 0, 0) scale(1.04);
+}
+
+/* ---------- 2) ค่าเริ่มต้นของจุดแสง (ใช้ตอนไม่มี motion) ---------- */
+.sky-twinkle {
+  opacity: 0.5;
+}
+
+.sky-glint {
+  opacity: 0.2;
+}
+
+.sky-meteor {
+  opacity: 0;
+}
+
+/* ---------- 3) motion ----------
+ * เบามาก ใช้ transform/opacity เท่านั้น · เปิดเฉพาะเมื่อไม่ได้ตั้ง prefers-reduced-motion และไม่อยู่ในโหมดประหยัดเน็ต (data-still)
+ * หยุดเมื่อเลื่อนพ้น Hero / สลับแท็บ (data-paused)
+ */
+@media (prefers-reduced-motion: no-preference) {
+  /* ชั้นภาพ + ดาว/แสงลอยซ้าย-ขวาช้าๆ ±10px / 70 วิ */
+  .sky:not([data-still='true']) .sky-layer {
+    animation: sky-drift 70s ease-in-out infinite alternate;
+  }
+  /* ดาวและไฟตึกระยิบ — คาบ/เฟสต่างกันต่อดวง (กำหนดเป็น --d / --t ในแต่ละจุด) */
+  .sky:not([data-still='true']) .sky-twinkle {
+    animation: sky-twinkle var(--d, 5s) ease-in-out var(--t, 0s) infinite;
+  }
+  /* แสงบนผิวน้ำพริ้วไหวเบาๆ */
+  .sky:not([data-still='true']) .sky-glint {
+    animation: sky-glint var(--d, 7s) ease-in-out var(--t, 0s) infinite;
+  }
+  /* ดาวตก ~ทุก 22 วิ */
+  .sky:not([data-still='true']) .sky-meteor {
+    animation: sky-meteor 22s linear 7s infinite;
+  }
+  .sky[data-paused='true'] .sky-layer,
+  .sky[data-paused='true'] .sky-twinkle,
+  .sky[data-paused='true'] .sky-glint,
+  .sky[data-paused='true'] .sky-meteor {
+    animation-play-state: paused;
+  }
+}
+
+/* ---------- 4) keyframes ---------- */
+@keyframes sky-drift {
+  from {
+    transform: translate3d(-10px, 0, 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(10px, 0, 0) scale(1.04);
+  }
+}
+
+@keyframes sky-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes sky-glint {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: translateX(-3px);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(3px);
+  }
+}
+
+@keyframes sky-meteor {
+  0%,
+  93% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  94% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(96px);
+  }
+}

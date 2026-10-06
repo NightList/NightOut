@@ -43,7 +43,7 @@ function Column({ title, links }: { title: string; links: { to: string; label: s
 }
 
 /**
- * ฟุตเตอร์ (Figma: Main → Footer) — การ์ดกระจกลอยบนภาพเมืองกลางคืน (city-strip.jpg)
+ * ฟุตเตอร์ (Figma: Main → Footer) — การ์ดกระจกลอยบนภาพเมืองกลางคืน (footer-bg.webp)
  * ซ้าย: โลโก้ + คำโปรย + โซเชียล · เส้นคั่น · ขวา: เมนูหลัก / ติดต่อเรา · ล่าง: ลิขสิทธิ์
  * ภาพพื้นเป็นกลางคืนเสมอ → ตัวอักษรขาวทั้งสองธีม
  */

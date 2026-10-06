@@ -1,0 +1,69 @@
+/*
+ * พื้นหลังใต้ Hero (auroraBackdrop.tsx) — aurora มืดแบบเรียบ ใช้สีจาก token ของธีม (--background / --purple / --gold)
+ * ไม่มีภาพ ไม่มี motion · ม่านแสงเป็น radial-gradient ล้วน (ไม่ใช้ filter: blur ที่กินแรงบนพื้นที่ใหญ่)
+ * ขอบบนค่อย ๆ ทึบขึ้นตลอดช่วงที่ซ้อนทับ Hero (-mt-28 / md:-mt-36) ภาพ Hero จึงละลายเข้าพื้นหลังโดยไม่มีแถบดำคั่น
+ */
+.aurora {
+  --aurora-fade: 7rem;
+  background:
+    /* ต่อโทนน้ำเงินเข้มจากขอบล่างภาพ Hero แล้วจางหาย */
+    linear-gradient(to bottom, #0b1222 0, transparent 26rem), var(--background);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--aurora-fade));
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--aurora-fade));
+}
+
+@media (min-width: 768px) {
+  .aurora {
+    --aurora-fade: 9rem;
+  }
+}
+
+/* ม่านแสงแต่ละผืน — วงรียาวเอียงเล็กน้อย ขอบนุ่มด้วย closest-side */
+.aurora__veil {
+  position: absolute;
+  border-radius: 9999px;
+}
+
+/* ม่วงหลัก — ซ้ายบน ใต้แถวหมวดหมู่/ร้านยอดนิยม */
+.aurora__veil--purple {
+  left: -15%;
+  top: 8%;
+  width: 85%;
+  height: 34%;
+  transform: rotate(-8deg);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--purple) 24%, transparent),
+    color-mix(in srgb, var(--purple) 8%, transparent) 55%,
+    transparent
+  );
+}
+
+/* ทอง — ขวากลาง หลังอันดับประจำสัปดาห์ จางกว่าม่วง (ทองเป็นสีเน้น ไม่ใช้เต็มพื้นที่) */
+.aurora__veil--gold {
+  right: -20%;
+  top: 38%;
+  width: 75%;
+  height: 26%;
+  transform: rotate(10deg);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--gold) 11%, transparent),
+    color-mix(in srgb, var(--gold) 3%, transparent) 60%,
+    transparent
+  );
+}
+
+/* ม่วงอ่อน — ซ้ายล่าง หลังสมัครข่าวสาร แล้วจางเข้าฟุตเตอร์ */
+.aurora__veil--violet {
+  left: -10%;
+  top: 68%;
+  width: 70%;
+  height: 26%;
+  transform: rotate(-6deg);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--link) 14%, transparent),
+    transparent
+  );
+}

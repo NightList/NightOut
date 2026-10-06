@@ -2,7 +2,9 @@ import { ShieldStar } from '@phosphor-icons/react';
 import { Alert, Button, Card, Form, Input, Spin, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import { fetchProfile, useAdminAuth } from '@/services/adminAuth';
+import { ApiError } from '@nightout/utils/rest';
+import { fetchMyProfile } from '@/services/api/account';
+import { useAdminAuth } from '@/services/adminAuth';
 import { supabase } from '@/services/supabase';
 
 type Step = 'password' | 'verify' | 'enroll';
@@ -99,10 +101,19 @@ export function LoginPage() {
         password: v.password,
       });
       if (signInError) throw signInError;
-      const profile = await fetchProfile(data.session.access_token);
-      if (!profile?.can_enter_backoffice) {
+      // แยก 2 กรณี: "API อ่านโปรไฟล์ไม่ได้" (backend/DB มีปัญหา) กับ "ชั้นบัญชีเข้าหลังบ้านไม่ได้" — เดิมรวมเป็นข้อความเดียวจนดูเหมือนเรื่องสิทธิ์ทั้งที่จริงคือ API ล่ม
+      let profile;
+      try {
+        profile = await fetchMyProfile(data.session.access_token);
+      } catch (e) {
         await supabase.auth.signOut();
-        setError('บัญชีนี้ไม่มีสิทธิ์เข้า Backoffice');
+        const detail = e instanceof ApiError ? `${e.status} · ${e.code}` : (e as Error).message;
+        setError(`ล็อกอินผ่านแล้ว แต่อ่านข้อมูลบัญชีจากเซิร์ฟเวอร์ไม่ได้ (${detail}) — ไม่ใช่เรื่องสิทธิ์ ให้ตรวจ API / Supabase`);
+        return;
+      }
+      if (!profile.can_enter_backoffice) {
+        await supabase.auth.signOut();
+        setError(`บัญชีนี้เป็นชั้น "${profile.role_label}" ซึ่งเข้า Backoffice ไม่ได้`);
         return;
       }
       await startMfa();
