@@ -196,6 +196,7 @@ export function LoginPage() {
             {step === 'verify' && (
               <Typography.Paragraph className="!mb-0">ใส่รหัส 6 หลักจากแอป Authenticator</Typography.Paragraph>
             )}
+            <div className="flex justify-center">
             <Input.OTP
               length={6}
               value={code}
@@ -203,6 +204,7 @@ export function LoginPage() {
               formatter={(v) => v.replace(/\D/g, '')}
               disabled={busy}
             />
+            </div>
             <Button type="primary" block size="large" loading={busy} disabled={code.length !== 6} onClick={onVerify}>
               {step === 'enroll' ? 'ยืนยันและเข้าสู่ระบบ' : 'ยืนยันรหัส'}
             </Button>
