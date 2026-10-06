@@ -2,7 +2,7 @@ import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { ERROR_MESSAGES } from '@nightout/contracts';
-import { apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
+import { ApiError, apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
 import { log } from './services/log';
 import { isSupabaseConfigured, supabase } from './services/supabase';
 import { hydratePublicFromCache, loadPublic } from './services/sync';
@@ -51,7 +51,9 @@ async function boot() {
     render(<App />);
   } catch (e) {
     log.error('โหลดข้อมูลจาก API ไม่สำเร็จ', e);
-    render(<BootError kind="load" onRetry={() => void boot()} />);
+    // ข้อความไทยอยู่ในหน้าแล้ว — ใต้ปุ่มแสดงสาเหตุจริงจาก API (เช่น 503 SUPABASE_UNREACHABLE: ENOTFOUND) ไว้ส่งให้ทีม
+    const detail = e instanceof ApiError ? `${e.status || 'เครือข่าย'} · ${e.code}` : e instanceof Error ? e.message : undefined;
+    render(<BootError kind="load" onRetry={() => void boot()} detail={detail} />);
   }
 }
 
