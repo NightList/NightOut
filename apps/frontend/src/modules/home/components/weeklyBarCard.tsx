@@ -24,7 +24,7 @@ function StatusPill({ bar }: { bar: BarWithTier }) {
  * รูปมีขอบใน + สถานะ + หัวใจ · ชื่อทอง · ดาว (จำนวนรีวิว) | ย่าน · ความปลอดภัย x/100
  * ล่าง: "ดูรายละเอียด →" ขอบทอง + ป้าย "แนะนำ" (ร้านโปรโมท = โฆษณา)
  */
-export function WeeklyBarCard({ bar }: { bar: BarWithTier }) {
+export function WeeklyBarCard({ bar, rank }: { bar: BarWithTier; rank?: number }) {
   return (
     <Link
       to={`/bars/${bar.slug}`}
@@ -39,6 +39,14 @@ export function WeeklyBarCard({ bar }: { bar: BarWithTier }) {
           className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
         <StatusPill bar={bar} />
+        {rank != null && (
+          <span
+            className="absolute bottom-2.5 left-2.5 inline-flex size-9 items-center justify-center rounded-full border border-gold bg-black/70 text-base font-bold text-gold backdrop-blur-md"
+            aria-label={`อันดับ ${rank}`}
+          >
+            {rank}
+          </span>
+        )}
         <FavoriteButton
           barId={bar.id}
           className="!absolute right-2.5 top-2.5 !size-9 !min-w-9 !border-0 !bg-[#9a98a6]/80 !text-white backdrop-blur-md"
@@ -51,11 +59,7 @@ export function WeeklyBarCard({ bar }: { bar: BarWithTier }) {
           {bar.promoted && (
             <span
               title="ร้านโปรโมท (โฆษณา)"
-              className="relative inline-flex items-center gap-1 rounded-full text-xs px-3 py-1 text-gold-text
-               border border-transparent bg-origin-border
-               animate-gold-gradient-spin 
-               bg-[linear-gradient(to_right,theme(colors.slate.900),theme(colors.slate.900)),conic-gradient(from_var(--gold-angle),#d4af37,#fff8dc,#f3e5ab,#d4af37)]
-               [background-clip:padding-box,border-box]"
+              className="relative inline-flex items-center gap-1 rounded-full border border-gold/70 bg-slate-900 px-3 py-1 text-xs text-gold-text"
             >
               แนะนำ<span className="sr-only"> · โฆษณา</span>
             </span>

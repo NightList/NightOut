@@ -47,5 +47,7 @@ export async function createApp(): Promise<INestApplication> {
   SwaggerModule.setup('api/docs', app, cleanupOpenApiDoc(doc));
 
   await app.init();
+  // bufferLogs เก็บ log ไว้รอ logger ตัวจริง — ไม่ flush = log ทุกบรรทัด (รวม error) หายเงียบ ไม่ขึ้นใน Vercel Logs
+  app.flushLogs();
   return app;
 }

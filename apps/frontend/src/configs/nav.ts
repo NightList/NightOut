@@ -6,7 +6,6 @@ export const NAV: NavItem[] = [
   { to: '/', label: 'หน้าหลัก', icon: House, end: true },
   { to: '/ranking', label: 'จัดอันดับ', icon: Crown },
   { to: '/search', label: 'ค้นหา', icon: MagnifyingGlass },
-  { to: '/map', label: 'แผนที่', icon: MapTrifold },
   { to: '/about', label: 'เกี่ยวกับเรา', icon: Info, desktopOnly: true },
   { to: '/bookings', label: 'การจอง', icon: CalendarCheck },
 ];

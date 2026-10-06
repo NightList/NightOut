@@ -6,10 +6,12 @@ interface BootErrorProps {
   /** config = ยังไม่ได้ตั้ง .env (Supabase Auth) · load = ต่อ API ไม่ได้ */
   kind: 'config' | 'load';
   onRetry?: () => void;
+  /** สาเหตุจาก API (สถานะ + รหัส) — แสดงตัวเล็กให้ทีมไล่ปัญหาได้จากภาพหน้าจอ */
+  detail?: string;
 }
 
 /** หน้าที่แสดงแทนแอปเมื่อยังดึงข้อมูลร้านจาก API ไม่ได้ (ไม่มีร้านเดโมมาแทน) */
-export function BootError({ kind, onRetry }: BootErrorProps) {
+export function BootError({ kind, onRetry, detail }: BootErrorProps) {
   const config = kind === 'config';
   return (
     <ThemeProvider>
@@ -23,11 +25,14 @@ export function BootError({ kind, onRetry }: BootErrorProps) {
               : 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองตรวจอินเทอร์เน็ตแล้วกดลองใหม่อีกครั้ง (dev: เปิดหลังบ้านด้วย pnpm dev)'
           }
           extra={
-            onRetry && (
-              <Button type="primary" size="large" onClick={onRetry}>
-                ลองใหม่
-              </Button>
-            )
+            <>
+              {onRetry && (
+                <Button type="primary" size="large" onClick={onRetry}>
+                  ลองใหม่
+                </Button>
+              )}
+              {detail && <p className="mx-auto mt-4 max-w-md break-words text-xs text-muted">{detail}</p>}
+            </>
           }
         />
       </main>
