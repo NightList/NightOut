@@ -207,13 +207,15 @@ export function LoginPage() {
                 ใส่รหัส 6 หลักจากแอป Authenticator
               </Typography.Paragraph>
             )}
-            <Input.OTP
-              length={6}
-              value={code}
-              onChange={(v) => setCode(v)}
-              formatter={(v) => v.replace(/\D/g, '')}
-              disabled={busy}
-            />
+            <div className="flex justify-center">
+              <Input.OTP
+                length={6}
+                value={code}
+                onChange={(v) => setCode(v)}
+                formatter={(v) => v.replace(/\D/g, '')}
+                disabled={busy}
+              />
+            </div>
             <Button
               type="primary"
               block
