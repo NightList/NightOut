@@ -1,17 +1,74 @@
-import { Armchair, Buildings, Crown, DiscoBall, ForkKnife, Martini, MusicNotes, Tree } from '@phosphor-icons/react';
+import {
+  Armchair,
+  Buildings,
+  Crown,
+  DiscoBall,
+  ForkKnife,
+  Martini,
+  MusicNotes,
+  Tree,
+} from '@phosphor-icons/react';
 import type { HomeCategory } from '../type/category';
 
 /**
- * หมวดหมู่หน้าแรก (Figma: แถวไอคอนใต้ Hero) — 8 หมวดที่คนค้นบ่อย · ที่เหลือเลือกได้ในหน้า /search
+ * หมวดหมู่หน้าแรก (การ์ดใต้ Hero) — 8 หมวดที่คนค้นบ่อย · ที่เหลือเลือกได้ในหน้า /search
  * ใช้ตัวกรองที่หน้าค้นหามีอยู่แล้ว (category = ประเภทร้าน · style = สไตล์) ไม่ต้องเพิ่มฟิลด์ใน DB
  */
 export const CATEGORIES: HomeCategory[] = [
-  { key: 'popular', title: 'ร้านยอดนิยม', to: '/ranking', icon: Crown },
-  { key: 'pub', title: 'ผับ / บาร์', to: '/search?category=PUB_BAR', icon: Martini },
-  { key: 'food', title: 'ร้านอาหาร', to: '/search?category=RESTAURANT', icon: ForkKnife },
-  { key: 'live', title: 'ดนตรีสด', to: '/search?style=Live%20Music', icon: MusicNotes },
-  { key: 'rooftop', title: 'Rooftop', to: '/search?style=Rooftop', icon: Buildings },
-  { key: 'chill', title: 'นั่งชิล', to: '/search?category=CHILL', icon: Armchair },
-  { key: 'outdoor', title: 'Outdoor', to: '/search?style=Outdoor', icon: Tree },
-  { key: 'party', title: 'ปาร์ตี้', to: '/search?style=Party%20%26%20Dancing', icon: DiscoBall },
+  {
+    key: 'popular',
+    title: 'ร้านยอดนิยม',
+    hint: 'อันดับจากโหวตของคนที่ไปจริง',
+    to: '/ranking',
+    icon: Crown,
+  },
+  {
+    key: 'pub',
+    title: 'ผับ / บาร์',
+    hint: 'ดื่ม เต้น สังสรรค์',
+    to: '/search?category=PUB_BAR',
+    icon: Martini,
+  },
+  {
+    key: 'food',
+    title: 'ร้านอาหาร',
+    hint: 'มื้อเย็นก่อนออกเที่ยว',
+    to: '/search?category=RESTAURANT',
+    icon: ForkKnife,
+  },
+  {
+    key: 'live',
+    title: 'ดนตรีสด',
+    hint: 'ร้านที่มีวงเล่นสด',
+    to: '/search?style=Live%20Music',
+    icon: MusicNotes,
+  },
+  {
+    key: 'rooftop',
+    title: 'Rooftop',
+    hint: 'นั่งชมวิวเมืองบนดาดฟ้า',
+    to: '/search?style=Rooftop',
+    icon: Buildings,
+  },
+  {
+    key: 'chill',
+    title: 'นั่งชิล',
+    hint: 'เพลงเบา คุยกันสบาย',
+    to: '/search?category=CHILL',
+    icon: Armchair,
+  },
+  {
+    key: 'outdoor',
+    title: 'Outdoor',
+    hint: 'โต๊ะกลางแจ้ง รับลมเย็น',
+    to: '/search?style=Outdoor',
+    icon: Tree,
+  },
+  {
+    key: 'party',
+    title: 'ปาร์ตี้',
+    hint: 'ดีเจ ฟลอร์เต้นรำ',
+    to: '/search?style=Party%20%26%20Dancing',
+    icon: DiscoBall,
+  },
 ];
