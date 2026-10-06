@@ -16,7 +16,7 @@ export function Hero() {
   const [area, setArea] = useState(HERE);
 
   return (
-    <section className="relative isolate flex min-h-[92svh] items-center overflow-hidden bg-[#07070d] md:min-h-[100svh]">
+    <section className="relative isolate flex min-h-[540px] items-center overflow-hidden bg-[#07070d] pb-24 pt-20 md:min-h-[620px] md:pb-32 md:pt-24">
       <HeroBackdrop />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-background to-transparent" />

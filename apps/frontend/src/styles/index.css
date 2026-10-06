@@ -34,23 +34,6 @@
   }
 }
 
-@property --gold-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@theme {
-  /* ผูกอนิเมชันความเร็ว 3 วินาที สำหรับหมุนแสงทอง */
-  --animate-gold-gradient-spin: gold-gradient-spin 3s linear infinite;
-
-  @keyframes gold-gradient-spin {
-    to {
-      --gold-angle: 360deg;
-    }
-  }
-}
-
 /* หมุดแผนที่ (Leaflet divIcon) — ทอง + ขอบม่วง ให้เข้าธีม */
 .nl-pin {
   width: 28px;
