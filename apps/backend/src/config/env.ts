@@ -21,9 +21,7 @@ export const EnvSchema = z.object({
 export type Env = z.infer<typeof EnvSchema>;
 
 export function validateEnv(raw: Record<string, unknown>): Env {
-  // ตัดช่องว่าง/ขึ้นบรรทัดที่ติดมาตอน paste ค่าใน Vercel (เช่น SUPABASE_URL ท้ายมี \n → z.url() ไม่ผ่าน บูตล้มทั้งแอป)
-  const trimmed = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]));
-  const parsed = EnvSchema.safeParse(trimmed);
+  const parsed = EnvSchema.safeParse(raw);
   if (!parsed.success) {
     throw new Error(`Invalid environment: ${z.prettifyError(parsed.error)}`);
   }
