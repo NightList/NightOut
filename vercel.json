@@ -5,7 +5,7 @@
       "root": "apps/frontend",
       "framework": "vite",
       "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightlist/frontend",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightout/frontend",
       "outputDirectory": "dist",
       "rewrites": [
         {
@@ -18,7 +18,7 @@
       "root": "apps/admin",
       "framework": "vite",
       "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightlist/admin",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightout/admin",
       "outputDirectory": "dist",
       "rewrites": [
         {
@@ -36,7 +36,7 @@
       "runtime": "node",
       "entrypoint": "api/index.js",
       "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightlist/backend"
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=@nightout/backend"
     }
   },
   "rewrites": [

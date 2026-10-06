@@ -1,12 +1,12 @@
-import { useBarLedger, type LedgerRow } from '@/services/data';
+import { useBarLedger, type DepositLedgerRow } from '@/services/data';
 import { Alert, Card, Col, Row, Statistic, Table, Tag } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { baht, dateTime } from '@/ui/utils/format';
 import { useMerchantBar } from '@/hooks/useMerchantBar';
 
-const SETTLEMENT: Record<LedgerRow['settlement'], { label: string; color: string }> = {
-  NONE: { label: 'รอ NightList ตรวจสลิป', color: 'default' },
-  HELD: { label: 'NightList ถือไว้', color: 'blue' },
+const SETTLEMENT: Record<DepositLedgerRow['settlement'], { label: string; color: string }> = {
+  NONE: { label: 'รอ NightOut ตรวจสลิป', color: 'default' },
+  HELD: { label: 'NightOut ถือไว้', color: 'blue' },
   PAYOUT_PENDING: { label: 'รอโอนให้ร้าน', color: 'gold' },
   PAID_OUT: { label: 'โอนให้ร้านแล้ว', color: 'green' },
   CREDIT: { label: 'เก็บเป็นเครดิตร้าน', color: 'purple' },
@@ -16,14 +16,14 @@ const SETTLEMENT: Record<LedgerRow['settlement'], { label: string; color: string
 
 /**
  * /merchant/deposits — เงินมัดจำของร้าน (ไม่เห็นสลิปของลูกค้า)
- * ลูกค้าโอนเข้า NightList · แพลตฟอร์มตรวจสลิปและถือเงินไว้ · ลูกค้าเช็กอิน/ไม่มา → เงินเป็นของร้าน
- * แล้ว NightList โอนเข้าบัญชีร้าน หรือเก็บเป็นเครดิตร้านตามที่ตกลง
+ * ลูกค้าโอนเข้า NightOut · แพลตฟอร์มตรวจสลิปและถือเงินไว้ · ลูกค้าเช็กอิน/ไม่มา → เงินเป็นของร้าน
+ * แล้ว NightOut โอนเข้าบัญชีร้าน หรือเก็บเป็นเครดิตร้านตามที่ตกลง
  */
 export function MerchantDepositsPage() {
   const bar = useMerchantBar();
   const { data = [], isLoading, error } = useBarLedger(bar.id);
   const rows = data.filter((r) => r.status !== 'REJECTED');
-  const sum = (k: LedgerRow['settlement']) => rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
+  const sum = (k: DepositLedgerRow['settlement']) => rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
   return (
     <div>
       <PageHeader
@@ -38,7 +38,7 @@ export function MerchantDepositsPage() {
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={12} md={6}>
           <Card>
-            <Statistic title="NightList ถือไว้ (ยังไม่เช็กอิน)" value={sum('HELD')} prefix="฿" loading={isLoading} />
+            <Statistic title="NightOut ถือไว้ (ยังไม่เช็กอิน)" value={sum('HELD')} prefix="฿" loading={isLoading} />
           </Card>
         </Col>
         <Col xs={12} md={6}>
@@ -63,7 +63,7 @@ export function MerchantDepositsPage() {
           </Card>
         </Col>
       </Row>
-      <Table<LedgerRow>
+      <Table<DepositLedgerRow>
         rowKey="deposit_id"
         loading={isLoading}
         pagination={{ pageSize: 20 }}
@@ -78,7 +78,7 @@ export function MerchantDepositsPage() {
           {
             title: 'สถานะเงิน',
             dataIndex: 'settlement',
-            render: (s: LedgerRow['settlement']) => <Tag color={SETTLEMENT[s].color}>{SETTLEMENT[s].label}</Tag>,
+            render: (s: DepositLedgerRow['settlement']) => <Tag color={SETTLEMENT[s]?.color}>{SETTLEMENT[s]?.label ?? s}</Tag>,
           },
           {
             title: 'อัปเดต',

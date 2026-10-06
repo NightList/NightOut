@@ -105,7 +105,7 @@ export function MerchantLayout() {
             type={bar.status === 'PENDING_REVIEW' || bar.status === 'DRAFT' ? 'info' : 'warning'}
             title={
               bar.status === 'PENDING_REVIEW' || bar.status === 'DRAFT'
-                ? 'ร้านกำลังรอทีม NightList ตรวจ — ลูกค้ายังไม่เห็นร้าน ระหว่างนี้เตรียมข้อมูลร้าน เมนู โต๊ะ และตั้งค่าการจองได้'
+                ? 'ร้านกำลังรอทีม NightOut ตรวจ — ลูกค้ายังไม่เห็นร้าน ระหว่างนี้เตรียมข้อมูลร้าน เมนู โต๊ะ และตั้งค่าการจองได้'
                 : bar.status === 'REJECTED'
                   ? 'ร้านยังไม่ผ่านการตรวจ — ลูกค้ายังไม่เห็นร้าน'
                   : 'ร้านถูกระงับชั่วคราว — ลูกค้าไม่เห็นร้านและจองไม่ได้'

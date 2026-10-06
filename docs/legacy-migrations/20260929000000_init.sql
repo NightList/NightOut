@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · 0001 init
+-- NightOut · 0001 init
 -- extensions + public.users (sync กับ auth.users) + user_consents
 -- ตารางอื่น (bars, bookings, ...) เพิ่มใน migration ถัดไปตาม docs/PROMPT.md
 -- =====================================================================

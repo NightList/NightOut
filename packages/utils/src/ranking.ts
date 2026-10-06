@@ -1,4 +1,4 @@
-import type { Tier } from '@nightlist/types';
+import type { Tier } from '@nightout/types';
 
 /** จำนวนรีวิว (จากการเช็กอินจริง) ขั้นต่ำก่อนได้ดาว — น้อยกว่านี้แสดง "ร้านใหม่" */
 export const MIN_REVIEWS_FOR_STARS = 5;

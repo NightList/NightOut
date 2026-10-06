@@ -13,12 +13,13 @@ interface Enrollment {
   secret: string;
 }
 
-const ISSUER = 'NightList Admin';
+const ISSUER = 'NightOut Admin';
 
 function toThai(message: string): string {
   if (/invalid login credentials/i.test(message)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
   if (/email not confirmed/i.test(message)) return 'บัญชีนี้ยังไม่ได้ยืนยันอีเมล';
-  if (/invalid totp|code|expired/i.test(message)) return 'รหัส 6 หลักไม่ถูกต้องหรือหมดเวลาแล้ว ใช้รหัสล่าสุดจากแอปแล้วลองอีกครั้ง';
+  if (/invalid totp|code|expired/i.test(message))
+    return 'รหัส 6 หลักไม่ถูกต้องหรือหมดเวลาแล้ว ใช้รหัสล่าสุดจากแอปแล้วลองอีกครั้ง';
   if (/rate limit|too many/i.test(message)) return 'ลองหลายครั้งเกินไป รอสักครู่แล้วลองใหม่';
   return message;
 }
@@ -62,7 +63,11 @@ export function LoginPage() {
     });
     if (enrollError) throw enrollError;
     setFactorId(enrolled.id);
-    setEnrollment({ factorId: enrolled.id, qrCode: enrolled.totp.qr_code, secret: enrolled.totp.secret });
+    setEnrollment({
+      factorId: enrolled.id,
+      qrCode: enrolled.totp.qr_code,
+      secret: enrolled.totp.secret,
+    });
     setStep('enroll');
   };
 
@@ -95,7 +100,7 @@ export function LoginPage() {
       });
       if (signInError) throw signInError;
       const profile = await fetchProfile(data.session.access_token);
-      if (profile?.role !== 'ADMIN') {
+      if (!profile?.can_enter_backoffice) {
         await supabase.auth.signOut();
         setError('บัญชีนี้ไม่มีสิทธิ์เข้า Backoffice');
         return;
@@ -142,7 +147,7 @@ export function LoginPage() {
         className="w-full max-w-md"
         title={
           <span className="flex items-center gap-2">
-            <ShieldStar className="text-gold" /> NightList Backoffice
+            <ShieldStar className="text-gold" /> NightOut Backoffice
           </span>
         }
       >
@@ -162,7 +167,11 @@ export function LoginPage() {
             >
               <Input autoComplete="username" inputMode="email" autoFocus />
             </Form.Item>
-            <Form.Item name="password" label="รหัสผ่าน" rules={[{ required: true, message: 'กรอกรหัสผ่าน' }]}>
+            <Form.Item
+              name="password"
+              label="รหัสผ่าน"
+              rules={[{ required: true, message: 'กรอกรหัสผ่าน' }]}
+            >
               <Input.Password autoComplete="current-password" />
             </Form.Item>
             <Button type="primary" htmlType="submit" block size="large" loading={busy}>
@@ -174,8 +183,8 @@ export function LoginPage() {
         {step === 'enroll' && enrollment && (
           <div className="flex flex-col gap-4">
             <Typography.Paragraph className="!mb-0">
-              ครั้งแรกต้องผูกแอป Authenticator (Google Authenticator, Microsoft Authenticator หรือ 1Password) —
-              สแกน QR นี้ในแอป แล้วใส่รหัส 6 หลักที่แอปแสดง
+              ครั้งแรกต้องผูกแอป Authenticator (Google Authenticator, Microsoft Authenticator หรือ
+              1Password) — สแกน QR นี้ในแอป แล้วใส่รหัส 6 หลักที่แอปแสดง
             </Typography.Paragraph>
             <img
               src={enrollment.qrCode}
@@ -194,7 +203,9 @@ export function LoginPage() {
         {(step === 'verify' || step === 'enroll') && (
           <div className="mt-4 flex flex-col gap-4">
             {step === 'verify' && (
-              <Typography.Paragraph className="!mb-0">ใส่รหัส 6 หลักจากแอป Authenticator</Typography.Paragraph>
+              <Typography.Paragraph className="!mb-0">
+                ใส่รหัส 6 หลักจากแอป Authenticator
+              </Typography.Paragraph>
             )}
             <div className="flex justify-center">
             <Input.OTP
@@ -205,7 +216,14 @@ export function LoginPage() {
               disabled={busy}
             />
             </div>
-            <Button type="primary" block size="large" loading={busy} disabled={code.length !== 6} onClick={onVerify}>
+            <Button
+              type="primary"
+              block
+              size="large"
+              loading={busy}
+              disabled={code.length !== 6}
+              onClick={onVerify}
+            >
               {step === 'enroll' ? 'ยืนยันและเข้าสู่ระบบ' : 'ยืนยันรหัส'}
             </Button>
             <Button type="text" block disabled={busy} onClick={() => void switchAccount()}>

@@ -1,9 +1,9 @@
-# NightList — Database Design
+# NightOut — Database Design
 
 > สถานะ: **v1.1** (ทำตาม [`DATABASE_CHANGES.md`](DATABASE_CHANGES.md)) · ใช้คู่กับ [`ARCHITECTURE.md`](ARCHITECTURE.md) และ [`SITEMAP.md`](SITEMAP.md)
 > Migration: `apps/backend/supabase/migrations/20261002000100_*.sql` … `20261002001500_*.sql` (15 ไฟล์ แยกตามโดเมน)
 > Seed: `apps/backend/supabase/seed.sql` (master data + ร้านเดโม 16 ร้าน — สร้างด้วย `db:seed:gen`)
-> Types: `packages/types/src/database.generated.ts` (จาก `supabase gen types` — ห้ามแก้มือ) + `database.ts` (override ของ view) → `import { Db } from '@nightlist/types'`
+> Types: `packages/types/src/database.generated.ts` (จาก `supabase gen types` — ห้ามแก้มือ) + `database.ts` (override ของ view) → `import { Db } from '@nightout/types'`
 > migration ทีมรุ่นแรก (0001–0003) เก็บไว้อ้างอิงที่ `docs/legacy-migrations/`
 
 ---
@@ -49,6 +49,11 @@
 | `…001700_app_actions` | แอปจริง | ฟังก์ชันการกระทำของลูกค้า/ร้าน `app_*` 26 ตัว (service_role เท่านั้น เรียกผ่าน NestJS) · trigger ผลของสถานะการจอง (มัดจำ → รอโอน/รอคืน, เช็กอิน, ค่าคอม, แจ้งเตือน) · `run_booking_timeouts()` · view `my_bar_detail` / `my_reviews` / `admin_bar_promotions` · RPC `zone_availability`, `bar_deposit_ledger`, `bar_team`, `my_invites` · `booking_detail` เพิ่ม `customer_name, share_token, has_review` |
 | `…20261003000200_admin_create_user` | Backoffice เพิ่มผู้ใช้ | ฟังก์ชัน `admin_finish_new_user` (ตั้ง role + ผูกร้าน + audit · service_role) |
 | `…20261003000100_admin_team_members` | Backoffice จัดการทีมงาน | view `admin_team_members` · policy `admin_read` บน team_members · ฟังก์ชัน `admin_save/delete/reorder_team_member(s)` (service_role) · bucket `team-photos` (public · เขียนได้เฉพาะแอดมิน + MFA) |
+| `…20261006000100_slip_reject_reasons_fake_slip_ban` | กันสลิปปลอม | `deposits.reject_code` (FAKE_SLIP · AMOUNT_MISMATCH · WRONG_ACCOUNT · UNREADABLE · DUPLICATE · OTHER) · `users.banned_at/ban_reason` · ตาราง **user_flags** (ธงสลิปปลอม, เก็บเบอร์ในแถว) · **banned_phones** · `admin_review_deposit(…, p_reason_code)` ติดธง → ครบ 2 ครั้ง (นับทั้งบัญชีและเบอร์) แบนบัญชี + ทุกเบอร์ที่บัญชีเคยใช้ · `admin_unban_user` (ปลด + ล้างธง) · `booking_ban_check` ใช้ตอนจอง/ส่งสลิป · แก้บั๊ก: ลูกค้ายกเลิกระหว่างรอตรวจ แล้วแอดมินอนุมัติ → คง `REFUND_PENDING` (เดิมทับเป็น HELD) / ปฏิเสธ → `NONE` (เดิมชน CHECK) |
+| `…20261006000200_checkout_deposit_consent` | Checkout | ตาราง **booking_deposit_consents** (หลักฐานการติ๊กยอมรับเงื่อนไขริบมัดจำ: ข้อความที่เห็น + เวอร์ชัน + ค่ามัดจำ/ชั่วโมงคืนเงิน/grace/นโยบายร้าน ณ ตอนนั้น + IP + User-Agent + เวลา · trigger ห้าม update/delete) · `app_create_booking` ตัวใหม่ (`p_contact_phone`, `p_consent`) = ตรวจแบน → `app_create_booking_core` (ตัวเดิม) → บันทึกเบอร์ + consent ในธุรกรรมเดียว · จำเบอร์ไว้ที่ `users.phone_e164` · `admin_bookings` + `contact_phone` (ผ่าน `admin_booking_contact_phone()` เพราะคอลัมน์นี้ไม่ได้ grant ให้ authenticated) + `deposit_consent` |
+| `…20261006000300_merchant_move_table_refund` | Dashboard ร้าน | `app_team_move_booking` (ย้ายโซน/โต๊ะ ช่วงเวลาเดิม · ทีมร้านทุกบทบาท) · `bar_booking_table_options(booking)` (โต๊ะว่างให้เลือก) · `app_team_refund_deposit` (ร้านอนุมัติคืนมัดจำ → `REFUND_PENDING` + `deposits.refund_reason/requested_by/requested_at`) · `booking_deposit_summary` เป็น security definer (ทีมร้านเห็นสถานะมัดจำใน `booking_detail` ได้ — ไม่มี path สลิป) · `admin_deposits` + เหตุผลคืนเงิน |
+| `…20261005000200_roles` | ชั้นบัญชี (ADR 0005) | ตาราง `roles` (`code` · `label_th` · `can_enter_backoffice` · `sort_order`) + FK `users.role → roles.code` · `is_admin` / `admin_assert` / แจ้งเตือนแอดมิน / storage policy สลิป อ่านธง `can_enter_backoffice` แทนการเทียบ `'ADMIN'` · authenticated อ่านได้ |
+| `…20261006000400_super_admin_enum` · `…000500_super_admin_rules` | Super Admin (ADR 0005) | enum `SUPER_ADMIN` + แถว ซูเปอร์แอดมิน · `super_admin_assert` · `assert_keeps_super_admin` (ห้ามเหลือศูนย์ — ทั้งแก้ชั้นและ `app_delete_account`) · `admin_set_user_role` เฉพาะ Super Admin + ชั้นใหม่เป็นลูกค้า/แอดมิน/ซูเปอร์แอดมิน → หลุดจากทุกร้าน · `admin_finish_new_user` สร้างแอดมิน/ซูเปอร์แอดมินได้เฉพาะ Super Admin |
 | `…001800_team_members` | หน้า /about | team_members (ทีมงาน: ชื่อเล่น, ชื่อจริง, ตำแหน่ง, bio, สกิล, รูป, `contacts` jsonb) · view `public_team` (เฉพาะ active เรียง sort_order) · RLS อ่านได้เฉพาะ active · revoke write · ทีมตั้งต้น 7 คน |
 
 view ในเฟส 1 เรียกฟังก์ชัน stub (`bar_is_promoted`, `booking_deposit_summary`) ที่เฟส 2 แทนที่ → เฟส 1 ใช้งานได้เองโดยไม่พึ่งตารางเฟส 2
@@ -115,6 +120,43 @@ stateDiagram-v2
 
 ---
 
+## 5.0 แผนที่โดเมน → ฟังก์ชัน DB → migration ตัวล่าสุด (ADR 0006)
+
+ฟังก์ชันเดียวประกาศซ้ำได้หลาย migration (`create or replace`) — **ไฟล์ที่ระบุคือตัวที่ใช้จริง** · สร้างใหม่ด้วย `grep -l "function public.<ชื่อ>(" apps/backend/supabase/migrations/* | tail -1` · โดเมนเดียวกับ `apps/backend/src/domains/<domain>` และ `packages/contracts/src/<domain>.ts`
+
+| โดเมน | ฟังก์ชัน | migration ล่าสุด |
+|---|---|---|
+| `booking` | `app_cancel_booking` · `app_check_in` · `app_team_set_booking_status` · `booking_customer_name` · `run_booking_timeouts` · `zone_availability` | `20261002001700_app_actions` |
+|  | `app_create_booking` · `app_create_booking_core` | `20261006000200_checkout_deposit_consent` |
+|  | `app_team_move_booking` · `bar_booking_table_options` | `20261006000300_merchant_move_table_refund` |
+|  | `booking_ban_check` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `booking_transition_allowed` · `zone_remaining_pax` | `20261002000600_tables_bookings` |
+|  | `get_share_card` | `20261002001000_sharing_safety_crowd` |
+| `deposit` | `admin_review_deposit` · `app_submit_deposit` · `apply_fake_slip_flag` · `deposit_reject_label` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `admin_settle_deposit` | `20261002001600_admin` |
+|  | `app_team_refund_deposit` · `booking_deposit_summary` | `20261006000300_merchant_move_table_refund` |
+|  | `bar_deposit_ledger` | `20261002001700_app_actions` |
+| `review` | `admin_moderate_review` | `20261002001600_admin` |
+|  | `app_add_review` · `app_report_review` | `20261002001700_app_actions` |
+| `bar` | `admin_moderate_bar_promotion` · `app_merchant_join` · `app_set_bar_promotions` · `app_set_crowd` · `app_set_fees` · `app_set_menu` · `app_set_payout_account` · `app_set_safety` · `app_set_safety_evidence` · `app_set_zones` · `app_update_bar_info` · `app_update_booking_settings` | `20261002001700_app_actions` |
+|  | `admin_set_bar_status` · `admin_set_editor_pick` · `admin_verify_safety` | `20261002001600_admin` |
+|  | `bar_is_public` · `is_bar_member` · `is_bar_member_path` | `20261002000400_bars` |
+| `bar-team` | `app_assert_manager` · `app_invite_staff` · `app_remove_staff` · `app_respond_invite` · `app_team_role` · `bar_team` · `my_invites` | `20261002001700_app_actions` |
+| `account` | `admin_assert` · `is_admin` | `20261005000200_roles` |
+|  | `admin_booking_contact_phone` | `20261006000200_checkout_deposit_consent` |
+|  | `admin_delete_user` · `admin_update_user_account` | `20261006000700_admin_user_permissions` |
+|  | `admin_finish_new_user` · `admin_set_user_role` · `app_delete_account` · `super_admin_assert` | `20261006000500_super_admin_rules` |
+|  | `admin_unban_user` | `20261006000100_slip_reject_reasons_fake_slip_ban` |
+|  | `app_assert_user` · `app_mark_notifications_read` · `app_toggle_favorite` · `app_update_profile` | `20261002001700_app_actions` |
+|  | `run_retention_jobs` | `20261002001400_retention_jobs` |
+| `promotion` | `admin_review_promotion` | `20261002001600_admin` |
+|  | `app_order_promotion` | `20261002001700_app_actions` |
+|  | `bar_is_promoted` | `20261002001200_promoted_listings` |
+| `site-team` | `admin_delete_team_member` · `admin_reorder_team_members` · `admin_save_team_member` | `20261003000100_admin_team_members` |
+| `backoffice` | `admin_dashboard` | `20261002001600_admin` |
+| `(helper ทุกโดเมน)` | `admin_audit` · `app_notify_admins` | `20261005000200_roles` |
+|  | `app_audit` · `app_fmt` · `app_notify` · `app_notify_team` | `20261002001700_app_actions` |
+
 ## 5. สัญญา view / RPC สำหรับหน้าบ้าน
 
 ทุก view `security_invoker = true` (ใช้ RLS ของผู้เรียก) · ตารางเบื้องหลังมี policy `SELECT` ให้ anon อ่านข้อมูลสาธารณะ
@@ -136,7 +178,7 @@ stateDiagram-v2
 
 **หน้าบ้าน:** ส่ง `request_pr` / `p_pr_gender` เป็นตัวใหญ่ (`Db.PR_GENDER_KEYS.female` → `'FEMALE'`) · เช็กอายุ 20+ ก่อน `signUp()` (error จาก trigger เหลือแค่ "Database error saving new user")
 
-### 5.1 Backoffice (`…001600_admin`)
+### 5.1 Backoffice (`…001600_admin` · backend `domains/backoffice` อ่าน + `<domain>.admin.controller.ts` เขียน)
 
 **อ่าน** — หน้าแอดมินอ่าน view ผ่าน `GET /api/admin/views/:view` (ADR 0003 — backend อ่านในนามแอดมิน) · ทุก view มี `where public.is_admin()` → คนที่ไม่ใช่ ADMIN หรือยังไม่ผ่าน MFA (aal1) ได้แถวว่าง · anon อ่านไม่ได้เลย
 
@@ -154,29 +196,31 @@ stateDiagram-v2
 | `admin_audit_logs` | Audit log + ผู้ทำ | `Db.AdminAuditLog` |
 | `admin_team_members` (`…20261003000100`) | จัดการทีมงาน — ทีมงานหน้า /about ทุกคน (รวมที่ซ่อน) | `Db.AdminTeamMember` |
 
-**เขียน** — ผ่าน NestJS `/api/admin/*` เท่านั้น (guard: token Supabase + `users.role = ADMIN` + `aal2`) → เรียกฟังก์ชัน `admin_*` ด้วย service_role · ฟังก์ชันตรวจ ADMIN ซ้ำ (`admin_assert`) และเขียน `audit_logs` ในธุรกรรมเดียวกัน · หน้าเว็บเรียกฟังก์ชันเหล่านี้ตรงไม่ได้
+**เขียน** — ผ่าน NestJS `/api/admin/*` เท่านั้น (guard: token Supabase + ชั้นบัญชีที่ `roles.can_enter_backoffice` (แอดมิน / ซูเปอร์แอดมิน) + `aal2`) → เรียกฟังก์ชัน `admin_*` ด้วย service_role · ฟังก์ชันตรวจ ADMIN ซ้ำ (`admin_assert`) และเขียน `audit_logs` ในธุรกรรมเดียวกัน · หน้าเว็บเรียกฟังก์ชันเหล่านี้ตรงไม่ได้
 
 | endpoint | ฟังก์ชัน | ผล |
 |---|---|---|
 | `PATCH bars/:id/status` `{status, reason?}` | `admin_set_bar_status` | อนุมัติ / ไม่อนุมัติ / ระงับ / เปิดใช้งาน |
 | `PATCH bars/:id/editor-pick` `{value}` | `admin_set_editor_pick` | Editor's Pick |
 | `POST safety/:id/verify` | `admin_verify_safety` | → ADMIN_VERIFIED + ปิดรายงาน + คำนวณคะแนน Safety ใหม่ |
-| `POST deposits/:id/review` `{approve, reason?}` | `admin_review_deposit` | ผ่าน → VERIFIED/HELD + การจอง CONFIRMED · ไม่ผ่าน → REJECTED + การจองกลับ AWAITING_DEPOSIT |
+| `POST deposits/:id/review` `{approve, reason_code?, reason?}` | `admin_review_deposit` | ผ่าน → VERIFIED/HELD + การจอง CONFIRMED (ลูกค้ายกเลิกไปแล้ว → VERIFIED/REFUND_PENDING) · ไม่ผ่าน (ต้องมี `reason_code`, OTHER ต้องมี `reason`) → REJECTED + การจองกลับ AWAITING_DEPOSIT · `FAKE_SLIP` ติดธง → ครบ 2 แบนบัญชี + เบอร์ (`banned` ในผลลัพธ์) |
+| `POST users/:id/unban` `{reason?}` | `admin_unban_user` | ปลดแบนบัญชี + เบอร์ที่โดนเพราะบัญชีนี้ + ล้างธงสลิปปลอม |
 | `POST deposits/:id/settle` `{how: PAID_OUT\|CREDIT\|REFUNDED}` | `admin_settle_deposit` | ปิดยอด (CREDIT ลง `bar_credit_ledger`) |
 | `POST reviews/:id/moderate` `{action: KEEP\|HIDE\|REMOVE\|RESTORE, reason?}` | `admin_moderate_review` | + `review_moderation_logs` |
 | `POST promotions/:id/review` `{approve, reason?}` | `admin_review_promotion` | ผ่าน → ACTIVE |
-| `POST users` `{email, display_name, account_type, bar_id?, birthdate, password?}` | Supabase Auth admin (สร้างบัญชี ยืนยันอีเมลแล้ว) → `admin_finish_new_user` (`…20261003000200`) | เพิ่มผู้ใช้: ลูกค้า / แอดมิน / เจ้าของ (MERCHANT + OWNER) / ผู้จัดการ (MERCHANT + MANAGER) / พนักงาน (STAFF) · อีเมลซ้ำ → 409 `EMAIL_EXISTS` · ขั้นที่ 2 พลาด = ลบบัญชีทิ้ง · ไม่ใส่รหัส = สุ่มแล้วตอบกลับครั้งเดียว |
-| `PATCH users/:id/role` `{role}` | `admin_set_user_role` | ลดสิทธิ์ตัวเองไม่ได้ |
+| `POST users` `{email, display_name, account_type, bar_id?, birthdate, password?}` | Supabase Auth admin (สร้างบัญชี ยืนยันอีเมลแล้ว) → `admin_finish_new_user` (`…20261003000200`) | เพิ่มผู้ใช้: ลูกค้า / เจ้าของ (MERCHANT + OWNER) / ผู้จัดการ (MERCHANT + MANAGER) / พนักงาน (STAFF) / แอดมิน / ซูเปอร์แอดมิน (2 แบบหลังเฉพาะ Super Admin → 403 `SUPER_ADMIN_REQUIRED`) · อีเมลซ้ำ → 409 `EMAIL_EXISTS` · ขั้นที่ 2 พลาด = ลบบัญชีทิ้ง · ไม่ใส่รหัส = สุ่มแล้วตอบกลับครั้งเดียว |
+| `GET roles` | ตาราง `roles` (อ่านในนามผู้เรียก) | ห้าชั้นบัญชี + `can_create` / `can_assign` ของผู้เรียก (ฟอร์มเพิ่มผู้ใช้ / คอลัมน์ชั้นบัญชี) |
+| `PATCH users/:id/role` `{role}` | `admin_set_user_role` (`…20261006000500`) | แก้ชั้นบัญชีที่สร้างผิด — เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) · ชั้นใหม่เป็นลูกค้า/แอดมิน/ซูเปอร์แอดมิน → หลุดจากทุกร้าน · ห้ามเหลือ Super Admin เป็นศูนย์ (`LAST_SUPER_ADMIN`) |
 | `POST team-members` `{nickname, full_name?, roles, bio?, skills, photo_url?, contacts, active}` | `admin_save_team_member` (p_id = null) | เพิ่มทีมงาน (ต่อท้ายลำดับ) |
 | `PATCH team-members/:id` (ส่งเฉพาะ field ที่แก้) | `admin_save_team_member` | แก้ / ซ่อน-แสดง (`active`) · audit เก็บก่อน/หลัง |
 | `DELETE team-members/:id` | `admin_delete_team_member` | ลบถาวร |
 | `PUT team-members/order` `{ids}` | `admin_reorder_team_members` | เรียงใหม่ → sort_order 10, 20, 30 … |
 
-error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 404, `DEPOSIT_ALREADY_REVIEWED` / `CANNOT_DEMOTE_SELF` ฯลฯ → 409) · หน้าแอดมินแปลเป็นภาษาไทยใน `apps/admin/src/services/api.ts`
+error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 404, `DEPOSIT_ALREADY_REVIEWED` / `LAST_SUPER_ADMIN` ฯลฯ → 409 · `SUPER_ADMIN_REQUIRED` → 403) · หน้าแอดมินแปลเป็นภาษาไทยใน `apps/admin/src/services/api.ts`
 
-### 5.2 แอปลูกค้า / ร้าน (`…001700_app_actions`)
+### 5.2 แอปลูกค้า / ร้าน (`…001700_app_actions` · backend `domains/<domain>/*.{me,merchant}.controller.ts`)
 
-**อ่าน** — หน้าบ้านอ่านผ่าน API (`GET /api/public/catalog`, `/api/me/overview` — ADR 0002 · backend อ่านในนามผู้เรียก RLS คุม) ใน `apps/frontend/src/services/sync.ts` แล้วใส่ store ของ `@nightlist/mock` (ใช้เป็น cache) → หน้าเว็บเรียก `listBars()`, `myBookings()`, `barReviews()` … ได้เหมือนเดิม
+**อ่าน** — หน้าบ้านอ่านผ่าน API (`GET /api/public/catalog`, `/api/me/overview` — ADR 0002 · backend อ่านในนามผู้เรียก RLS คุม) ใน `apps/frontend/src/services/sync.ts` แล้วใส่ store ของ `@nightout/mock` (ใช้เป็น cache) → หน้าเว็บเรียก `listBars()`, `myBookings()`, `barReviews()` … ได้เหมือนเดิม
 
 | ตอนไหน | อ่านอะไร |
 |---|---|
@@ -184,16 +228,18 @@ error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 4
 | หลังล็อกอิน + ทุก 60 วินาที | `booking_detail` (ของฉัน + ของร้านที่อยู่ในทีม), `notifications`, `my_favorites`, `my_reviews`, `user_preferences`, `my_bar_detail` (ร้านของฉันทุกสถานะ), `review_reports`, `promoted_listings` |
 | ตามหน้า (TanStack Query) | `rpc('zone_availability')` หน้าจอง · `rpc('bar_team')` / `rpc('my_invites')` พนักงาน · `rpc('bar_deposit_ledger')` มัดจำของร้าน (ไม่มี path สลิป) · `billing_events` ค่าคอม · `rpc('get_share_card')` |
 
-**เขียน** — `apps/frontend/src/services/actions.ts` → NestJS (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
+**เขียน** — `apps/frontend/src/services/api/<domain>.ts` → NestJS `domains/<domain>` (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
 
 | endpoint | ฟังก์ชัน |
 |---|---|
-| `POST bookings` | `app_create_booking` (ตรวจจำนวนคน/ล่วงหน้า/ที่ว่างโซน/โปร · มีมัดจำ → `AWAITING_DEPOSIT`) |
+| `POST bookings` `{…, contact_phone, deposit_terms}` | `app_create_booking` (ตรวจแบนบัญชี/เบอร์ → จำนวนคน/ล่วงหน้า/ที่ว่างโซน/โปร · มีมัดจำ → ต้องยอมรับเงื่อนไขริบมัดจำ (เก็บ `booking_deposit_consents`) → `AWAITING_DEPOSIT`) |
 | `POST bookings/:id/deposit` `{slip_path}` | `app_submit_deposit` (สลิปอยู่ `deposit-slips/<uid>/…`) |
 | `POST bookings/:id/cancel` · `POST bookings/:id/review` · `POST reviews/:id/report` | `app_cancel_booking` · `app_add_review` (รูป/วิดีโอใน `review-media/<uid>/<review_id>/…`) · `app_report_review` |
 | `POST me/favorites/:barId/toggle` · `POST me/notifications/read` · `PATCH me/profile` · `POST me/delete` | `app_toggle_favorite` · `app_mark_notifications_read` · `app_update_profile` · `app_delete_account` (+ ban ใน Auth) |
 | `POST invites/:barId/respond` · `POST merchant/join` | `app_respond_invite` · `app_merchant_join` (ร้าน `PENDING_REVIEW`) |
 | `POST merchant/bookings/:id/status` · `POST merchant/bars/:id/check-in` · `…/crowd` | `app_team_set_booking_status` · `app_check_in` (รหัสจองหรือ QR) · `app_set_crowd` |
+| `POST merchant/bookings/:id/move` `{zone_id, table_id?, reason?}` · `GET merchant/bars/:barId/bookings/:id/table-options` | `app_team_move_booking` (ทีมร้านทุกบทบาท · โต๊ะไม่ว่าง → `TABLE_TAKEN`) · `rpc('bar_booking_table_options')` |
+| `POST merchant/bookings/:id/refund` `{reason}` | `app_team_refund_deposit` (ทีมร้านทุกบทบาท · มัดจำที่ตรวจแล้วและยังไม่โอนให้ร้าน → `REFUND_PENDING` · การจองที่ยังไม่เช็กอินถูกยกเลิกฝั่งร้าน) |
 | `PATCH …/info` · `PUT …/menu` · `PUT …/promotions` · `PUT …/fees` · `PUT …/zones` | `app_update_bar_info` · `app_set_menu` · `app_set_bar_promotions` (โปรใหม่/แก้ข้อความ → รอแอดมินตรวจ) · `app_set_fees` · `app_set_zones` |
 | `PUT …/safety/:key` · `PUT …/safety/:key/evidence` | `app_set_safety` · `app_set_safety_evidence` (ไฟล์ `bar-verifications/<bar_id>/…`) |
 | `PATCH …/booking-settings` · `PUT …/payout-account` | `app_update_booking_settings` (มัดจำ, grace, PR ชาย/หญิง/LGBTQ+) · `app_set_payout_account` (NestJS เข้ารหัส AES-256-GCM ด้วย `PAYOUT_ENCRYPTION_KEY`) |
@@ -232,7 +278,7 @@ error เป็นรหัสตัวใหญ่ (`ZONE_FULL`, `NOT_BAR_MANAG
 
 ## 7. Seed · Job
 
-- `seed.sql`: districts 10, styles 9, safety_features **9 ข้อ** (weight รวม 100), platform_settings (PromptPay, retention), legal_documents (Terms / Privacy / Cookie / Age v1 `is_current`), promotion_packages 5 แบบ + ร้านเดโม 16 ร้านจาก `@nightlist/mock`
+- `seed.sql`: districts 10, styles 9, safety_features **9 ข้อ** (weight รวม 100), platform_settings (PromptPay, retention), legal_documents (Terms / Privacy / Cookie / Age v1 `is_current`), promotion_packages 5 แบบ + ร้านเดโม 16 ร้านจาก `@nightout/mock`
 - ตัวรัน job (ข้อ 8.2): **pg_cron เรียก NestJS `/api/jobs/*` ผ่าน pg_net** (ทุกนาที: no-show, expire, complete, แจ้งเตือน) — คำสั่งตั้งเวลาอยู่ในหัวไฟล์ `…001400_retention_jobs.sql` (ต้องตั้ง secret ใน Vault ก่อน)
 - `run_retention_jobs()` (รันวันละครั้ง): anonymize บัญชีที่ `deleted_at` เลย `account_retention_days` (30) + ล้าง `contact_phone` ที่เลย `contact_phone_retention_days` (90) · บันทึกใน `job_runs` · บัญชีใน `auth.users` ให้ NestJS ปิด/เปลี่ยนอีเมลผ่าน Admin API (ห้ามลบ เพราะการจองยังอ้างถึง)
 
@@ -266,5 +312,5 @@ error เป็นรหัสตัวใหญ่ (`ZONE_FULL`, `NOT_BAR_MANAG
 | PR เพศ LGBTQ | แสดงในป้าย PR + ร้านกรอกได้ใน `/merchant/settings` |
 | การเขียนจากหน้าบ้าน | RLS ปิดทั้งหมด · เขียนผ่าน NestJS → `app_*` (หัวข้อ 5.2) |
 | 10.3 ถือเงินมัดจำแทนร้าน | ตาราง deposits/payouts เป็น DRAFT — **ห้ามเปิดรับเงินจริงก่อนได้คำตอบจากที่ปรึกษากฎหมาย** |
-| 10.8 โปรแอลกอฮอล์ | ร้านเดโมยังมี "โปรเบียร์ก่อน 2 ทุ่ม" (มาจาก `@nightlist/mock`) — รอตัดสินใจ |
+| 10.8 โปรแอลกอฮอล์ | ร้านเดโมยังมี "โปรเบียร์ก่อน 2 ทุ่ม" (มาจาก `@nightout/mock`) — รอตัดสินใจ |
 | 10.1, 10.2, 10.4–10.7, 10.9 | ยังเลื่อน/รอตัดสินใจตาม spec |

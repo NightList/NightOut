@@ -20,7 +20,7 @@ export function BarFacts({ bar }: { bar: BarWithTier }) {
         {
           key: 'd',
           label: 'มัดจำ',
-          children: `${baht(bar.deposit.amount)} / ${bar.deposit.unit === 'PER_PERSON' ? 'คน' : 'โต๊ะ'} · โอนเข้า NightList`,
+          children: `${baht(bar.deposit.amount)} / ${bar.deposit.unit === 'PER_PERSON' ? 'คน' : 'โต๊ะ'} · โอนเข้า NightOut`,
         },
       ]}
     />

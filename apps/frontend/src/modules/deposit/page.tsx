@@ -27,7 +27,7 @@ function toSmallDataUrl(file: File): Promise<string> {
   });
 }
 
-/** /bookings/:id/deposit — โอน PromptPay เข้า NightList (แพลตฟอร์มถือเงินไว้ให้) + อัปโหลดสลิป */
+/** /bookings/:id/deposit — โอน PromptPay เข้า NightOut (แพลตฟอร์มถือเงินไว้ให้) + อัปโหลดสลิป */
 export function DepositPage() {
   useDemo();
   const { id = '' } = useParams();
@@ -78,7 +78,7 @@ export function DepositPage() {
             <p className="text-muted">ยอดมัดจำ</p>
             <p className="text-4xl font-bold text-gold-text">{baht(amount)}</p>
             <p className="mt-2 text-sm text-muted">
-              โอนเข้า NightList — เราถือเงินไว้ให้ และส่งต่อให้ร้านหลังคุณเช็กอิน
+              โอนเข้า NightOut — เราถือเงินไว้ให้ และส่งต่อให้ร้านหลังคุณเช็กอิน
               ยกเลิกตามเงื่อนไขได้เงินคืนจากเราโดยตรง
             </p>
             <Alert
@@ -125,7 +125,7 @@ export function DepositPage() {
             setSending(true);
             try {
               await submitDeposit(b.id, await (await fetch(slip!)).blob());
-              message.success('ส่งสลิปแล้ว NightList จะตรวจและยืนยันโต๊ะให้');
+              message.success('ส่งสลิปแล้ว NightOut จะตรวจและยืนยันโต๊ะให้');
               navigate(`/bookings/${b.id}`);
             } catch (e) {
               message.error((e as Error).message);

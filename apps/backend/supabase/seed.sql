@@ -1,7 +1,7 @@
 -- =====================================================================
 -- Seed: master data + ร้านเดโม 16 ร้าน (ชื่อสมมติทั้งหมด) — สร้างอัตโนมัติ ห้ามแก้มือ
 -- แก้ master data ที่ MASTER_SQL ใน apps/backend/scripts/seed-from-mock.ts
--- สร้างใหม่: pnpm --filter @nightlist/backend db:seed:gen
+-- สร้างใหม่: pnpm --filter @nightout/backend db:seed:gen
 -- ใช้กับ: supabase db reset (local) หรือ supabase db reset --linked (project จริง)
 -- =====================================================================
 begin;
@@ -28,8 +28,8 @@ insert into safety_features (key, name_th, icon, weight, sort_order) values
 
 -- ⚠️ แก้ PromptPay เป็นของจริงใน Table Editor ก่อนเปิดรับเงิน (และรอคำตอบข้อ 10.3)
 insert into platform_settings (key, value) values
-  ('deposit_promptpay',            '{"name":"NightList Co., Ltd.","promptpay_id":"0812345678"}'),
-  ('promotion_promptpay',          '{"name":"NightList Co., Ltd.","promptpay_id":"0812345678"}'),
+  ('deposit_promptpay',            '{"name":"NightOut Co., Ltd.","promptpay_id":"0812345678"}'),
+  ('promotion_promptpay',          '{"name":"NightOut Co., Ltd.","promptpay_id":"0812345678"}'),
   ('slip_retention_days',          '90'),
   ('account_retention_days',       '30'),
   ('contact_phone_retention_days', '90'),
@@ -52,7 +52,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('96e5917b-2acc-5f7f-b4ca-fc9a3b00f07d', null, 'moonlit-cellar', 'Moonlit Cellar', 'PUB_BAR', 'Moonlit Cellar · ผับ / บาร์ ย่านทองหล่อ บรรยากาศ Private Room · Pub/Dance · Rooftop เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '100 ซอยสมมติ 1 เขตทองหล่อ กรุงเทพฯ',
   (select id from districts where name_th = 'ทองหล่อ'), 13.770409, 100.592180,
-  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 500, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 15
 where bar_id = '96e5917b-2acc-5f7f-b4ca-fc9a3b00f07d';
@@ -153,7 +153,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('0cccc294-d9b5-501e-bf33-a900f1188f90', null, 'velvet-hour', 'Velvet Hour', 'CHILL', 'Velvet Hour · ร้านนั่งชิล ย่านเอกมัย บรรยากาศ Outdoor · Live Music · Pub/Dance เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '107 ซอยสมมติ 2 เขตเอกมัย กรุงเทพฯ',
   (select id from districts where name_th = 'เอกมัย'), 13.793190, 100.596551,
-  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = '0cccc294-d9b5-501e-bf33-a900f1188f90';
@@ -215,7 +215,7 @@ insert into price_package_items (package_id, menu_item_id, name_snapshot, quanti
   ('8ad1cc11-cf0b-54e2-91b9-e5c6518b8599', 'f532718a-3975-5f65-b202-58974f26f147', 'เฟรนช์ฟรายส์', 2, 180, 3);
 insert into bar_promotions (id, bar_id, title, description, perk_type, days_of_week, cutoff_time, moderation_status, active, sort_order) values
   ('d289c411-ae57-5cdc-8ad0-bd909fe55b4e', '0cccc294-d9b5-501e-bf33-a900f1188f90', 'โปรเบียร์ก่อน 2 ทุ่ม', 'เบียร์สด/ขวด ราคาพิเศษ เมื่อเช็กอินก่อน 20:00 น.', 'OTHER', '{0,1,2,3,4,5,6}', '20:00', 'APPROVED', true, 0),
-  ('58f7fbec-2b77-5664-90dd-96bb881c4aa8', '0cccc294-d9b5-501e-bf33-a900f1188f90', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightList และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
+  ('58f7fbec-2b77-5664-90dd-96bb881c4aa8', '0cccc294-d9b5-501e-bf33-a900f1188f90', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightOut และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
 insert into table_zones (id, bar_id, name, capacity_pax, default_duration_minutes, sort_order) values ('0169e01a-fbfe-5a2a-89bf-9a56ec69d8ec', '0cccc294-d9b5-501e-bf33-a900f1188f90', 'โซนหน้าเวที', 16, 180, 0);
 insert into tables (id, zone_id, name, seats) values
   ('c7ad4c76-bbbb-5e07-8e99-7758f0e4b69f', '0169e01a-fbfe-5a2a-89bf-9a56ec69d8ec', 'A1', 4),
@@ -247,7 +247,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('fdbadfd4-d389-5cef-aee5-e622cc607bdf', null, 'amber-alley', 'Amber Alley', 'RESTAURANT', 'Amber Alley · ร้านอาหารมีเครื่องดื่ม ย่านอารีย์ บรรยากาศ Food-focused · Private Room เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '114 ซอยสมมติ 3 เขตอารีย์ กรุงเทพฯ',
   (select id from districts where name_th = 'อารีย์'), 13.817413, 100.589900,
-  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 60
 where bar_id = 'fdbadfd4-d389-5cef-aee5-e622cc607bdf';
@@ -342,7 +342,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('f19f3694-3757-500b-a54a-71bd7bd1d616', null, 'neon-orchid', 'Neon Orchid', 'PUB_BAR', 'Neon Orchid · ผับ / บาร์ ย่านสีลม บรรยากาศ Pub/Dance · Chill · Quiet เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '121 ซอยสมมติ 4 เขตสีลม กรุงเทพฯ',
   (select id from districts where name_th = 'สีลม'), 13.816015, 100.590256,
-  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 500, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 15
 where bar_id = 'f19f3694-3757-500b-a54a-71bd7bd1d616';
@@ -441,7 +441,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('ca9df1a8-3a56-5dc6-849e-ea71be97f004', null, 'the-quiet-barrel', 'The Quiet Barrel', 'CHILL', 'The Quiet Barrel · ร้านนั่งชิล ย่านสาทร บรรยากาศ Quiet · Live Music · Private Room เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '128 ซอยสมมติ 5 เขตสาทร กรุงเทพฯ',
   (select id from districts where name_th = 'สาทร'), 13.812447, 100.603257,
-  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = 'ca9df1a8-3a56-5dc6-849e-ea71be97f004';
@@ -533,7 +533,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('98fd3a61-0a2d-5fea-85d3-8c305d39e6b4', null, 'lantern-lane', 'Lantern Lane', 'RESTAURANT', 'Lantern Lane · ร้านอาหารมีเครื่องดื่ม ย่านรัชดา บรรยากาศ Food-focused · Quiet · Private Room เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '135 ซอยสมมติ 6 เขตรัชดา กรุงเทพฯ',
   (select id from districts where name_th = 'รัชดา'), 13.760789, 100.568940,
-  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 60
 where bar_id = '98fd3a61-0a2d-5fea-85d3-8c305d39e6b4';
@@ -595,7 +595,7 @@ insert into price_package_items (package_id, menu_item_id, name_snapshot, quanti
   ('bdcc7d76-47ca-5e5c-a3dc-23323c35c095', '0184d419-b40f-500f-8369-278464d8faae', 'เฟรนช์ฟรายส์', 2, 180, 3);
 insert into bar_promotions (id, bar_id, title, description, perk_type, days_of_week, cutoff_time, moderation_status, active, sort_order) values
   ('600cd729-1359-5716-a734-f67512162d92', '98fd3a61-0a2d-5fea-85d3-8c305d39e6b4', 'โปรเบียร์ก่อน 2 ทุ่ม', 'เบียร์สด/ขวด ราคาพิเศษ เมื่อเช็กอินก่อน 20:00 น.', 'OTHER', '{0,1,2,3,4,5,6}', '20:00', 'APPROVED', true, 0),
-  ('0d283975-6f16-5046-b156-3de511b40b8f', '98fd3a61-0a2d-5fea-85d3-8c305d39e6b4', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightList และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
+  ('0d283975-6f16-5046-b156-3de511b40b8f', '98fd3a61-0a2d-5fea-85d3-8c305d39e6b4', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightOut และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
 insert into table_zones (id, bar_id, name, capacity_pax, default_duration_minutes, sort_order) values ('ddc289d5-2456-512d-81a8-e9afdc48aef3', '98fd3a61-0a2d-5fea-85d3-8c305d39e6b4', 'โซนหน้าเวที', 12, 180, 0);
 insert into tables (id, zone_id, name, seats) values
   ('ae0d99f9-d4ff-5d14-87ce-3ac5d435c073', 'ddc289d5-2456-512d-81a8-e9afdc48aef3', 'A1', 4),
@@ -625,7 +625,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('2c455e74-6029-52ae-b878-4df21dfc9c16', null, 'midnight-mango', 'Midnight Mango', 'PUB_BAR', 'Midnight Mango · ผับ / บาร์ ย่านลาดพร้าว บรรยากาศ Pub/Dance · Quiet เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '142 ซอยสมมติ 7 เขตลาดพร้าว กรุงเทพฯ',
   (select id from districts where name_th = 'ลาดพร้าว'), 13.776188, 100.549598,
-  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 500, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 15
 where bar_id = '2c455e74-6029-52ae-b878-4df21dfc9c16';
@@ -721,7 +721,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('772f1a13-43d3-520b-9812-8e9bda5a9b07', null, 'copper-crane', 'Copper Crane', 'CHILL', 'Copper Crane · ร้านนั่งชิล ย่านริมแม่น้ำ บรรยากาศ Food-focused · Live Music เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '149 ซอยสมมติ 8 เขตริมแม่น้ำ กรุงเทพฯ',
   (select id from districts where name_th = 'ริมแม่น้ำ'), 13.720724, 100.524321,
-  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = '772f1a13-43d3-520b-9812-8e9bda5a9b07';
@@ -816,7 +816,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('e3a93acf-3717-55d8-a6b4-76d56644db42', null, 'starfall-rooftop', 'Starfall Rooftop', 'RESTAURANT', 'Starfall Rooftop · ร้านอาหารมีเครื่องดื่ม ย่านพระราม 9 บรรยากาศ Food-focused · Chill เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '156 ซอยสมมติ 9 เขตพระราม 9 กรุงเทพฯ',
   (select id from districts where name_th = 'พระราม 9'), 13.774140, 100.589176,
-  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 60
 where bar_id = 'e3a93acf-3717-55d8-a6b4-76d56644db42';
@@ -914,7 +914,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('072a70ba-33a2-567f-b2c4-013b61da514f', null, 'jazz-hideaway', 'Jazz Hideaway', 'PUB_BAR', 'Jazz Hideaway · ผับ / บาร์ ย่านสุขุมวิท บรรยากาศ Pub/Dance · Private Room เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '163 ซอยสมมติ 10 เขตสุขุมวิท กรุงเทพฯ',
   (select id from districts where name_th = 'สุขุมวิท'), 13.730940, 100.542767,
-  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 500, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 15
 where bar_id = '072a70ba-33a2-567f-b2c4-013b61da514f';
@@ -979,7 +979,7 @@ insert into price_package_items (package_id, menu_item_id, name_snapshot, quanti
 insert into bar_promotions (id, bar_id, title, description, perk_type, days_of_week, cutoff_time, moderation_status, active, sort_order) values
   ('e191f610-d1d4-5468-a305-0d329a189f38', '072a70ba-33a2-567f-b2c4-013b61da514f', 'โปรเบียร์ก่อน 2 ทุ่ม', 'เบียร์สด/ขวด ราคาพิเศษ เมื่อเช็กอินก่อน 20:00 น.', 'OTHER', '{0,1,2,3,4,5,6}', '20:00', 'APPROVED', true, 0),
   ('1cda097e-f89c-5421-b645-f7b54d02350b', '072a70ba-33a2-567f-b2c4-013b61da514f', 'Ladies Night พุธ', 'ค็อกเทลแก้วแรกฟรีสำหรับสุภาพสตรี ทุกวันพุธ', 'OTHER', '{3}', null, 'APPROVED', true, 1),
-  ('9c8b205d-0150-58b7-a277-de02eb6dd982', '072a70ba-33a2-567f-b2c4-013b61da514f', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightList และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 2);
+  ('9c8b205d-0150-58b7-a277-de02eb6dd982', '072a70ba-33a2-567f-b2c4-013b61da514f', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightOut และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 2);
 insert into table_zones (id, bar_id, name, capacity_pax, default_duration_minutes, sort_order) values ('660e45bc-ffee-5614-88b7-653b7bd80ed0', '072a70ba-33a2-567f-b2c4-013b61da514f', 'โซนหน้าเวที', 12, 180, 0);
 insert into tables (id, zone_id, name, seats) values
   ('ed40ba64-3847-5e3f-9231-c31ef789ad0e', '660e45bc-ffee-5614-88b7-653b7bd80ed0', 'A1', 4),
@@ -1003,14 +1003,14 @@ insert into bar_safety_features (bar_id, feature_key, value, source, verified_at
   ('072a70ba-33a2-567f-b2c4-013b61da514f', 'FEMALE_STAFF', 'YES', 'SELF_DECLARED', null),
   ('072a70ba-33a2-567f-b2c4-013b61da514f', 'LIGHTING', 'UNKNOWN', 'ADMIN_VERIFIED', now()),
   ('072a70ba-33a2-567f-b2c4-013b61da514f', 'EMERGENCY_CONTACT', 'YES', 'ADMIN_VERIFIED', now());
-insert into editor_picks (bar_id, note) values ('072a70ba-33a2-567f-b2c4-013b61da514f', 'คัดเลือกโดยทีม NightList');
+insert into editor_picks (bar_id, note) values ('072a70ba-33a2-567f-b2c4-013b61da514f', 'คัดเลือกโดยทีม NightOut');
 
 -- Riverside Dram (bar-11)
 insert into bars (id, owner_id, slug, name, category, description, address, district_id, lat, lng,
   cover_image_url, cover_style, perks, status, approved_at)
 values ('287feeb2-dd55-5c27-9ba4-9909a6e80247', null, 'riverside-dram', 'Riverside Dram', 'CHILL', 'Riverside Dram · ร้านนั่งชิล ย่านทองหล่อ บรรยากาศ Quiet · Food-focused เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '170 ซอยสมมติ 11 เขตทองหล่อ กรุงเทพฯ',
   (select id from districts where name_th = 'ทองหล่อ'), 13.811506, 100.541207,
-  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#2E1065 0%,#A738F5 55%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = '287feeb2-dd55-5c27-9ba4-9909a6e80247';
@@ -1102,7 +1102,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('bf05155c-d15b-54ae-a9b3-52b5efb784e9', null, 'violet-room', 'Violet Room', 'RESTAURANT', 'Violet Room · ร้านอาหารมีเครื่องดื่ม ย่านเอกมัย บรรยากาศ Food-focused · Private Room เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '177 ซอยสมมติ 12 เขตเอกมัย กรุงเทพฯ',
   (select id from districts where name_th = 'เอกมัย'), 13.740232, 100.606475,
-  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 60
 where bar_id = 'bf05155c-d15b-54ae-a9b3-52b5efb784e9';
@@ -1195,7 +1195,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('5746aa2f-136a-52ad-87dd-eb8ff90fb5e7', null, 'golden-owl', 'Golden Owl', 'PUB_BAR', 'Golden Owl · ผับ / บาร์ ย่านอารีย์ บรรยากาศ Pub/Dance · Live Music · Chill เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '184 ซอยสมมติ 13 เขตอารีย์ กรุงเทพฯ',
   (select id from districts where name_th = 'อารีย์'), 13.738499, 100.618669,
-  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#1A0B2E 0%,#963BE8 50%,#FFD77A 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 500, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 15
 where bar_id = '5746aa2f-136a-52ad-87dd-eb8ff90fb5e7';
@@ -1293,7 +1293,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3', null, 'echo-garden', 'Echo Garden', 'CHILL', 'Echo Garden · ร้านนั่งชิล ย่านสีลม บรรยากาศ Pub/Dance · Food-focused เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '191 ซอยสมมติ 14 เขตสีลม กรุงเทพฯ',
   (select id from districts where name_th = 'สีลม'), 13.722802, 100.562231,
-  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#07070D 0%,#34283F 40%,#E8B64C 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = '5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3';
@@ -1355,7 +1355,7 @@ insert into price_package_items (package_id, menu_item_id, name_snapshot, quanti
   ('89b748d1-806d-5aa8-bd4d-6c59c91cf584', '21978534-113f-511b-986f-4653a91851d3', 'เฟรนช์ฟรายส์', 2, 130, 3);
 insert into bar_promotions (id, bar_id, title, description, perk_type, days_of_week, cutoff_time, moderation_status, active, sort_order) values
   ('38767b58-dd59-5a79-9e93-97d08f28ee7f', '5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3', 'โปรเบียร์ก่อน 2 ทุ่ม', 'เบียร์สด/ขวด ราคาพิเศษ เมื่อเช็กอินก่อน 20:00 น.', 'OTHER', '{0,1,2,3,4,5,6}', '20:00', 'APPROVED', true, 0),
-  ('4100e175-b3e6-5b52-aef4-04c277af10bc', '5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightList และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
+  ('4100e175-b3e6-5b52-aef4-04c277af10bc', '5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightOut และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
 insert into table_zones (id, bar_id, name, capacity_pax, default_duration_minutes, sort_order) values ('9c1434bd-1e2b-58b8-ad30-65203546860f', '5bcdb1a4-bb22-5884-8fb1-bc0a0266cde3', 'โซนหน้าเวที', 20, 180, 0);
 insert into tables (id, zone_id, name, seats) values
   ('e369572c-0884-55f0-a431-e0e290479707', '9c1434bd-1e2b-58b8-ad30-65203546860f', 'A1', 4),
@@ -1389,7 +1389,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('26924211-46cf-50a1-8642-65323dc4c0b3', null, 'night-market-tap', 'Night Market Tap', 'RESTAURANT', 'Night Market Tap · ร้านอาหารมีเครื่องดื่ม ย่านสาทร บรรยากาศ Food-focused · Pub/Dance เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '198 ซอยสมมติ 15 เขตสาทร กรุงเทพฯ',
   (select id from districts where name_th = 'สาทร'), 13.774778, 100.522873,
-  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
+  null, 'linear-gradient(135deg,#140A1F 0%,#7E22CE 60%,#F5C85E 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ยกเว้นค่าเข้า']::text[], 'APPROVED', now());
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 60
 where bar_id = '26924211-46cf-50a1-8642-65323dc4c0b3';
@@ -1482,7 +1482,7 @@ insert into bars (id, owner_id, slug, name, category, description, address, dist
   cover_image_url, cover_style, perks, status, approved_at)
 values ('2238849e-de7d-56f9-b430-273d0b9b82f6', null, 'sapphire-social', 'Sapphire Social', 'CHILL', 'Velvet Hour · ร้านนั่งชิล ย่านเอกมัย บรรยากาศ Outdoor · Live Music · Pub/Dance เหมาะกับไปกับเพื่อนหรือฉลองโอกาสพิเศษ', '107 ซอยสมมติ 2 เขตเอกมัย กรุงเทพฯ',
   (select id from districts where name_th = 'สุขุมวิท'), 13.793190, 100.596551,
-  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightList','ส่วนลดอาหาร 10%']::text[], 'PENDING_REVIEW', null);
+  null, 'linear-gradient(135deg,#0B1026 0%,#5869C8 60%,#A738F5 100%)', array['น้ำดื่มฟรี 1 ขวด/โต๊ะ เมื่อจองผ่าน NightOut','ส่วนลดอาหาร 10%']::text[], 'PENDING_REVIEW', null);
 update bar_booking_settings set deposit_amount = 300, deposit_unit = 'PER_TABLE',
   deposit_policy = 'มัดจำหักเป็นค่าอาหาร/เครื่องดื่มในวันที่มา · ยกเลิกก่อน 6 ชม. คืนเต็มจำนวน · ไม่มาตามนัด ร้านขอเก็บมัดจำ', refund_before_hours = 6, grace_minutes = 30
 where bar_id = '2238849e-de7d-56f9-b430-273d0b9b82f6';
@@ -1543,7 +1543,7 @@ insert into price_package_items (package_id, menu_item_id, name_snapshot, quanti
   ('9a41ebc1-f652-5635-89f9-2c084232a490', '78530701-f3b1-5765-981a-09bbc6d74c0a', 'เฟรนช์ฟรายส์', 2, 180, 3);
 insert into bar_promotions (id, bar_id, title, description, perk_type, days_of_week, cutoff_time, moderation_status, active, sort_order) values
   ('c6ffe8f9-28b1-558a-90e2-78b8a5a85504', '2238849e-de7d-56f9-b430-273d0b9b82f6', 'โปรเบียร์ก่อน 2 ทุ่ม', 'เบียร์สด/ขวด ราคาพิเศษ เมื่อเช็กอินก่อน 20:00 น.', 'OTHER', '{0,1,2,3,4,5,6}', '20:00', 'APPROVED', true, 0),
-  ('6bfb55b1-b04f-5b20-8ebd-6db594b858d7', '2238849e-de7d-56f9-b430-273d0b9b82f6', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightList และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
+  ('6bfb55b1-b04f-5b20-8ebd-6db594b858d7', '2238849e-de7d-56f9-b430-273d0b9b82f6', 'มา 6 คนขึ้นไป ฟรีของทานเล่น 1 จาน', 'จองผ่าน NightOut และเช็กอินครบตามจำนวน', 'FREE_APPETIZER', '{0,1,2,3,4,5,6}', null, 'APPROVED', true, 1);
 insert into table_zones (id, bar_id, name, capacity_pax, default_duration_minutes, sort_order) values ('4ddc891a-88ba-55c6-b7ac-e032c6011ab6', '2238849e-de7d-56f9-b430-273d0b9b82f6', 'โซนหน้าเวที', 16, 180, 0);
 insert into tables (id, zone_id, name, seats) values
   ('dd23ed5f-8b18-5abf-a6c7-f146d6ff7e76', '4ddc891a-88ba-55c6-b7ac-e032c6011ab6', 'A1', 4),

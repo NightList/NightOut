@@ -1,5 +1,5 @@
 import { WarningCircle } from '@phosphor-icons/react';
-import { ThemeProvider } from '@nightlist/ui';
+import { ThemeProvider } from '@nightout/ui';
 import { Button, Result } from 'antd';
 
 interface BootErrorProps {

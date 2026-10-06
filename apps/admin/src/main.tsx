@@ -1,10 +1,11 @@
 import { WarningCircle } from '@phosphor-icons/react';
-import { ThemeProvider } from '@nightlist/ui';
+import { ThemeProvider } from '@nightout/ui';
 import { Result } from 'antd';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { apiBaseUrlFromEnv, Rest } from '@nightlist/utils/rest';
+import { ERROR_MESSAGES } from '@nightout/contracts';
+import { apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
 import { log } from './services/log';
 import { isSupabaseConfigured, supabase } from './services/supabase';
 import './styles/index.css';
@@ -29,6 +30,7 @@ Rest.configure({
   baseURL: apiBaseUrlFromEnv(import.meta.env),
   getAccessToken: async () => (supabase ? ((await supabase.auth.getSession()).data.session?.access_token ?? null) : null),
   logger: log,
+  errorMessages: ERROR_MESSAGES,
   unauthorizedCode: 'MFA_REQUIRED',
 });
 

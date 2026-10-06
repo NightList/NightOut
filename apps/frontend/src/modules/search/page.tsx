@@ -1,6 +1,6 @@
 import { MagnifyingGlass, MapTrifold, SquaresFour } from '@phosphor-icons/react';
 import { CATEGORY_LABELS, DISTRICTS, listBars, STYLES, type BarFilter } from '@/services/data';
-import type { BarCategory, CrowdStatus } from '@nightlist/types';
+import type { BarCategory, CrowdStatus } from '@nightout/types';
 import { Checkbox, Empty, Input, Segmented, Select, Slider } from 'antd';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';

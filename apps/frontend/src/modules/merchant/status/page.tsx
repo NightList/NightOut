@@ -28,7 +28,7 @@ export function MerchantStatusPage() {
       <Result
         status="warning"
         title={bar.status === 'REJECTED' ? `${bar.name} ยังไม่ผ่านการตรวจ` : `${bar.name} ถูกระงับชั่วคราว`}
-        subTitle={bar.statusReason ?? 'ติดต่อทีม NightList เพื่อขอรายละเอียด'}
+        subTitle={bar.statusReason ?? 'ติดต่อทีม NightOut เพื่อขอรายละเอียด'}
       />
     );
   return (

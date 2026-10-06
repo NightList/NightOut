@@ -74,7 +74,7 @@ export function SiteFooter({ className = '' }: { className?: string }) {
                 height={48}
                 className="size-12 object-contain"
               />
-              <span className="text-2xl font-bold text-purple">NightList</span>
+              <span className="text-2xl font-bold text-purple">NightOut</span>
             </Link>
             <p className="mt-4 text-white/85">ค้นหาร้านเหล้า บาร์ และสถานที่นั่งชิล ใกล้คุณ</p>
             <p className="mt-1 text-xs text-white/55">Discover night vibes arround you.</p>
@@ -104,7 +104,7 @@ export function SiteFooter({ className = '' }: { className?: string }) {
         </div>
 
         <div className="mt-8 flex flex-col gap-1 border-t border-white/15 pt-5 text-xs text-white/60 sm:flex-row sm:justify-center">
-          <p>2026 Nightlist. สงวนลิขสิทธิ์ทั้งหมด</p>
+          <p>2026 Nightout. สงวนลิขสิทธิ์ทั้งหมด</p>
         </div>
       </div>
     </footer>

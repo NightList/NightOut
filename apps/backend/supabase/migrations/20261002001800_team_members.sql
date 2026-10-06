@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · ทีมงานหน้า /about — ตาราง team_members + view public_team
+-- NightOut · ทีมงานหน้า /about — ตาราง team_members + view public_team
 -- หน้าบ้านอ่านผ่าน view public_team เท่านั้น (เฉพาะคนที่ active) · แก้ข้อมูลผ่าน service role (NestJS / Studio)
 -- contacts (jsonb object) key ที่หน้าเว็บรู้จัก:
 --   facebook, instagram, tiktok, github, linkedin = URL เต็ม (https://…)

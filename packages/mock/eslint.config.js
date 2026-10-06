@@ -1,2 +1,2 @@
-import { base } from '@nightlist/config/eslint';
+import { base } from '@nightout/config/eslint';
 export default base;

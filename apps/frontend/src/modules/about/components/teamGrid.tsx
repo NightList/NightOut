@@ -40,7 +40,7 @@ export function TeamGrid({
     >
       <li className="team-cell team-cell--caption" style={{ gridColumn: `span ${captionSpan}` }}>
         <div className="flex h-full flex-col justify-between gap-6 p-4 md:p-5">
-          <p className="font-kanit text-[clamp(17px,1.5vw,22px)] font-medium leading-snug text-white">คนเบื้องหลัง NightList</p>
+          <p className="font-kanit text-[clamp(17px,1.5vw,22px)] font-medium leading-snug text-white">คนเบื้องหลัง NightOut</p>
           <p className="max-w-[26ch] text-[13px] leading-relaxed text-white/60">
             {skeleton > 0
               ? 'กำลังโหลดทีมงาน'

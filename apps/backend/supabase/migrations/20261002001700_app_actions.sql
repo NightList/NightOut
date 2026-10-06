@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · ฟังก์ชันการกระทำของลูกค้า / ร้านค้า + view ที่หน้าบ้านต้องใช้เพิ่ม + trigger ผลข้างเคียง
+-- NightOut · ฟังก์ชันการกระทำของลูกค้า / ร้านค้า + view ที่หน้าบ้านต้องใช้เพิ่ม + trigger ผลข้างเคียง
 --
 -- หลักเดิม: หน้าเว็บอ่านผ่าน view/RPC (RLS) · เขียนผ่าน NestJS เท่านั้น
 --   ฟังก์ชัน app_* รับ p_actor (ผู้ใช้จาก JWT ที่ NestJS ตรวจแล้ว) → ตรวจสิทธิ์ซ้ำในฟังก์ชัน → เขียนในธุรกรรมเดียว
@@ -209,7 +209,7 @@ begin
   select name into v_bar from public.bars where id = bk.bar_id;
   perform public.app_notify_admins('DEPOSIT_SUBMITTED', 'มีสลิปมัดจำรอตรวจ',
     v_bar || ' · ' || u.display_name || ' · ' || bk.deposit_required || ' บาท', '/deposits', bk.id, bk.bar_id);
-  perform public.app_notify_team(bk.bar_id, 'DEPOSIT_SUBMITTED', 'ลูกค้าโอนมัดจำแล้ว (รอ NightList ตรวจ)',
+  perform public.app_notify_team(bk.bar_id, 'DEPOSIT_SUBMITTED', 'ลูกค้าโอนมัดจำแล้ว (รอ NightOut ตรวจ)',
     u.display_name || ' · ' || bk.code, '/merchant/bookings', bk.id);
   return jsonb_build_object('id', v_id, 'booking_id', bk.id, 'status', 'SUBMITTED');
 end $$;
@@ -380,7 +380,7 @@ begin
   return jsonb_build_object('id', bk.id, 'status', p_to);
 end $$;
 
--- เช็กอินด้วยรหัสจอง (NL-XXXXXX) หรือข้อความจาก QR (NIGHTLIST:<booking id>)
+-- เช็กอินด้วยรหัสจอง (NL-XXXXXX) หรือข้อความจาก QR (NIGHTOUT:<booking id>)
 create or replace function public.app_check_in(p_actor uuid, p_bar uuid, p_code text) returns jsonb
 language plpgsql set search_path = '' as $$
 declare v text := upper(trim(coalesce(p_code, ''))); bk public.bookings; v_zone text;
@@ -389,7 +389,9 @@ begin
   perform public.app_team_role(p_actor, p_bar);
   select * into bk from public.bookings
    where bar_id = p_bar
-     and (code = v or (v like 'NIGHTLIST:%' and id::text = lower(substr(v, 11))))
+     and (code = v
+          or (v like 'NIGHTOUT:%' and id::text = lower(substr(v, 10)))
+          or (v like 'NIGHTOUT:%' and id::text = lower(substr(v, 11))))   -- QR เก่า (ชื่อเดิม NightOut) ยังสแกนได้
    for update;
   if not found then raise exception 'BOOKING_NOT_FOUND' using errcode = 'P0002'; end if;
   if bk.status <> 'CONFIRMED' then raise exception 'BOOKING_NOT_CONFIRMED' using errcode = 'P0001'; end if;
@@ -883,7 +885,7 @@ begin
 
   -- แจ้งลูกค้า
   v_title := case new.status
-    when 'CONFIRMED'             then case when old.status = 'DEPOSIT_SUBMITTED' then 'NightList ตรวจสลิปแล้ว โต๊ะของคุณยืนยันแล้ว' else 'ร้านยืนยันการจองแล้ว' end
+    when 'CONFIRMED'             then case when old.status = 'DEPOSIT_SUBMITTED' then 'NightOut ตรวจสลิปแล้ว โต๊ะของคุณยืนยันแล้ว' else 'ร้านยืนยันการจองแล้ว' end
     when 'AWAITING_DEPOSIT'      then 'สลิปไม่ผ่าน กรุณาส่งใหม่'
     when 'REJECTED'              then 'ร้านไม่สามารถรับการจองนี้ได้'
     when 'CANCELLED_BY_MERCHANT' then 'ร้านยกเลิกการจอง'
@@ -900,7 +902,7 @@ begin
       new.id, new.bar_id);
   end if;
   if new.status = 'CONFIRMED' and old.status = 'DEPOSIT_SUBMITTED' then
-    perform public.app_notify_team(new.bar_id, 'BOOKING_CONFIRMED', 'NightList ยืนยันมัดจำแล้ว',
+    perform public.app_notify_team(new.bar_id, 'BOOKING_CONFIRMED', 'NightOut ยืนยันมัดจำแล้ว',
       new.code || ' · ' || public.app_fmt(new.booking_datetime), '/merchant/bookings', new.id);
   end if;
   return new;
@@ -913,7 +915,7 @@ create or replace function public.handle_bar_status_notify() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
   perform public.app_notify_team(new.id, 'BAR_' || new.status,
-    case new.status when 'APPROVED' then 'ร้านของคุณเปิดแสดงบน NightList แล้ว'
+    case new.status when 'APPROVED' then 'ร้านของคุณเปิดแสดงบน NightOut แล้ว'
                     when 'REJECTED' then 'ร้านของคุณยังไม่ผ่านการตรวจ'
                     when 'SUSPENDED' then 'ร้านของคุณถูกระงับชั่วคราว'
                     else 'สถานะร้านเปลี่ยนเป็น ' || new.status end,

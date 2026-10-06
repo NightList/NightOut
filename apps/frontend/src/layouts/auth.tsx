@@ -1,4 +1,4 @@
-import { getAntdTheme } from '@nightlist/ui';
+import { getAntdTheme } from '@nightout/ui';
 import { ConfigProvider, type ThemeConfig } from 'antd';
 import { Outlet } from 'react-router';
 import { NAV } from '@/configs/nav';
@@ -13,7 +13,7 @@ import { Navbar } from '@/ui/components/navbar';
 const base = getAntdTheme('dark');
 const authTheme: ThemeConfig = {
   ...base,
-  cssVar: { key: 'nightlist-auth' },
+  cssVar: { key: 'nightout-auth' },
   token: {
     ...base.token,
     colorPrimary: '#a738f5',

@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · เฟส 1 / 8 — view + RPC สำหรับหน้าบ้าน · RLS · สิทธิ์คอลัมน์ · Storage · Realtime
+-- NightOut · เฟส 1 / 8 — view + RPC สำหรับหน้าบ้าน · RLS · สิทธิ์คอลัมน์ · Storage · Realtime
 --
 -- หลัก: อ่านผ่าน view/RPC ได้ตรง (security_invoker = true → ใช้ RLS ของผู้เรียก) · เขียนผ่าน NestJS เท่านั้น
 -- กฎ "ไม่มีข้อมูล": array = [] · object = null · ตัวนับ = 0 · ค่าอื่น = null · pr_counts = {male:0,female:0,lgbtq:0}

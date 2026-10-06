@@ -140,6 +140,19 @@ export class SupabaseService {
     await fetch(`${this.url}/auth/v1/admin/users/${encodeURIComponent(id)}`, { method: 'DELETE', headers: this.headers() });
   }
 
+  async updateAuthUser(id: string, input: { email?: string; password?: string }): Promise<void> {
+    const res = await fetch(`${this.url}/auth/v1/admin/users/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: this.headers(),
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      if (res.status === 422 && /exists|already been registered/i.test(body)) throw new ConflictException('EMAIL_EXISTS');
+      throw new ConflictException('INVALID_ACCOUNT');
+    }
+  }
+
   /** ปิดการเข้าสู่ระบบของบัญชี (ลบบัญชี) — ห้ามลบจริงเพราะการจองยังอ้างถึง */
   async banUser(id: string): Promise<void> {
     const res = await fetch(`${this.url}/auth/v1/admin/users/${id}`, {

@@ -1,6 +1,6 @@
 /*
  * Midnight Gold — CSS variables + Tailwind v4 theme
- * ใช้ในแอป: @import "@nightlist/ui/theme.css";  (หลัง @import "tailwindcss")
+ * ใช้ในแอป: @import "@nightout/ui/theme.css";  (หลัง @import "tailwindcss")
  * ค่าต้องตรงกับ src/tokens.ts (มี test ตรวจ)
  */
 

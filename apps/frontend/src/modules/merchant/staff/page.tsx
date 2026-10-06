@@ -12,7 +12,7 @@ const ROLE = {
   STAFF: { label: 'พนักงาน', color: 'purple' },
 } as const;
 
-/** /merchant/staff — ทีมร้านจาก bar_staff · เชิญด้วยอีเมลของบัญชีที่สมัคร NightList แล้ว */
+/** /merchant/staff — ทีมร้านจาก bar_staff · เชิญด้วยอีเมลของบัญชีที่สมัคร NightOut แล้ว */
 export function MerchantStaffPage() {
   const bar = useMerchantBar();
   const { user } = useAuth();
@@ -26,7 +26,7 @@ export function MerchantStaffPage() {
       <PageHeader title="พนักงาน" subtitle="พนักงานเห็นเฉพาะหน้า คืนนี้ และ การจอง · ผู้จัดการแก้ข้อมูลร้านได้" />
       <Card title="เชิญเข้าทีมทางอีเมล">
         <p className="mb-3 text-sm text-muted">
-          ให้พนักงานสมัคร NightList ด้วยอีเมลนี้ก่อน แล้วเปิดลิงก์ <code>/accept-invite</code> (หรือกดจากแจ้งเตือน) เพื่อตอบรับ
+          ให้พนักงานสมัคร NightOut ด้วยอีเมลนี้ก่อน แล้วเปิดลิงก์ <code>/accept-invite</code> (หรือกดจากแจ้งเตือน) เพื่อตอบรับ
         </p>
         <Form
           form={form}

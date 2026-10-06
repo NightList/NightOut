@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · เฟส 1 / 4 — ร้าน + ตาราง 1:1 (ตั้งค่าการจอง / สถิติ / สถานะสด) + PR + ตารางลูก
+-- NightOut · เฟส 1 / 4 — ร้าน + ตาราง 1:1 (ตั้งค่าการจอง / สถิติ / สถานะสด) + PR + ตารางลูก
 -- หน้าบ้านไม่ต้องรู้ว่าตารางถูกแยก — อ่านผ่าน view bar_cards / bar_detail
 -- =====================================================================
 set search_path = public, extensions;
@@ -20,7 +20,7 @@ create table public.bars (
   phone           text,
   cover_image_url text,
   cover_style     text,                                  -- CSS gradient สำรองเมื่อไม่มีรูปปก
-  perks           text[] not null default '{}',          -- สิทธิ์เมื่อจองผ่าน NightList
+  perks           text[] not null default '{}',          -- สิทธิ์เมื่อจองผ่าน NightOut
   status          public.bar_status not null default 'DRAFT',
   status_reason   text,
   approved_at     timestamptz,
@@ -223,7 +223,7 @@ create table public.bar_verifications (                  -- เอกสาร�
 );
 create trigger bar_verifications_updated_at before update on public.bar_verifications for each row execute function public.set_updated_at();
 
--- บัญชีรับเงินจาก NightList · เลขบัญชีเข้ารหัสฝั่ง NestJS (AES-256-GCM, key จาก env/KMS) ก่อนบันทึก
+-- บัญชีรับเงินจาก NightOut · เลขบัญชีเข้ารหัสฝั่ง NestJS (AES-256-GCM, key จาก env/KMS) ก่อนบันทึก
 -- (ข้อ 6.6 — ถ้าเปลี่ยนไปใช้ Supabase Vault ให้แก้ตรงนี้) · หน้าบ้านเห็นแค่ 4 ตัวท้าย
 create table public.bar_payout_accounts (
   id               uuid primary key default gen_random_uuid(),

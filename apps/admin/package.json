@@ -1,5 +1,5 @@
 {
-  "name": "@nightlist/admin",
+  "name": "@nightout/admin",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,10 +13,11 @@
   "dependencies": {
     "@ant-design/cssinjs": "^2.1.2",
     "@ant-design/pro-components": "3.1.15-2",
-    "@nightlist/mock": "workspace:*",
-    "@nightlist/types": "workspace:*",
-    "@nightlist/ui": "workspace:*",
-    "@nightlist/utils": "workspace:*",
+    "@nightout/mock": "workspace:*",
+    "@nightout/contracts": "workspace:*",
+    "@nightout/types": "workspace:*",
+    "@nightout/ui": "workspace:*",
+    "@nightout/utils": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-query": "^5.104.0",
@@ -28,7 +29,7 @@
     "react-router": "^8.4.0"
   },
   "devDependencies": {
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.2.0",

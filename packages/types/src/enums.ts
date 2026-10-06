@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-/** บทบาทผู้ใช้ */
-export const UserRole = z.enum(['CUSTOMER', 'MERCHANT', 'STAFF', 'ADMIN']);
+/** ชั้นบัญชี (ADR 0005) — ชื่อไทยกับลำดับอยู่ในตาราง roles */
+export const UserRole = z.enum(['CUSTOMER', 'MERCHANT', 'STAFF', 'ADMIN', 'SUPER_ADMIN']);
 export type UserRole = z.infer<typeof UserRole>;
 
 /** ประเภทร้าน */
@@ -12,7 +12,7 @@ export type BarCategory = z.infer<typeof BarCategory>;
 export const BarStatus = z.enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'SUSPENDED']);
 export type BarStatus = z.infer<typeof BarStatus>;
 
-/** สถานะการจอง (ดู state machine ใน @nightlist/utils) */
+/** สถานะการจอง (ดู state machine ใน @nightout/utils) */
 export const BookingStatus = z.enum([
   'PENDING',
   'AWAITING_DEPOSIT',

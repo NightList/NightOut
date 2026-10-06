@@ -1,5 +1,5 @@
-import type { ThemeMode } from '@nightlist/types';
-import { useThemeMode } from '@nightlist/ui';
+import type { ThemeMode } from '@nightout/types';
+import { useThemeMode } from '@nightout/ui';
 import { App, Button, Card, Segmented } from 'antd';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/services/auth';

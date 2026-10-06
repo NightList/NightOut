@@ -1,18 +1,18 @@
 -- =====================================================================
--- NightList · เฟส 2 / 14 — PDPA retention + ตัวรัน job
+-- NightOut · เฟส 2 / 14 — PDPA retention + ตัวรัน job
 --
 -- ตัวรัน job (ข้อ 8.2): pg_cron เรียก NestJS /api/jobs/* ด้วย pg_net ทุกนาที (no-show, expire, complete, แจ้งเตือน)
 --   ตั้งค่าหลัง deploy: เก็บ api_url + job_secret ใน Supabase Vault แล้วรันคำสั่งด้านล่างใน SQL editor
 --   (ไม่ใส่ใน migration เพราะต้องใช้ secret ของแต่ละ environment)
 --
---   select cron.schedule('nightlist-booking-timeouts', '* * * * *', $$
+--   select cron.schedule('nightout-booking-timeouts', '* * * * *', $$
 --     select net.http_post(
 --       url     := (select decrypted_secret from vault.decrypted_secrets where name = 'api_url') || '/api/jobs/booking-timeouts',
 --       headers := jsonb_build_object('x-job-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'job_secret')))
 --   $$);
 --   -- เช่นเดียวกัน: /api/jobs/notifications (ทุกนาที), /api/jobs/promoted-listings (ทุกนาที),
 --   -- /api/jobs/tier?period=WEEKLY ('5 17 * * 0' = 00:05 จันทร์เวลาไทย), /api/jobs/slip-cleanup ('0 20 * * *')
---   select cron.schedule('nightlist-retention', '30 19 * * *', $$ select public.run_retention_jobs() $$);  -- 02:30 เวลาไทย
+--   select cron.schedule('nightout-retention', '30 19 * * *', $$ select public.run_retention_jobs() $$);  -- 02:30 เวลาไทย
 -- =====================================================================
 set search_path = public, extensions;
 
@@ -36,7 +36,7 @@ begin
       and deleted_at < now() - make_interval(days => v_account_days)
   ), wiped as (
     update public.users u set
-      email             = 'deleted+' || u.id || '@nightlist.invalid',
+      email             = 'deleted+' || u.id || '@nightout.invalid',
       display_name      = 'ผู้ใช้ที่ลบบัญชี',
       phone_e164        = null,
       phone_verified_at = null,

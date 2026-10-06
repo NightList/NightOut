@@ -21,7 +21,7 @@ const STATUS: Record<string, { label: string; color: string }> = {
   CANCELLED: { label: 'ยกเลิก', color: 'default' },
 };
 
-/** /merchant/promote — ซื้อแพ็กเกจโปรโมท: โอน PromptPay ของ NightList + แนบสลิป → แอดมินตรวจแล้วเริ่มแสดง */
+/** /merchant/promote — ซื้อแพ็กเกจโปรโมท: โอน PromptPay ของ NightOut + แนบสลิป → แอดมินตรวจแล้วเริ่มแสดง */
 export function MerchantPromotePage() {
   const bar = useMerchantBar();
   const { message } = App.useApp();

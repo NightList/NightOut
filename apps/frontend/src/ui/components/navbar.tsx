@@ -1,6 +1,6 @@
 import { Bell, SignOut, User, type Icon } from '@phosphor-icons/react';
 import { myNotifications } from '@/services/data';
-import { ThemeToggle } from '@nightlist/ui';
+import { ThemeToggle } from '@nightout/ui';
 import { App, Badge, Button, Dropdown, Empty, Tag } from 'antd';
 import { motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
@@ -91,7 +91,7 @@ export function Navbar({
       <Link
         to="/"
         className="flex shrink-0 items-center gap-2 rounded-full pr-2 !text-gold"
-        aria-label="NightList หน้าแรก"
+        aria-label="NightOut หน้าแรก"
       >
         <img
           src="/images/common/logo.png"
@@ -103,7 +103,7 @@ export function Navbar({
         <span
           className={`font-display text-lg font-bold ${glass ? 'text-gold' : 'text-gold-text'}`}
         >
-          NightList
+          NightOut
         </span>
       </Link>
 

@@ -10,7 +10,7 @@ variable "environment" {
 variable "github_repo" {
   description = "owner/repo ที่ Vercel ผูก"
   type        = string
-  default     = "genminigpt/NightList"
+  default     = "genminigpt/NightOut"
 }
 
 variable "production_branch" {
@@ -19,7 +19,7 @@ variable "production_branch" {
 }
 
 variable "base_domain" {
-  description = "เช่น nightlist.app (prod) — ว่างไว้ถ้ายังไม่มีโดเมน"
+  description = "เช่น nightout.app (prod) — ว่างไว้ถ้ายังไม่มีโดเมน"
   type        = string
   default     = ""
 }

@@ -16,7 +16,7 @@ function fakeAdapter(status: number, data: unknown, seen: { url?: string; auth?:
 }
 
 function configure(adapter: AxiosAdapter, extra: Partial<Parameters<typeof Rest.configure>[0]> = {}) {
-  Rest.configure({ baseURL: 'http://api.test/api/', getAccessToken: async () => 'tok-1', ...extra });
+  Rest.configure({ baseURL: 'http://api.test/api/', getAccessToken: async () => 'tok-1', errorMessages: { ZONE_FULL: 'โซนนี้เต็มแล้ว' }, ...extra });
   // ใส่ adapter ปลอมให้ instance ที่เพิ่งสร้าง
   (Rest as unknown as { instance: { defaults: { adapter: AxiosAdapter } } }).instance.defaults.adapter = adapter;
 }

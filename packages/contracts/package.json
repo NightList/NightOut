@@ -1,0 +1,36 @@
+{
+  "name": "@nightout/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "สัญญา API ของ NightOut — zod ของ body/query/response + รหัส error ต่อโดเมน (ADR 0006) ใช้ร่วม backend / frontend / admin",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nightout/types": "workspace:*",
+    "@nightout/utils": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@nightout/config": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.2"
+  }
+}

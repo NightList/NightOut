@@ -1,5 +1,5 @@
 import { barReviews, reportReview } from '@/services/data';
-import { StarRating } from '@nightlist/ui';
+import { StarRating } from '@nightout/ui';
 import { App, Button, Card, Listy, Tag } from 'antd';
 import { ListRow } from '@/ui/components/listRow';
 import { PageHeader } from '@/ui/components/pageHeader';
@@ -32,7 +32,7 @@ export function MerchantReviewsPage() {
                     onClick={async () => {
                       try {
                         await reportReview(r.id, 'OTHER', 'ร้านรายงานรีวิว');
-                        message.success('ส่งให้ทีม NightList ตรวจแล้ว');
+                        message.success('ส่งให้ทีม NightOut ตรวจแล้ว');
                       } catch (e) {
                         message.error((e as Error).message);
                       }

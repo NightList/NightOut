@@ -20,7 +20,7 @@ try {
       await page.getByRole('button', { name: 'โปรไฟล์', exact: true }).waitFor();
       // Deliberately unsorted; another user's newer notification must stay hidden.
       await page.evaluate(() => {
-        const state = JSON.parse(localStorage.getItem('nightlist-demo-v1'));
+        const state = JSON.parse(localStorage.getItem('nightout-demo-v1'));
         const userId = state.notifications[0].userId;
         state.notifications = [1, 4, 2, 3].map((day) => ({
           id: `check-${day}`,
@@ -36,7 +36,7 @@ try {
           body: '',
           createdAt: '2027-01-01T00:00:00Z',
         });
-        localStorage.setItem('nightlist-demo-v1', JSON.stringify(state));
+        localStorage.setItem('nightout-demo-v1', JSON.stringify(state));
       });
       await page.reload();
       await page.getByRole('button', { name: /^แจ้งเตือน/ }).click();
@@ -58,9 +58,9 @@ try {
       await page.getByRole('menuitem', { name: 'ดูโปรไฟล์' }).click();
       await page.waitForURL('**/profile');
       await page.evaluate(() => {
-        const state = JSON.parse(localStorage.getItem('nightlist-demo-v1'));
+        const state = JSON.parse(localStorage.getItem('nightout-demo-v1'));
         state.notifications = [];
-        localStorage.setItem('nightlist-demo-v1', JSON.stringify(state));
+        localStorage.setItem('nightout-demo-v1', JSON.stringify(state));
       });
       await page.reload();
       await page.getByRole('button', { name: /^แจ้งเตือน/ }).click();

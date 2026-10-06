@@ -1,5 +1,5 @@
 -- =====================================================================
--- NightList · เฟส 1 / 1 — extensions + enums + ฟังก์ชันกลาง
+-- NightOut · เฟส 1 / 1 — extensions + enums + ฟังก์ชันกลาง
 -- ใช้คู่กับ docs/DATABASE.md และ docs/DATABASE_CHANGES.md (spec v1.1)
 -- ทุก enum เป็น UPPER_SNAKE_CASE · เวลาเก็บเป็น timestamptz · timezone ธุรกิจ Asia/Bangkok
 -- =====================================================================

@@ -10,8 +10,8 @@ import {
   X,
 } from '@phosphor-icons/react';
 import { CATEGORY_LABELS, listBars, type BarFilter, type BarWithTier } from '@/services/data';
-import type { BarCategory, CrowdStatus } from '@nightlist/types';
-import { useThemeMode } from '@nightlist/ui';
+import type { BarCategory, CrowdStatus } from '@nightout/types';
+import { useThemeMode } from '@nightout/ui';
 import { Button, Checkbox, Drawer, Input, Segmented } from 'antd';
 import type { Map as LeafletMap } from 'leaflet';
 import 'leaflet/dist/leaflet.css';

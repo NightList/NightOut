@@ -1,4 +1,5 @@
-import { Rest } from '@nightlist/utils/rest';
+import { Rest } from '@nightout/utils/rest';
+import { requestUploadUrl } from '@/services/api/storage';
 
 /** ย่อรูปฝั่งเบราว์เซอร์ก่อนอัปโหลด — ด้านยาวสุด 800px · webp (รูปจากกล้องหลาย MB เหลือ ~50–150KB) */
 async function toWebp(file: File, max = 800, quality = 0.85): Promise<Blob> {
@@ -18,13 +19,7 @@ export async function uploadTeamPhoto(file: File): Promise<string> {
   const blob = await toWebp(file);
   const ext = blob.type === 'image/webp' ? 'webp' : (file.name.split('.').pop() ?? 'jpg');
   const path = `team/${crypto.randomUUID()}.${ext}`;
-  const { upload_url, public_url } = await Rest.post<{
-    upload_url: string;
-    public_url: string | null;
-  }>('/storage/upload-url', {
-    bucket: 'team-photos',
-    path,
-  });
+  const { upload_url, public_url } = await requestUploadUrl('team-photos', path);
   await Rest.upload(upload_url, blob, { 'x-upsert': 'false' });
   if (!public_url) throw new Error('ไม่ได้ URL ของรูปกลับมา');
   return public_url;

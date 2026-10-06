@@ -1,5 +1,5 @@
 {
-  "name": "@nightlist/ui",
+  "name": "@nightout/ui",
   "version": "0.0.0",
   "private": true,
   "description": "Midnight Gold design tokens, antd theme, ThemeProvider and shared components",
@@ -38,12 +38,12 @@
     "react-dom": "^19.0.0"
   },
   "dependencies": {
-    "@nightlist/types": "workspace:*",
-    "@nightlist/utils": "workspace:*"
+    "@nightout/types": "workspace:*",
+    "@nightout/utils": "workspace:*"
   },
   "devDependencies": {
     "@ant-design/cssinjs": "^2.1.2",
-    "@nightlist/config": "workspace:*",
+    "@nightout/config": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@types/node": "^22.20.4",
     "@types/react": "^19.3.0",
