@@ -1,4 +1,3 @@
-import { homeCategoryIcon } from '@nightout/ui';
 import { useEffect, useState } from 'react';
 import { useSiteHome } from '@/services/data';
 import type { HomeCategory } from '../type/category';
@@ -31,7 +30,6 @@ export function useHomeContent() {
       title: c.title,
       hint: c.hint,
       to: c.link_to,
-      icon: homeCategoryIcon(c.icon),
       image: c.image_url,
       badge: c.badge ?? undefined,
     };

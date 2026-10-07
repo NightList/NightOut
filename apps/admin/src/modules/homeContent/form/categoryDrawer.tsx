@@ -1,28 +1,14 @@
 import { Camera } from '@phosphor-icons/react';
-import { HOME_CATEGORY_ICON_KEYS, type UpdateHomeCategoryBody } from '@nightout/contracts';
+import type { UpdateHomeCategoryBody } from '@nightout/contracts';
 import type { Db } from '@nightout/types';
-import { HOME_CATEGORY_ICONS } from '@nightout/ui';
-import { App, Button, Drawer, Form, Input, Select, Typography, Upload } from 'antd';
+import { App, Button, Drawer, Form, Input, Typography, Upload } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAdminAction } from '@/services/adminData';
 import { webSrc } from '@/ui/utils/image';
 import { SLOT_LABELS } from '../utils/slots';
 import { checkImage, IMAGE_ACCEPT, uploadSiteImage } from '../utils/media';
 
-type Values = Pick<Db.AdminHomeCategory, 'title' | 'hint' | 'link_to' | 'icon' | 'image_url' | 'badge'>;
-
-const ICON_OPTIONS = HOME_CATEGORY_ICON_KEYS.map((key) => {
-  const { icon: Icon, label } = HOME_CATEGORY_ICONS[key]!;
-  return {
-    value: key,
-    label: (
-      <span className="inline-flex items-center gap-2">
-        <Icon size={16} weight="duotone" />
-        {label}
-      </span>
-    ),
-  };
-});
+type Values = Pick<Db.AdminHomeCategory, 'title' | 'hint' | 'link_to' | 'image_url' | 'badge'>;
 
 /** แก้การ์ดหมวด 1 ช่อง (PATCH /admin/home-categories/:slot) — ตำแหน่งบนกริดตายตัว แก้ได้เฉพาะเนื้อหา */
 export function CategoryDrawer({ category, onClose }: { category: Db.AdminHomeCategory | null; onClose: () => void }) {
@@ -63,7 +49,6 @@ export function CategoryDrawer({ category, onClose }: { category: Db.AdminHomeCa
       title: v.title.trim(),
       hint: v.hint?.trim() ?? '',
       link_to: v.link_to.trim(),
-      icon: v.icon as UpdateHomeCategoryBody['icon'],
       image_url: v.image_url,
       badge: v.badge?.trim() || null,
     };
@@ -129,9 +114,6 @@ export function CategoryDrawer({ category, onClose }: { category: Db.AdminHomeCa
         </Form.Item>
         <Form.Item name="hint" label="คำอธิบายสั้น">
           <Input maxLength={60} />
-        </Form.Item>
-        <Form.Item name="icon" label="ไอคอน" rules={[{ required: true }]}>
-          <Select options={ICON_OPTIONS} />
         </Form.Item>
         <Form.Item
           name="link_to"

@@ -14,8 +14,8 @@ const SPAN: Record<string, string> = {
 };
 
 /**
- * "คืนนี้อยากได้ฟีลไหน" — การ์ดภาพเต็มใบ + ไล่เข้มด้านล่าง · ไอคอนหมวดมุมซ้ายบน · ชื่อ/คำอธิบาย + ปุ่มลูกศรด้านล่าง
- * เนื้อหา (ชื่อ/คำอธิบาย/ลิงก์/ไอคอน/ภาพ/ป้าย) มาจาก useHomeContent — แอดมินแก้ได้ · ตำแหน่งบนกริดตายตัวตาม key
+ * "คืนนี้อยากได้ฟีลไหน" — การ์ดภาพเต็มใบ + ไล่เข้มด้านล่าง · ชื่อ/คำอธิบาย + ปุ่มลูกศรด้านล่าง
+ * เนื้อหา (ชื่อ/คำอธิบาย/ลิงก์/ภาพ/ป้าย) มาจาก useHomeContent — แอดมินแก้ได้ · ตำแหน่งบนกริดตายตัวตาม key
  */
 export function CategoryGrid({
   eyebrow,
@@ -46,14 +46,13 @@ export function CategoryGrid({
 }
 
 function CategoryCard({ category: c }: { category: HomeCategory }) {
-  const Icon = c.icon;
   // การ์ดใหญ่ (ช่อง popular) ใช้ตัวอักษรใหญ่ + ปุ่มทอง · ป้ายแสดงได้ทุกช่องถ้าแอดมินใส่
   const featured = c.key === 'popular';
   return (
     <Link
       to={c.to}
       draggable={false}
-      className="group relative flex h-full select-none flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14121c] p-3 !text-white transition-[border-color,transform] duration-150 ease-out active:scale-[0.98] hover:border-purple/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold md:p-4"
+      className="group relative flex h-full select-none flex-col justify-end overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14121c] p-3 !text-white transition-[border-color,transform] duration-150 ease-out active:scale-[0.98] hover:border-purple/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold md:p-4"
     >
       <img
         src={c.image}
@@ -67,13 +66,6 @@ function CategoryCard({ category: c }: { category: HomeCategory }) {
         aria-hidden
         className="absolute inset-0 bg-gradient-to-t from-[#0b0912]/95 via-[#0b0912]/35 to-[#0b0912]/10"
       />
-
-      <span
-        aria-hidden
-        className="relative flex size-8 items-center justify-center rounded-lg border border-purple/40 bg-[#1a1028]/70 text-link md:size-9"
-      >
-        <Icon size={18} weight="duotone" />
-      </span>
 
       <div className="relative flex items-end justify-between gap-2">
         <div className="min-w-0">

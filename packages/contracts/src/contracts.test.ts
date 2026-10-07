@@ -56,13 +56,12 @@ describe('site-content', () => {
     expect(UpdateHomeContentBody.parse({ categories_title: ' คืนนี้อยากได้ฟีลไหน ' })).toEqual({ categories_title: 'คืนนี้อยากได้ฟีลไหน' });
     expect(UpdateHomeContentBody.parse({ hero_image_url: null })).toEqual({ hero_image_url: null });
   });
-  it('rejects unsafe images, external links and unknown icons', () => {
+  it('rejects unsafe images and external links', () => {
     expect(UpdateHomeCategoryBody.safeParse({ image_url: 'javascript:alert(1)' }).success).toBe(false);
     expect(UpdateHomeCategoryBody.safeParse({ link_to: 'https://evil.example' }).success).toBe(false);
     expect(UpdateHomeCategoryBody.safeParse({ link_to: '//evil.example' }).success).toBe(false);
-    expect(UpdateHomeCategoryBody.safeParse({ icon: 'skull' }).success).toBe(false);
     expect(UpdateHomeCategoryBody.safeParse({ title: '' }).success).toBe(false);
-    expect(UpdateHomeCategoryBody.safeParse({ link_to: '/search?style=Rooftop', icon: 'buildings' }).success).toBe(true);
+    expect(UpdateHomeCategoryBody.safeParse({ link_to: '/search?style=Rooftop' }).success).toBe(true);
   });
 });
 
@@ -89,6 +88,8 @@ describe('errors', () => {
     expect(ERROR_MESSAGES.ZONE_FULL).toContain('เต็ม');
     expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_FOUND).toBeTruthy();
     expect(ERROR_MESSAGES.LAST_SUPER_ADMIN).toBeTruthy();
+    expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_OWN).toBeTruthy();
+    expect(ERROR_MESSAGES.TEAM_MEMBER_EMAIL_LOCKED).toBeTruthy();
     expect(Object.keys(ERROR_MESSAGES).length).toBeGreaterThan(70);
   });
 });

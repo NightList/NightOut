@@ -3426,7 +3426,6 @@ export type Database = {
         Row: {
           badge: string | null
           hint: string
-          icon: string
           image_url: string
           link_to: string
           slot: string
@@ -3437,7 +3436,6 @@ export type Database = {
         Insert: {
           badge?: string | null
           hint?: string
-          icon: string
           image_url: string
           link_to: string
           slot: string
@@ -3448,7 +3446,6 @@ export type Database = {
         Update: {
           badge?: string | null
           hint?: string
-          icon?: string
           image_url?: string
           link_to?: string
           slot?: string
@@ -5859,7 +5856,6 @@ export type Database = {
         Row: {
           badge: string | null
           hint: string | null
-          icon: string | null
           image_url: string | null
           link_to: string | null
           slot: string | null
@@ -5870,7 +5866,6 @@ export type Database = {
         Insert: {
           badge?: string | null
           hint?: string | null
-          icon?: string | null
           image_url?: string | null
           link_to?: string | null
           slot?: string | null
@@ -5881,7 +5876,6 @@ export type Database = {
         Update: {
           badge?: string | null
           hint?: string | null
-          icon?: string | null
           image_url?: string | null
           link_to?: string | null
           slot?: string | null
@@ -6465,7 +6459,6 @@ export type Database = {
         Row: {
           badge: string | null
           hint: string | null
-          icon: string | null
           image_url: string | null
           link_to: string | null
           slot: string | null
@@ -6476,7 +6469,6 @@ export type Database = {
         Insert: {
           badge?: string | null
           hint?: string | null
-          icon?: string | null
           image_url?: string | null
           link_to?: string | null
           slot?: string | null
@@ -6487,7 +6479,6 @@ export type Database = {
         Update: {
           badge?: string | null
           hint?: string | null
-          icon?: string | null
           image_url?: string | null
           link_to?: string | null
           slot?: string | null
@@ -7239,6 +7230,10 @@ export type Database = {
       team_member_check: {
         Args: { r: Database["public"]["Tables"]["team_members"]["Row"] }
         Returns: undefined
+      }
+      team_member_is_own: {
+        Args: { p_actor: string; p_contacts: Json }
+        Returns: boolean
       }
       zone_availability: {
         Args: { p_bar: string; p_datetime: string }

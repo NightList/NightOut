@@ -1,5 +1,3 @@
-import type { Icon } from '@phosphor-icons/react';
-
 /** การ์ดหมวดหมู่ในหน้าแรก (หลังแปลงจาก API / ค่าตั้งต้น) — ลิงก์ไป /ranking, /search?category= หรือ /search?style= */
 export interface HomeCategory {
   /** ช่องบนกริด bento (popular = การ์ดใหญ่ · party = กว้าง 2) */
@@ -8,7 +6,6 @@ export interface HomeCategory {
   /** คำอธิบายสั้นใต้ชื่อหมวดบนการ์ด */
   hint: string;
   to: string;
-  icon: Icon;
   /** ภาพพื้นการ์ด */
   image: string;
   /** ป้ายเล็กเหนือชื่อ เช่น "อันดับประจำสัปดาห์" */

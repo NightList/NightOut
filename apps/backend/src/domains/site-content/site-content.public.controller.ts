@@ -8,7 +8,7 @@ import { SupabaseService } from '../../supabase/supabase.service';
 
 const CONTENT_COLS =
   'hero_title_lead,hero_title_highlight,hero_title_tail,hero_subtitle,hero_search_placeholder,hero_image_url,categories_eyebrow,categories_title,updated_at';
-const CATEGORY_COLS = 'slot,title,hint,link_to,icon,image_url,badge,updated_at';
+const CATEGORY_COLS = 'slot,title,hint,link_to,image_url,badge,updated_at';
 
 /** site-content · สาธารณะ — เนื้อหาหน้าแรก (view public_home_content / public_home_categories) */
 @ApiTags('site-content')
@@ -20,7 +20,7 @@ export class SiteContentPublicController {
   @ApiDoc({
     summary: 'เนื้อหาหน้าแรก',
     description: 'Hero + การ์ดหมวด "คืนนี้อยากได้ฟีลไหน" ที่แอดมินแก้ได้ (view public_home_content, public_home_categories)',
-    returns: '`content` (หัวข้อ/คำโปรย/ช่องค้นหา/ภาพ Hero · ชื่อ section หมวด) · `categories` การ์ด 8 ช่องเรียงตามกริด (`slot` · `title` · `hint` · `link_to` · `icon` · `image_url` · `badge`)',
+    returns: '`content` (หัวข้อ/คำโปรย/ช่องค้นหา/ภาพ Hero · ชื่อ section หมวด) · `categories` การ์ด 8 ช่องเรียงตามกริด (`slot` · `title` · `hint` · `link_to` · `image_url` · `badge`)',
     auth: false,
     validates: false,
   })

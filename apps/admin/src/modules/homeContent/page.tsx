@@ -1,7 +1,6 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { ArrowSquareOut, PencilSimple } from '@phosphor-icons/react';
 import type { Db } from '@nightout/types';
-import { homeCategoryIcon } from '@nightout/ui';
 import { Button, Card } from 'antd';
 import { useState } from 'react';
 import { useAdminView } from '@/services/adminData';
@@ -38,10 +37,9 @@ export function HomeContentPage() {
         <HeroForm content={content.data?.[0]} />
 
         <Card title="การ์ดหมวด" loading={categories.isLoading}>
-          <p className="mb-4 text-sm opacity-70">ตำแหน่งบนกริดตายตัว กดการ์ดเพื่อแก้ภาพ ชื่อ คำอธิบาย ไอคอน หรือลิงก์</p>
+          <p className="mb-4 text-sm opacity-70">ตำแหน่งบนกริดตายตัว กดการ์ดเพื่อแก้ภาพ ชื่อ คำอธิบาย ป้าย หรือลิงก์</p>
           <ul className="grid auto-rows-[120px] grid-cols-2 gap-3 lg:grid-cols-4">
             {(categories.data ?? []).map((c) => {
-              const Icon = homeCategoryIcon(c.icon);
               return (
                 <li key={c.slot} className={SLOT_SPAN[c.slot] ?? ''}>
                   <button
@@ -52,10 +50,7 @@ export function HomeContentPage() {
                     style={{ backgroundImage: `url("${webSrc(c.image_url)}")` }}
                   >
                     <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
-                    <span className="relative flex items-center justify-between">
-                      <span className="flex size-7 items-center justify-center rounded-md bg-black/50 text-[#c58bff]">
-                        <Icon size={16} weight="duotone" />
-                      </span>
+                    <span className="relative flex justify-end">
                       <span className="flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                         <PencilSimple size={12} /> แก้
                       </span>

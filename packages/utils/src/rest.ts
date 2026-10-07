@@ -58,20 +58,25 @@ export function apiBaseUrlFromEnv(env: { VITE_API_BASE_URL?: string; VITE_API_UR
   return (env.VITE_API_BASE_URL || env.VITE_API_URL || (env.DEV ? 'http://localhost:3000/api' : '/api')).replace(/\/$/, '');
 }
 
-/** config ต่อ request ของ Rest — `retryable` = ส่งซ้ำได้โดยไม่เกิดผลซ้ำ (GET/HEAD ถือว่าได้อยู่แล้ว) */
+/** config ต่อ request ของ Rest — `retryable` = ส่งซ้ำได้โดยไม่เกิดผลซ้ำ (GET/HEAD/PUT/DELETE ถือว่าได้อยู่แล้ว) */
 export type RestRequestConfig = AxiosRequestConfig & { retryable?: boolean };
 
-type Timed = RestRequestConfig & { metadata?: { t0: number }; retried?: boolean };
+type Timed = RestRequestConfig & { metadata?: { t0: number }; attempt?: number };
 
 /**
- * ต่อไม่ติดแบบที่ลองใหม่แล้วมักผ่าน — เช่นกลับมาที่แท็บหลังทิ้งไว้นาน เบราว์เซอร์หยิบ connection เก่าที่ server ปิดไปแล้วมาใช้
- * ลองซ้ำ 1 ครั้งเฉพาะ request ที่ส่งซ้ำได้ (POST ที่เขียนข้อมูลไม่ลองซ้ำ กันบันทึกซ้ำ)
+ * หน่วงก่อนลองซ้ำแต่ละรอบ (รวม ~3.5 วิ) — พอให้ backend ที่ `node --watch` รีสตาร์ตตอน dev บูตเสร็จ
+ * และครอบเคสกลับมาที่แท็บหลังทิ้งไว้นาน (เบราว์เซอร์หยิบ connection ที่ server ปิดไปแล้วมาใช้) / เน็ตกระตุกสั้น ๆ
  */
+export const RETRY_DELAYS_MS = [500, 1000, 2000] as const;
+
+/** method ที่ส่งซ้ำแล้วผลเท่าเดิม (HTTP idempotent) — POST / PATCH ต้องตั้ง `retryable` เอง กันบันทึกซ้ำ */
+const IDEMPOTENT = new Set(['get', 'head', 'put', 'delete']);
+
+/** ลองซ้ำเฉพาะต่อไม่ติด (`ERR_NETWORK`) ของ request ที่ส่งซ้ำได้ และยังไม่ครบรอบ */
 const shouldRetry = (err: AxiosError) => {
   const c = err.config as Timed | undefined;
-  if (!c || c.retried || err.code !== AxiosError.ERR_NETWORK) return false;
-  const method = (c.method ?? 'get').toLowerCase();
-  return c.retryable === true || method === 'get' || method === 'head';
+  if (!c || err.code !== AxiosError.ERR_NETWORK || (c.attempt ?? 0) >= RETRY_DELAYS_MS.length) return false;
+  return c.retryable === true || IDEMPOTENT.has((c.method ?? 'get').toLowerCase());
 };
 
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -102,7 +107,7 @@ export class Rest {
         if (token) headers.set('Authorization', `Bearer ${token}`);
       }
       req.headers = headers;
-      (req as Timed).metadata = { t0: now() };
+      (req as Timed).metadata ??= { t0: now() };
       return req;
     });
 
@@ -116,9 +121,13 @@ export class Rest {
         if (!(err instanceof AxiosError)) return Promise.reject(err);
         const t0 = (err.config as Timed | undefined)?.metadata?.t0;
         if (!err.response && shouldRetry(err)) {
-          const retry = { ...(err.config as Timed), retried: true };
-          log.warn(`API ${describe(retry)} ต่อไม่ติด (${err.code}) — ลองใหม่อีกครั้ง`);
-          return new Promise((r) => setTimeout(r, 300)).then(() => client.request(retry));
+          const prev = err.config as Timed;
+          const attempt = (prev.attempt ?? 0) + 1;
+          const wait = RETRY_DELAYS_MS[attempt - 1];
+          log.warn(`API ${describe(prev)} ต่อไม่ติด (${err.code}) — ลองใหม่ครั้งที่ ${attempt}/${RETRY_DELAYS_MS.length} ใน ${wait}ms`);
+          // t0 เดิมคงไว้ → log สุดท้ายบอกเวลารวมทุกรอบ
+          const next: Timed = { ...prev, attempt };
+          return new Promise((r) => setTimeout(r, wait)).then(() => client.request(next));
         }
         if (!err.response) {
           // code บอกสาเหตุ: ERR_NETWORK = ต่อไม่ติด/CORS · ECONNABORTED = เกิน timeout · ERR_CANCELED = ถูกยกเลิก

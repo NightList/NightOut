@@ -67,6 +67,7 @@
 - รีวิวแนบรูป/วิดีโอได้สูงสุด 6 ไฟล์ (วิดีโอ ≤ 60 วิ / 60MB) · ของจริงเก็บ Supabase Storage `review-media` (migration 0003) · ตอนเลือกไฟล์: รูปเป็น data URL, วิดีโอพักใน IndexedDB (`services/mediaStore.ts`) แล้วอัปโหลดตอนส่งรีวิว
 - ธีมมืดเป็นค่าเริ่มต้น · หน้า Auth ไม่มีปุ่มเปลี่ยนธีม/ปุ่มเข้าสู่ระบบบน navbar (`<Navbar minimal />`)
 - ไม่มีโหมดเดโมแล้ว (เอาปุ่มเข้าเร็วเดโม/ปุ่มรีเซ็ตออก)
+- หน้าจัดการทีมงาน (`/team` Backoffice): **เพิ่ม / ลบ / สลับลำดับ เฉพาะ Super Admin** · แก้/ซ่อน: Super Admin ทุกแถว · Admin เฉพาะแถวที่ `contacts.email` ตรงกับอีเมลบัญชีตัวเอง (เปลี่ยนอีเมลนั้นไม่ได้) — DB ตรวจใน `admin_*_team_member*` (`…20261008000200`)
 
 ## ชื่อโปรเจกต์
 - ชื่อแบรนด์ **NightOut** (เดิม NightList) · package `@nightout/*` · QR เช็กอิน `NIGHTOUT:<booking id>` · key ใน localStorage/IndexedDB ขึ้นต้น `nightout-` · repo GitHub ยังชื่อ `genminigpt/NightList`

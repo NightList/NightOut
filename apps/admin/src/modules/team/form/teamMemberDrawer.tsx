@@ -53,15 +53,18 @@ const MAX_PHOTO = 10 * 1024 * 1024;
 
 /**
  * เพิ่ม / แก้ทีมงาน 1 คน — member = null คือเพิ่มใหม่
+ * lockEmail = แอดมินทั่วไป: อีเมลคือตัวผูกแถวกับบัญชี เปลี่ยนไม่ได้ (DB ตอบ TEAM_MEMBER_EMAIL_LOCKED)
  * รูปย่อเป็น webp แล้วอัปโหลดเข้า team-photos ทันทีที่เลือก (ยังไม่บันทึกจนกด "บันทึก")
  */
 export function TeamMemberDrawer({
   open,
   member,
+  lockEmail = false,
   onClose,
 }: {
   open: boolean;
   member: Db.AdminTeamMember | null;
+  lockEmail?: boolean;
   onClose: () => void;
 }) {
   const { message } = App.useApp();
@@ -229,18 +232,12 @@ export function TeamMemberDrawer({
             placeholder="เล่าสั้นๆ ว่าทำอะไรในทีม"
           />
         </Form.Item>
-        <Form.Item
-          name="skills"
-          label="ทักษะ"
-          extra="พิมพ์แล้วกด Enter · สูงสุด 20"
-          rules={[{ type: 'array', max: 20, message: 'ใส่ได้สูงสุด 20 ทักษะ' }]}
-        >
+        <Form.Item name="skills" label="ทักษะ" extra="พิมพ์แล้วกด Enter · สูงสุด 20">
           <Select
             mode="tags"
             tokenSeparators={[',']}
             placeholder="เช่น React, NestJS"
             open={false}
-            maxCount={20}
           />
         </Form.Item>
 
@@ -256,6 +253,11 @@ export function TeamMemberDrawer({
               key={f.key}
               name={['contacts', f.key]}
               label={f.label}
+              extra={
+                lockEmail && f.kind === 'email'
+                  ? 'อีเมลบัญชีของคุณ — เปลี่ยนได้เฉพาะซูเปอร์แอดมิน'
+                  : undefined
+              }
               rules={
                 f.kind === 'url'
                   ? [
@@ -274,6 +276,7 @@ export function TeamMemberDrawer({
               <Input
                 placeholder={f.placeholder}
                 inputMode={f.kind === 'phone' ? 'tel' : f.kind === 'email' ? 'email' : undefined}
+                disabled={lockEmail && f.kind === 'email'}
                 allowClear
               />
             </Form.Item>

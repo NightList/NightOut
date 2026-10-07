@@ -1,6 +1,6 @@
 import type { AxiosAdapter } from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, apiBaseUrlFromEnv, Rest } from './rest';
+import { ApiError, apiBaseUrlFromEnv, Rest, RETRY_DELAYS_MS } from './rest';
 
 /** adapter ปลอม — จับ request แล้วตอบตามที่กำหนด (ไม่ยิงเน็ตจริง) */
 function fakeAdapter(status: number, data: unknown, seen: { url?: string; auth?: string; method?: string }[] = []): AxiosAdapter {
@@ -51,6 +51,61 @@ describe('Rest (HTTP client กลาง)', () => {
   it('uses unauthorizedCode for 401 when configured', async () => {
     configure(fakeAdapter(401, { message: 'Invalid token' }), { unauthorizedCode: 'MFA_REQUIRED' });
     await expect(Rest.patch('/admin/x', {})).rejects.toMatchObject({ status: 401, code: 'MFA_REQUIRED' });
+  });
+
+  describe('retry on ERR_NETWORK', () => {
+    /** ต่อไม่ติด failures ครั้งแรก แล้วค่อยตอบ 200 */
+    function flaky(failures: number, seen: string[]): AxiosAdapter {
+      return async (config) => {
+        seen.push(config.method ?? '');
+        if (seen.length <= failures) {
+          const { AxiosError } = await import('axios');
+          throw new AxiosError('Network Error', AxiosError.ERR_NETWORK, config);
+        }
+        return { data: { ok: true }, status: 200, statusText: '', headers: {}, config };
+      };
+    }
+
+    afterEach(() => vi.useRealTimers());
+
+    it('retries idempotent methods until the backend is back (e.g. dev restart)', async () => {
+      vi.useFakeTimers();
+      for (const call of [() => Rest.put('/admin/team-members/order', { ids: [] }), () => Rest.delete('/x/1'), () => Rest.get('/x')]) {
+        const seen: string[] = [];
+        configure(flaky(RETRY_DELAYS_MS.length, seen));
+        const p = call();
+        await vi.runAllTimersAsync();
+        await expect(p).resolves.toEqual({ ok: true });
+        expect(seen).toHaveLength(RETRY_DELAYS_MS.length + 1);
+      }
+    });
+
+    it('gives up after the last delay with a Thai connection error', async () => {
+      vi.useFakeTimers();
+      const seen: string[] = [];
+      configure(flaky(99, seen));
+      const p = Rest.put('/x', {}).catch((e: unknown) => e);
+      await vi.runAllTimersAsync();
+      expect(await p).toMatchObject({ status: 0 });
+      expect(seen).toHaveLength(RETRY_DELAYS_MS.length + 1);
+    });
+
+    it('does not retry POST / PATCH unless marked retryable', async () => {
+      vi.useFakeTimers();
+      for (const call of [() => Rest.post('/bookings', {}), () => Rest.patch('/x', {})]) {
+        const seen: string[] = [];
+        configure(flaky(1, seen));
+        await expect(call()).rejects.toMatchObject({ status: 0 });
+        expect(seen).toHaveLength(1);
+      }
+
+      const seen2: string[] = [];
+      configure(flaky(1, seen2));
+      const p = Rest.post('/storage/upload-url', {}, { retryable: true });
+      await vi.runAllTimersAsync();
+      await expect(p).resolves.toEqual({ ok: true });
+      expect(seen2).toEqual(['post', 'post']);
+    });
   });
 
   it('resolves base URL from Vite env', () => {

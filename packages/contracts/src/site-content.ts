@@ -11,30 +11,6 @@ export const HOME_CATEGORY_SLOTS = ['popular', 'pub', 'food', 'live', 'rooftop',
 export const HomeCategorySlot = z.enum(HOME_CATEGORY_SLOTS);
 export type HomeCategorySlot = z.infer<typeof HomeCategorySlot>;
 
-/** ไอคอนที่เลือกได้ (Phosphor · ตัวแปลง key → ไอคอนอยู่ใน @nightout/ui `HOME_CATEGORY_ICONS`) */
-export const HOME_CATEGORY_ICON_KEYS = [
-  'crown',
-  'martini',
-  'fork-knife',
-  'music-notes',
-  'buildings',
-  'armchair',
-  'tree',
-  'disco-ball',
-  'beer-stein',
-  'wine',
-  'champagne',
-  'microphone-stage',
-  'cocktail',
-  'moon-stars',
-  'fire',
-  'heart',
-  'users-three',
-  'sparkle',
-] as const;
-export const HomeCategoryIcon = z.enum(HOME_CATEGORY_ICON_KEYS);
-export type HomeCategoryIcon = z.infer<typeof HomeCategoryIcon>;
-
 const imageUrl = z
   .string()
   .trim()
@@ -70,7 +46,6 @@ export const UpdateHomeCategoryBody = z
     title: line(30).describe('ชื่อหมวดบนการ์ด'),
     hint: z.string().trim().max(60).describe('คำอธิบายสั้นใต้ชื่อ'),
     link_to: internalLink.describe('กดการ์ดแล้วไปไหน'),
-    icon: HomeCategoryIcon,
     image_url: imageUrl.describe('ภาพพื้นการ์ด'),
     badge: z.string().trim().max(30).nullable().describe('ป้ายเล็กเหนือชื่อ เช่น "อันดับประจำสัปดาห์" · null = ไม่มี'),
   })
@@ -94,7 +69,6 @@ export interface HomeCategory {
   title: string;
   hint: string;
   link_to: string;
-  icon: HomeCategoryIcon;
   image_url: string;
   badge: string | null;
   updated_at: string;
