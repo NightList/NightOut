@@ -6,8 +6,18 @@
 - เจ้าของ repo เป็นคน merge `demo → main` เมื่อทดสอบแล้ว
 
 ## Commit
+- **AI agent ห้าม `git commit`, `git push` และ merge (`git merge`, `gh pr merge`, auto-merge) เด็ดขาด** — agent แก้โค้ดได้อย่างเดียว คน commit/push/merge เอง (บังคับด้วย `permissions.deny` ใน `.claude/settings.json`) · agent ร่างข้อความ commit ให้ได้
 - ใช้ Conventional Commits เช่น `feat(api): ...`, `fix(web): ...`, `docs: ...`
 - 1 commit = 1 เรื่อง
+
+## ขั้นตอนทำงาน (ทุกงาน)
+1. **ก่อนเริ่ม — ของนอกแผนต้องถามก่อน**: ฟีเจอร์ / โมดูล / หน้า / โดเมนที่ไม่มีใน MVP หรือ roadmap (`docs/PROMPT.md` หัวข้อ "Development Phases" + "ไม่ทำใน MVP", `README.md` หัวข้อ Roadmap) และไม่อยู่ใน "กฎธุรกิจที่ตกลงแล้ว" ของไฟล์นี้ **ต้องถามก่อนเริ่มงานทุกครั้ง** · ถ้าตรงกับรายการ "ไม่ทำใน MVP" ต้องบอกให้ชัดตอนถาม
+2. **ก่อนเริ่ม — ฟีเจอร์หน้าบ้านต้องคู่กับหลังบ้าน**: ฟีเจอร์ใหม่ใน `apps/frontend` ที่มีข้อมูลให้ทีม NightOut ดูแล (สร้าง/แก้/อนุมัติ/ตรวจ/ลบ) ส่วนใหญ่ต้องมีหน้าจัดการใน `apps/admin` ของโดเมนเดียวกัน · ถ้าโจทย์ไม่ได้ระบุว่าต้องมีหรือไม่ต้องมีหน้าหลังบ้าน **ต้องถามก่อนเริ่มงานทุกครั้ง** (ห้ามเดาเอง)
+3. **ทำงาน** — ตามโครงโดเมน (ADR 0006) และ checklist "เพิ่ม/แก้ endpoint" ด้านล่าง · **เพิ่ม / ลบ / เปลี่ยนชื่อโมดูล** (หน้าใน `modules/` หรือโดเมนใน `domains/`) ต้องแก้ทะเบียน `docs/STRUCTURE.md` ในงานเดียวกัน · **เพิ่ม / ลบ / เปลี่ยน route** (ทั้ง `apps/frontend` และ `apps/admin`) ต้องแก้ `docs/SITEMAP.md` ในงานเดียวกันเสมอ (ตาราง + แผนภาพข้อ 1 + Navigation ถ้ากระทบ) · ของนอกแผนที่ตกลงแล้ว Phase = `นอก MVP — อนุมัติ YYYY-MM-DD`
+4. **จบงาน — refactor**: เก็บกวาดเฉพาะโค้ดที่แก้ในงานนั้น (ลบโค้ดซ้ำ/โค้ดตาย ตั้งชื่อให้ชัด แยก custom hook/util ให้ตรงโครงโฟลเดอร์) · ห้ามลามไปไฟล์ที่ไม่ได้แตะ · พฤติกรรมต้องเหมือนเดิม แล้วรัน `pnpm lint && pnpm typecheck && pnpm test && pnpm build` ให้ผ่าน
+5. **จบงาน — บันทึกประวัติ**: ทุก module ที่แก้ ต้องเพิ่มรายการใน `CHANGELOG.md` ของโฟลเดอร์นั้น (ไม่มีไฟล์ = สร้างใหม่)
+   - ที่อยู่: `apps/frontend/src/modules/<module>/CHANGELOG.md` · `apps/admin/src/modules/<module>/CHANGELOG.md` · `apps/backend/src/domains/<domain>/CHANGELOG.md` · `packages/<package>/CHANGELOG.md`
+   - รูปแบบ: รายการใหม่อยู่บนสุด · หัวข้อ `## YYYY-MM-DD — <ชื่องานสั้นๆ>` · ใต้หัวข้อเป็น bullet ว่าแก้อะไร/ทำไม (ภาษาคน ไม่ต้องใส่ diff) + ไฟล์หลักที่แตะ · ถ้ามี migration/endpoint ใหม่ให้ระบุชื่อ
 
 ## สเปค
 - สเปคหลักอยู่ที่ `docs/PROMPT.md` ถ้าสเปคเปลี่ยน ให้อัปเดตไฟล์นี้ใน branch `demo`
@@ -19,7 +29,7 @@
 - ก่อนเขียนโค้ด antd: `antd info <Component> --format json` / หลังแก้: `antd lint <path> --format json`
 - Tailwind ใช้กับ layout/ตกแต่งเท่านั้น, ไอคอนใช้ Phosphor (`@phosphor-icons/react`) ห้ามใช้ `@ant-design/icons`
 - `.claude/skills/frontend-design` (จาก anthropics/claude-code) ใช้ตอนออกแบบ/ปรับหน้าจอ — แต่ Figma + Midnight Gold คือโจทย์หลัก ห้ามหลุดธีม
-- สถาปัตยกรรมและ route อ้างอิง `docs/ARCHITECTURE.md` และ `docs/SITEMAP.md`
+- สถาปัตยกรรมและ route อ้างอิง `docs/ARCHITECTURE.md` และ `docs/SITEMAP.md` · รายชื่อโมดูลทั้งหมด `docs/STRUCTURE.md`
 
 ## โครงโฟลเดอร์ (apps/frontend, apps/admin)
 - 1 หน้า = `src/modules/<ชื่อหน้า camelCase>/page.tsx` · ของใช้เฉพาะหน้าไว้ใน `components/ type/ form/ modal/ utils/` ของโมดูลนั้น
@@ -62,7 +72,7 @@
 - ชื่อแบรนด์ **NightOut** (เดิม NightList) · package `@nightout/*` · QR เช็กอิน `NIGHTOUT:<booking id>` · key ใน localStorage/IndexedDB ขึ้นต้น `nightout-` · repo GitHub ยังชื่อ `genminigpt/NightList`
 
 ## โครงโค้ดตามโดเมน (ADR 0006 — `docs/adr/0006-domain-sliced-api-and-shared-contracts.md`)
-- **1 เรื่องธุรกิจ = ชื่อโดเมนเดียวกันใน 4 ที่** — ไล่เรื่องไหน grep ชื่อโดเมนนั้น: `catalog` `booking` `deposit` `review` `bar` `bar-team` `account` `promotion` `billing` `site-team` `storage` `pricing` `backoffice`
+- **1 เรื่องธุรกิจ = ชื่อโดเมนเดียวกันใน 4 ที่** — ไล่เรื่องไหน grep ชื่อโดเมนนั้น: `catalog` `booking` `deposit` `review` `bar` `bar-team` `account` `promotion` `billing` `site-team` `site-content` `storage` `pricing` `backoffice`
   1. `packages/contracts/src/<domain>.ts` — zod ของ body/query + type ของ response + `<DOMAIN>_ERRORS` (ไม่มี Nest/React) · `ERROR_MESSAGES` รวมอยู่ใน `errors.ts`
   2. `apps/backend/src/domains/<domain>/` — `<domain>.module.ts` · `<domain>.{public,me,merchant,admin}.controller.ts` (แยกตามคนเรียก · guard ต่างกัน) · `<domain>.dto.ts` = `class XDto extends createZodDto(C.XBody)` · `<domain>.service.ts` เฉพาะที่มี logic มากกว่าเรียก rpc 1 ครั้ง
   3. `apps/frontend/src/services/api/<domain>.ts` (เรียก `Rest` · body `satisfies C.XBody` · response `C.XResult` · เขียนแล้ว `refresh()`) + `services/queries/<domain>.ts` (hook TanStack · key จาก `queries/keys.ts`) + `services/mappers/<domain>.ts` (แถว view → model) · **หน้า import ผ่าน `services/data.ts` เท่านั้น** (re-export) · Backoffice: `apps/admin/src/services/api|queries/<domain>.ts` + หน้าต่าง `adminData.ts`
@@ -83,7 +93,7 @@
 4. **type ของแถว** — `packages/types/src/database.ts` (`Db.*`) + รัน `db:types` หลัง `db:push` · response ที่หน้าเว็บใช้ต้องตรงกับ API (อย่าซ่อน/กรองค่าเงียบๆ ใน mapper)
 5. **หน้าเว็บ** — เขียน: ฟังก์ชันใน `services/api/<domain>.ts` · อ่านสด: `fetchX` ใน api + hook ใน `services/queries/<domain>.ts` (key ใน `queries/keys.ts`) · ข้อมูลที่อยู่ใน catalog/overview: mapper ใน `services/mappers/<domain>.ts` · แล้ว re-export ใน `services/data.ts` · Backoffice: `useAdminView` / `useAdminAction` (`method` POST/PATCH/PUT/DELETE · `success` เป็นข้อความหรือฟังก์ชันจากผล API)
 6. **logic ที่ทั้งหน้าเว็บและ backend ใช้** (ข้อความเงื่อนไข, เบอร์โทร, ราคา, state machine) → `packages/utils` + เทสต์ (utils ห้าม import contracts — contracts พึ่ง utils)
-7. **เอกสาร** — `docs/DATABASE.md` (ข้อ 5.0 + migration + endpoint), `docs/SITEMAP.md` (หน้า), กฎธุรกิจใหม่ใส่หัวข้อด้านบนของไฟล์นี้, การตัดสินใจเชิงโครงสร้าง = ADR ใหม่ใน `docs/adr/`
+7. **เอกสาร** — `docs/DATABASE.md` (ข้อ 5.0 + migration + endpoint), `docs/SITEMAP.md` (หน้า), `docs/STRUCTURE.md` (โมดูล/โดเมนใหม่), กฎธุรกิจใหม่ใส่หัวข้อด้านบนของไฟล์นี้, การตัดสินใจเชิงโครงสร้าง = ADR ใหม่ใน `docs/adr/`
 8. **ทดสอบ** — `pnpm lint && pnpm typecheck && pnpm test && pnpm build` · migration ลองกับ Postgres ในเครื่องก่อน push (`supabase db reset` หรือรันไฟล์ใน DB เปล่า) · เช็กสิทธิ์ด้วย token ของ role จริง (anon / ลูกค้า / ทีมร้าน / แอดมิน aal2)
 
 ## หน้าแรก (พื้นหลัง Hero)

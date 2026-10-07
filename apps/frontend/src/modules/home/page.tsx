@@ -6,6 +6,7 @@ import { Hero } from './components/hero';
 import { Newsletter } from './components/newsletter';
 import { PopularGrid } from './components/popularGrid';
 import { WeeklySpotlight } from './components/weeklySpotlight';
+import { useHomeContent } from './utils/useHomeContent';
 
 /**
  * / — หน้าแรก
@@ -14,19 +15,25 @@ import { WeeklySpotlight } from './components/weeklySpotlight';
  */
 export function HomePage() {
   useDemo();
+  // Hero + การ์ดหมวด แอดมินแก้ได้ที่ Backoffice (GET /public/home) · ยังไม่มา = ค่าตั้งต้น
+  const { content, categories, heroPending } = useHomeContent();
   const popular = listBars({ sort: 'rating' }).slice(0, 8);
   // อันดับประจำสัปดาห์ตามโหวต (เดียวกับหน้า /ranking) — ไม่ซ้ำกับกริดยอดนิยมที่เรียงตามคะแนนรีวิว
   const weekly = rankingByPeriod('WEEK').slice(0, 3);
 
   return (
     <>
-      <Hero />
+      <Hero content={content} imagePending={heroPending} />
       {/* ทุกส่วนใต้ Hero อยู่บนพื้นหลัง aurora เดียวกัน (<AuroraBackdrop>) — ซ้อนขึ้นทับ Hero ให้เห็นหมวดหมู่ตั้งแต่จอแรก · ธีมสว่างใช้พื้นเรียบ */}
       <div className="relative isolate z-10 -mt-28 md:-mt-36">
         <AuroraBackdrop />
 
         <div className="bg-gradient-to-b from-transparent via-background/80 to-background pt-24 md:pt-28 dark:bg-none">
-          <CategoryGrid />
+          <CategoryGrid
+            eyebrow={content.categories_eyebrow}
+            title={content.categories_title}
+            categories={categories}
+          />
         </div>
 
         <div className="space-y-16 pb-10 pt-14 md:space-y-24 md:pb-14 md:pt-20">

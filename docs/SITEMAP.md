@@ -1,6 +1,8 @@
 # NightOut — Sitemap
 
-> สถานะ: **Draft v0.3** · ใช้คู่กับ [`ARCHITECTURE.md`](ARCHITECTURE.md) · **Figma:** ✅ มีแบบแล้ว · 🟡 มี wireframe · ⬜ ยังไม่มี
+> สถานะ: **Draft v0.3** · ใช้คู่กับ [`ARCHITECTURE.md`](ARCHITECTURE.md) และ [`STRUCTURE.md`](STRUCTURE.md) (route → โมดูล) · **Figma:** ✅ มีแบบแล้ว · 🟡 มี wireframe · ⬜ ยังไม่มี · 📝 = path ที่วางแผนไว้แต่ยังไม่มีใน `src/router/index.tsx`
+>
+> **เพิ่ม / ลบ / เปลี่ยน route ต้องแก้ไฟล์นี้ในงานเดียวกัน** (ตาราง + แผนภาพข้อ 1 + Navigation ถ้ากระทบ) คู่กับ [`STRUCTURE.md`](STRUCTURE.md)
 
 ## 1. ภาพรวม
 
@@ -18,12 +20,14 @@ flowchart TD
   PUB --> SEARCH["/search ค้นหา"]
   PUB --> BAR["/bars/:slug หน้าร้าน"]
   PUB --> SHARE["/share/:token บัตรจอง"]
+  PUB --> MAP["/map แผนที่"]
   PUB --> INFO["/about (+ /contact) · /terms · /privacy · /cookies"]
 
   AUTH --> LOGIN["/login"]
   AUTH --> REG["/register"]
   AUTH --> FGT["/forgot-password · /reset-password"]
   AUTH --> VER["/verify-email"]
+  AUTH --> INV["/accept-invite"]
   AUTH --> ONB["/onboarding"]
 
   BAR --> BOOK["/bars/:slug/book จอง"]
@@ -32,19 +36,21 @@ flowchart TD
 
   ME --> MYB["/bookings การจองของฉัน"]
   ME --> FAV["/favorites"]
-  ME --> MYR["/reviews รีวิวของฉัน"]
+  ME --> MYR["/reviews รีวิวของฉัน · /reviews/new"]
   ME --> NOTI["/notifications"]
   ME --> PROF["/profile · /settings"]
+  ME --> JOIN["/merchant/join · /merchant/status"]
 
   MER --> MD["/merchant แดชบอร์ด"]
   MER --> TON["/merchant/tonight Scanner"]
-  MER --> MB["/merchant/bookings"]
-  MER --> MS["/merchant/store ข้อมูลร้าน"]
-  MER --> MP["/merchant/promote"]
+  MER --> MB["/merchant/bookings · /deposits"]
+  MER --> MS["/merchant/store · /menu · /tables · /safety · /promotions · /settings"]
+  MER --> MP["/merchant/promote · /reviews · /analytics · /billing · /staff"]
 
   ADM --> AD["/ แดชบอร์ด"]
-  ADM --> AR["/bars · /merchants · /safety"]
-  ADM --> AB["/billing · /promotions"]
+  ADM --> AR["/bars · /merchants · /safety · /ranking"]
+  ADM --> AB["/billing · /promotions · /deposits · /bookings · /reviews"]
+  ADM --> AU["/users · /team · /home-content · /audit-logs · /settings"]
 ```
 
 **Access:** 🌐 ทุกคน · 👤 ลูกค้าที่ล็อกอิน · 🏪 เจ้าของร้าน · 🧑‍🍳 Staff · 🛡️ Admin
@@ -58,9 +64,9 @@ flowchart TD
 ### สาธารณะ
 | Path | หน้า | Access | ส่วนประกอบหลัก | Figma |
 |---|---|---|---|---|
-| `/` | หน้าแรก | 🌐 | Hero, การ์ดหมวดหมู่ (8 หมวด → /search, /ranking), อันดับประจำสัปดาห์ (แบนเนอร์อันดับ 1 + การ์ดอันดับ 2–3), ร้านยอดนิยม (กริด 8 ร้าน + ปุ่มจองโต๊ะ), แบนเนอร์สมัครข่าวสาร | ⬜ (มีภาพ mockup) |
+| `/` | หน้าแรก | 🌐 | Hero, การ์ดหมวด "คืนนี้อยากได้ฟีลไหน" (bento 8 ช่อง → /search, /ranking · Hero + การ์ดแก้ได้จาก Backoffice `/home-content`), อันดับประจำสัปดาห์ (แบนเนอร์อันดับ 1 + การ์ดอันดับ 2–3), ร้านยอดนิยม (กริด 8 ร้าน + ปุ่มจองโต๊ะ), แบนเนอร์สมัครข่าวสาร | ⬜ (มีภาพ mockup) |
 | `/ranking` | จัดอันดับ (รายสัปดาห์ / รายเดือน) | 🌐 | Hero วงล้อการ์ดหมุน (GSAP + scroll), สลับ สัปดาห์/เดือน + ประเภทร้าน (?period=&category=), แท่น 3 อันดับกางเป็นพัดตามการเลื่อน + ตัวเลขโหวตนับขึ้น, อันดับ 4–10 พร้อมป้ายคะแนนรีวิว (Figma "จัดอันดับ") | ✅ |
-| `/ranking/:category/:district?` | จัดอันดับตามหมวด/ย่าน | 🌐 | เหมือนด้านบน (URL แชร์ได้, SEO) | ⬜ |
+| `/ranking/:category/:district?` | จัดอันดับตามหมวด/ย่าน (📝 ยังไม่มีใน router) | 🌐 | เหมือนด้านบน (URL แชร์ได้, SEO) | ⬜ |
 | `/search` | ค้นหา | 🌐 | ช่องค้นหา, ตัวกรอง (ย่าน/ประเภท/งบ/เวลาว่าง/ความปลอดภัย), ผลแบบ list + แผนที่ | ⬜ |
 | `/bars/:slug` | หน้าร้าน | 🌐 | รูป, ดาว (ระดับร้าน), Crowd, PR ชาย/หญิง, โปรโมชัน, แผนที่ + นำทาง, Safety, เมนูราคา (อ้างอิง), รีวิว, ลิงก์โซเชียล, แถบ "ประเมินราคา / จองเลย" | ✅ Card ร้าน |
 | `/bars/:slug/reviews` | รีวิวทั้งหมด | 🌐 | รีวิวทั้งหมด, กรอง "มีรูป/วิดีโอ", ปุ่มเขียนรีวิว (เมื่อเช็กอินแล้ว), ดูรูปเต็มจอ / เล่นวิดีโอ | ⬜ |
@@ -106,7 +112,7 @@ flowchart TD
 | `/merchant` | แดชบอร์ด | 🏪 | จองวันนี้, อัตราเช็กอิน / No-show, ดาว, ช่วงทดลองใช้ |
 | `/merchant/tonight` | คืนนี้ (Scanner) | 🏪🧑‍🍳 | สแกน QR, รายการจองคืนนี้, ปุ่ม Crowd Status · **Dark เสมอ** |
 | `/merchant/bookings` | การจอง | 🏪 | ปฏิทิน / รายการ, ยืนยัน / ปฏิเสธ · รายละเอียด → "จัดการหน้างาน" (ทุกคนในทีมรวม PR): **ย้ายโต๊ะ** (เลือกโต๊ะที่ว่าง) · **ยืนยันการคืนเงิน** (มัดจำเข้าคิวให้ NightOut โอนคืน) |
-| `/merchant/bookings/:id` | รายละเอียดการจอง | 🏪 | ประวัติสถานะ, โปรที่ลูกค้าเลือก, สถานะเงินมัดจำ |
+| `/merchant/bookings/:id` | รายละเอียดการจอง (📝 ยังไม่มีใน router) | 🏪 | ประวัติสถานะ, โปรที่ลูกค้าเลือก, สถานะเงินมัดจำ |
 | `/merchant/deposits` | เงินมัดจำ | 🏪 | ยอดที่ NightOut ถือไว้ / รอโอน / โอนแล้ว / เครดิต + รายการ (แอดมินเป็นคนตรวจสลิป) |
 | `/merchant/store` | ข้อมูลร้าน | 🏪 | ชื่อ, รูป, เวลาเปิด-ปิด, styles, ลิงก์ |
 | `/merchant/safety` | ความปลอดภัย | 🏪 | checklist + อัปโหลดหลักฐาน |
@@ -129,13 +135,14 @@ flowchart TD
 | `/login` | เข้าสู่ระบบ (email + password) + TOTP MFA | Form |
 | `/` | แดชบอร์ด | ยอดจอง, ร้านใหม่, รายการรอตรวจ |
 | `/merchants` | ร้านรออนุมัติ | ProTable + Drawer ตรวจเอกสาร |
-| `/bars` · `/bars/:id` | จัดการร้าน | ProTable, ระงับ / เปิด, Editor's Pick |
+| `/bars` · `/bars/:id` | จัดการร้าน (📝 `/bars/:id` ยังไม่มีใน router) | ProTable, ระงับ / เปิด, Editor's Pick |
 | `/safety` | ยืนยัน Safety | ProTable + หลักฐาน + รายงานจากลูกค้า |
 | `/ranking` | ดาว / อันดับ | คะแนนรายเดือน, ปักหมุด |
 | `/promotions` | โปรโมท | แพ็กเกจ, ตรวจสลิป, ช่องว่างต่อย่าน |
 | `/deposits` | เงินมัดจำ | ตรวจสลิปที่โอนเข้า NightOut (ไม่ผ่าน = เลือกเหตุผลจาก dropdown · "สลิปปลอม" ติดธง ครบ 2 ครั้งแบนบัญชี + เบอร์), ถือไว้, รอโอนให้ร้าน (โอนแล้ว / เก็บเป็นเครดิต), รอคืนลูกค้า (เหตุผล + คนในร้านที่อนุมัติ), จบแล้ว |
 | `/users` | ผู้ใช้ | ProTable, role · เบอร์ · สถานะการจอง (ถูกแบน / ธงสลิปปลอม + ปุ่มปลดแบน) · ปุ่ม "เพิ่มผู้ใช้" (ลูกค้า / แอดมิน / เจ้าของ / ผู้จัดการ / พนักงานร้าน + เลือกร้าน · รหัสสุ่มแสดงครั้งเดียว) |
 | `/team` | จัดการทีมงาน | ทีมงานหน้า /about: เพิ่ม/แก้ (Drawer: รูป, ตำแหน่ง, แนะนำตัว, ทักษะ, ช่องทางติดต่อ), ซ่อน/แสดง, เลื่อนลำดับ, ลบ |
+| `/home-content` | หน้าแรก | แก้ Hero (หัวข้อ 3 ท่อน, คำโปรย, ช่องค้นหา, ภาพพื้น / กลับไปภาพตั้งต้น) + ชื่อ section หมวด · การ์ดหมวด 8 ช่อง (Drawer: ภาพ, ชื่อ, คำอธิบาย, ไอคอน, ลิงก์, ป้าย) · ตำแหน่งบนกริดตายตัว |
 | `/bookings` | การจอง | ค้นหา / ดูประวัติสถานะ |
 | `/reviews` | รีวิวที่ถูกรายงาน | moderation |
 | `/billing` | ค่าคอม | commission rules, billing events, invoice |

@@ -2,7 +2,6 @@ import { ArrowRight, Crown } from '@phosphor-icons/react';
 import { Link } from 'react-router';
 import { SectionHeader } from '@/ui/components/sectionHeader';
 import type { HomeCategory } from '../type/category';
-import { CATEGORIES } from '../utils/categories';
 
 /**
  * ตำแหน่งบนกริดแบบ bento — เดสก์ท็อป 4 คอลัมน์ × 3 แถว:
@@ -16,19 +15,27 @@ const SPAN: Record<string, string> = {
 
 /**
  * "คืนนี้อยากได้ฟีลไหน" — การ์ดภาพเต็มใบ + ไล่เข้มด้านล่าง · ไอคอนหมวดมุมซ้ายบน · ชื่อ/คำอธิบาย + ปุ่มลูกศรด้านล่าง
- * การ์ดเด่น (มี badge) ใช้ป้ายและปุ่มสีทอง ที่เหลือปุ่มม่วง
+ * เนื้อหา (ชื่อ/คำอธิบาย/ลิงก์/ไอคอน/ภาพ/ป้าย) มาจาก useHomeContent — แอดมินแก้ได้ · ตำแหน่งบนกริดตายตัวตาม key
  */
-export function CategoryGrid() {
+export function CategoryGrid({
+  eyebrow,
+  title,
+  categories,
+}: {
+  eyebrow: string;
+  title: string;
+  categories: HomeCategory[];
+}) {
   return (
     <section aria-labelledby="home-categories" className="mx-auto max-w-7xl px-4 md:px-8">
       <SectionHeader
         id="home-categories"
-        eyebrow="เลือกตามสไตล์"
-        title="คืนนี้อยากได้ฟีลไหน"
+        eyebrow={eyebrow || undefined}
+        title={title}
         to="/search"
       />
       <ul className="grid auto-rows-[150px] grid-cols-2 gap-3 md:auto-rows-[190px] md:gap-4 lg:grid-cols-4 lg:auto-rows-[200px]">
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <li key={c.key} className={SPAN[c.key] ?? ''}>
             <CategoryCard category={c} />
           </li>
@@ -40,7 +47,8 @@ export function CategoryGrid() {
 
 function CategoryCard({ category: c }: { category: HomeCategory }) {
   const Icon = c.icon;
-  const featured = Boolean(c.badge);
+  // การ์ดใหญ่ (ช่อง popular) ใช้ตัวอักษรใหญ่ + ปุ่มทอง · ป้ายแสดงได้ทุกช่องถ้าแอดมินใส่
+  const featured = c.key === 'popular';
   return (
     <Link
       to={c.to}

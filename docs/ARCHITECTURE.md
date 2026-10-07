@@ -115,6 +115,7 @@ apps/frontend/src/
 │   └── utils/            # format.ts ฯลฯ
 └── styles/index.css      # Tailwind + @layer + class ตกแต่งเล็กน้อย
 ```
+- รายชื่อโมดูลทั้งหมดของทั้งสองแอป → [STRUCTURE.md](STRUCTURE.md) (เพิ่ม/ลบ/เปลี่ยนชื่อโมดูลต้องแก้ไฟล์นั้นด้วย)
 - กติกา: ของที่ใช้ **หน้าเดียว** อยู่ใน `modules/<หน้า>/components|type|form|modal|utils` · ใช้ **หลายหน้า** ย้ายไป `ui/` หรือ `hooks/`
 - ชื่อไฟล์ component เป็น camelCase (`barCard.tsx`) ส่วน export เป็น PascalCase (`BarCard`)
 - รูป/วิดีโอใน `public/images/<module>/` และ `public/videos/`
@@ -230,9 +231,12 @@ apps/backend/
 | `promotion` | โปรโมทร้าน: ซื้อแพ็กเกจ ตรวจคำสั่งซื้อ | merchant · admin |
 | `billing` | ค่าคอมของร้าน | merchant |
 | `site-team` | ทีมงาน NightOut หน้า /about | public · admin |
+| `site-content` | เนื้อหาหน้าแรก: Hero ชื่อ section การ์ดหมวด | public · admin |
 | `storage` | URL อัปโหลด / URL ชั่วคราว | (controller เดียว) |
 | `pricing` | ประเมินราคา (ไม่แตะ DB) | public |
 | `backoffice` | การอ่านของหน้าแอดมิน: แดชบอร์ด view admin_* ตาราง master | admin |
+
+รายชื่อโมดูลทั้งหมด (หน้า + โดเมน + Phase) → [STRUCTURE.md](STRUCTURE.md)
 
 ### Request pipeline (จริง)
 ```mermaid

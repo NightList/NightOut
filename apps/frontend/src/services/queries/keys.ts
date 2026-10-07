@@ -25,3 +25,7 @@ export const siteTeamKeys = {
   all: ['site-team'] as const,
   public: ['site-team', 'public'] as const,
 };
+export const siteContentKeys = {
+  all: ['site-content'] as const,
+  home: ['site-content', 'home'] as const,
+};

@@ -21,6 +21,8 @@ export interface AdminViewRows {
   admin_audit_logs: Db.AdminAuditLog;
   admin_bar_promotions: Db.AdminBarPromotion;
   admin_team_members: Db.AdminTeamMember;
+  admin_home_content: Db.AdminHomeContent;
+  admin_home_categories: Db.AdminHomeCategory;
 }
 
 /** ตัวกรองแบบง่าย: [คอลัมน์, ค่า] = eq · [คอลัมน์, ค่า[]] = in */

@@ -16,6 +16,7 @@ import { PricingModule } from './domains/pricing/pricing.module';
 import { PromotionModule } from './domains/promotion/promotion.module';
 import { ReviewModule } from './domains/review/review.module';
 import { SiteTeamModule } from './domains/site-team/site-team.module';
+import { SiteContentModule } from './domains/site-content/site-content.module';
 import { StorageModule } from './domains/storage/storage.module';
 import { HealthController } from './health/health.controller';
 import { JobsController } from './jobs/jobs.controller';
@@ -41,6 +42,7 @@ import { SupabaseModule } from './supabase/supabase.module';
     PromotionModule,
     BillingModule,
     SiteTeamModule,
+    SiteContentModule,
     StorageModule,
     PricingModule,
     BackofficeModule,

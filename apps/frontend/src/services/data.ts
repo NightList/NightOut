@@ -62,3 +62,4 @@ export * from '@/services/queries/deposit';
 export * from '@/services/queries/bar-team';
 export * from '@/services/queries/billing';
 export * from '@/services/queries/site-team';
+export * from '@/services/queries/site-content';

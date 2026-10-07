@@ -14,6 +14,7 @@ import { ReviewsPage } from '@/modules/reviews/page';
 import { SafetyPage } from '@/modules/safety/page';
 import { SettingsPage } from '@/modules/settings/page';
 import { TeamPage } from '@/modules/team/page';
+import { HomeContentPage } from '@/modules/homeContent/page';
 import { UsersPage } from '@/modules/users/page';
 
 /** route ของ Backoffice — ต้องตรงกับเมนูใน configs/menu.tsx */
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: 'promotions', element: <PromotionsPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'team', element: <TeamPage /> },
+      { path: 'home-content', element: <HomeContentPage /> },
       { path: 'bookings', element: <BookingsPage /> },
       { path: 'deposits', element: <DepositsPage /> },
       { path: 'reviews', element: <ReviewsPage /> },

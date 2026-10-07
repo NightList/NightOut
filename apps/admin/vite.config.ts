@@ -32,5 +32,6 @@ export default defineConfig({
       },
     },
   },
-  server: { port: 5174 },
+  // strictPort: พอร์ตไม่ว่าง = error ทันที (ไม่ขยับไปพอร์ตอื่นเงียบ ๆ)
+  server: { port: 5174, strictPort: true },
 });

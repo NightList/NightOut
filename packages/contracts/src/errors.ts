@@ -7,6 +7,7 @@ import { DEPOSIT_ERRORS } from './deposit';
 import { PROMOTION_ERRORS } from './promotion';
 import { REVIEW_ERRORS } from './review';
 import { SITE_TEAM_ERRORS } from './site-team';
+import { SITE_CONTENT_ERRORS } from './site-content';
 
 /**
  * ข้อความภาษาไทยของรหัส error ทุกโดเมน (รหัสมาจากฟังก์ชันใน DB / NestJS)
@@ -23,5 +24,6 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   ...ACCOUNT_ERRORS,
   ...PROMOTION_ERRORS,
   ...SITE_TEAM_ERRORS,
+  ...SITE_CONTENT_ERRORS,
 };
 export type ErrorCode = keyof typeof ERROR_MESSAGES;
