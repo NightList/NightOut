@@ -104,7 +104,10 @@ export function SearchPage() {
             />
           </div>
           <div>
-            <Checkbox checked={!!f.hasPR} onChange={(e) => set({ hasPR: e.target.checked || undefined })}>
+            <Checkbox
+              checked={!!f.hasPR}
+              onChange={(e) => set({ hasPR: e.target.checked || undefined })}
+            >
               เฉพาะร้านที่มี PR
             </Checkbox>
           </div>
@@ -144,7 +147,7 @@ export function SearchPage() {
           {bars.length === 0 ? (
             <Empty description="ไม่พบร้านตามตัวกรอง ลองลดเงื่อนไขดู" />
           ) : view === 'map' ? (
-            <BarMap bars={bars} className="h-[70vh]" />
+            <BarMap bars={bars} className="h-[70vh]" expandable />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {bars.map((b) => (
