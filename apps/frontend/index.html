@@ -8,8 +8,9 @@
   <meta name="theme-color" content="#07070D" />
   <meta name="description"
     content="NightOut — จัดอันดับร้านกลางคืน ดูราคา ความปลอดภัย และจองโต๊ะ" />
-  <link rel="icon" href="/images/common/logo.png"
-    type="image/svg+xml" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect"
     href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com"
@@ -25,17 +26,9 @@
     href="/images/boot/boot-bg.webp"
     imagesrcset="/images/boot/boot-bg-sm.webp 900w, /images/boot/boot-bg.webp 1672w"
     imagesizes="100vw" fetchpriority="high" />
-  <link rel="preload" as="font" type="font/woff2"
-    href="/fonts/poppins-latin-600-normal.woff2"
-    crossorigin />
+  <link rel="preload" as="image" type="image/webp"
+    href="/images/brand/logo-on-dark.webp" />
   <style>
-    @font-face {
-      font-family: 'Boot Poppins';
-      font-weight: 600;
-      font-display: swap;
-      src: url('/fonts/poppins-latin-600-normal.woff2') format('woff2')
-    }
-
     @font-face {
       font-family: 'Boot Kanit';
       font-weight: 300;
@@ -116,30 +109,9 @@
 
     .boot__logo {
       margin-top: 7.5%;
-      font-family: 'Boot Poppins', system-ui, sans-serif;
-      font-weight: 600;
-      font-size: calc(var(--ring)*.155);
-      line-height: 1;
-      letter-spacing: -.01em;
-      white-space: nowrap;
-      display: flex;
-      align-items: flex-end;
-      /* background-clip:text วาดแค่ในกล่อง — เผื่อที่ให้หางตัว g (descender) แล้วหักคืนด้วย margin ไม่ให้ layout ขยับ */
-      padding-bottom: .22em;
-      margin-bottom: -.22em;
-      background: linear-gradient(180deg, #fbeccb 8%, #e3c287 46%, #b48a4a 79%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 calc(var(--ring)*.03) rgba(232, 182, 76, .25))
-    }
-
-    .boot__logo svg {
-      width: .66em;
-      height: 1.1em;
-      margin: 0 .02em 0 .03em;
-      transform: translateY(.16em);
-      flex: none
+      width: calc(var(--ring)*.62);
+      height: auto;
+      filter: drop-shadow(0 0 calc(var(--ring)*.03) rgba(232, 182, 76, .2))
     }
 
     .boot__bar {
@@ -288,32 +260,8 @@
         </svg>
         <p class="boot__tag">GOOD DRINKS<i>×</i>BETTER
           NIGHTS</p>
-        <p class="boot__logo">Night
-          <svg viewBox="0 0 60 100">
-            <defs>
-              <linearGradient id="boot-gold" x1="0" y1="0"
-                x2="0" y2="1">
-                <stop offset="0" stop-color="#fbeccb" />
-                <stop offset=".55" stop-color="#e3c287" />
-                <stop offset="1" stop-color="#b48a4a" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M7 27h46l-5.2 58.5a8 8 0 0 1-8 7.3H20.2a8 8 0 0 1-8-7.3Z"
-              fill="#120d08" stroke="url(#boot-gold)"
-              stroke-width="5.5" stroke-linejoin="round" />
-            <path d="M16 38l3.6 42" stroke="#fbeccb"
-              stroke-opacity=".35" stroke-width="2.4"
-              stroke-linecap="round" />
-            <path
-              d="M5 30c-3-5 0-11 6-11 0-7 8-11 14-7 4-6 14-6 17 1 7-2 14 3 12 10 4 3 3 9-2 10-2 4-8 4-10 1-3 3-8 3-11 0-4 3-10 2-12-2-5 2-11 0-14-2Z"
-              fill="#fbeccb" />
-            <circle cx="22" cy="20" r="2.2" fill="#e3c287"
-              opacity=".6" />
-            <circle cx="38" cy="18" r="1.8" fill="#e3c287"
-              opacity=".6" />
-          </svg>ut
-        </p>
+        <img class="boot__logo" src="/images/brand/logo-on-dark.webp"
+          width="2000" height="486" alt="NightOut" />
         <span class="boot__bar"></span>
         <p class="boot__load">LOADING...</p>
       </div>

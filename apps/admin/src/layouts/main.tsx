@@ -1,4 +1,4 @@
-import { MoonStars, SignOut } from '@phosphor-icons/react';
+import { SignOut } from '@phosphor-icons/react';
 import { ProLayout } from '@ant-design/pro-components';
 import { ThemeToggle } from '@nightout/ui';
 import { Button, Spin, Tooltip, Typography } from 'antd';
@@ -16,7 +16,7 @@ export function MainLayout() {
   return (
     <ProLayout
       title="NightOut Admin"
-      logo={<MoonStars size={28} weight="fill" color="#E8B64C" />}
+      logo={<img src="/favicon.svg" alt="" width={28} height={28} />}
       layout="mix"
       fixSiderbar
       location={{ pathname: location.pathname }}

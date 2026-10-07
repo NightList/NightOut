@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router';
 import { useDemo } from '@/hooks/useDemo';
 import { Podium } from './components/podium';
 import { RadialCarousel } from './components/radialCarousel';
+import { RankingBackdrop } from './components/rankingBackdrop';
 import { RankList } from './components/rankList';
 import { ScrollReveal } from './components/scrollReveal';
 import { SplitHeading } from './components/splitHeading';
@@ -14,7 +15,7 @@ const PERIOD_LABEL: Record<RankingPeriod, string> = { WEEK: 'สัปดาห�
 /**
  * /ranking — จัดอันดับรายสัปดาห์ / รายเดือน (Figma "จัดอันดับ")
  * 1) Hero วงล้อการ์ดหมุน (GSAP: หมุนต่อเนื่อง + scrub ตามการเลื่อน)
- * 2) "สัปดาห์นี้ผู้ชนะได้แก่…" + แท่น 3 อันดับ (การ์ดกางเป็นพัดตามการเลื่อน)
+ * 2) "สัปดาห์นี้ผู้ชนะได้แก่…" (เล่นครั้งเดียวเมื่อเลื่อนถึง) + แท่น 3 อันดับ (การ์ดกางเป็นพัดตามการเลื่อน)
  * 3) อันดับ 4–10 (ไล่ขึ้นทีละแถว)
  * ตัวเลือกช่วงเวลา/ประเภทร้านอยู่ใน URL (?period=MONTH&category=PUB_BAR) แชร์ลิงก์ได้
  */
@@ -34,7 +35,9 @@ export function RankingPage() {
   };
 
   return (
-    <div className="pb-24 md:pb-16">
+    <div className="relative isolate pb-24 md:pb-16">
+      <RankingBackdrop />
+
       <RadialCarousel bars={heroBars}>
         <h1 className="text-3xl font-bold sm:text-5xl lg:text-6xl">
           จัดอันดับร้าน
