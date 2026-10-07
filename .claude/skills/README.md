@@ -8,3 +8,7 @@
 | `third-tutor` | เขียนเองในโปรเจคนี้ (สำเนาเดียวกับ skill ในบัญชี claude.ai) | สอนคนพื้นฐานเป็นศูนย์ให้เข้าใจโค้ดของ module ทีละบท ไวยากรณ์รายบรรทัด เพิ่ม API ต่อ database และแบบทดสอบหลังเรียน (`/third-tutor`) |
 
 อัปเดตเป็นเวอร์ชันล่าสุด: `npx skills add ant-design/antd-skill` หรือ copy โฟลเดอร์ `skills/*` จาก repo ต้นทางมาทับ
+
+## ใช้กับ AI หลายเจ้า
+- `.claude/skills/` = Claude Code · `.agents/skills/` = Cursor / Codex / Antigravity และเครื่องมืออื่นที่อ่านโฟลเดอร์ `.agents` — **เนื้อหาเหมือนกันทุกไฟล์**
+- เพิ่ม/แก้ skill ที่ `.claude/skills/` แล้ว copy ทับอีกฝั่ง: `rm -rf .agents/skills && cp -r .claude/skills .agents/skills` (ไม่ใช้ symlink เพราะ Windows ปิด `core.symlinks`)
