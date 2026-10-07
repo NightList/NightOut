@@ -1,0 +1,49 @@
+/*
+ * แสงวิ่งรอบขอบแบนเนอร์อันดับ 1 (weeklySpotlight.tsx → LeaderBanner)
+ * wrapper เว้น 1px รอบการ์ด (p-px) = เส้นขอบ · การ์ดด้านในพื้นทึบ แสงจึงโผล่แค่ช่อง 1px
+ * ::after = ขอบม่วงจางนิ่ง (เห็นตลอด) · ::before = conic หัวทอง หางม่วง หมุนด้วย transform อย่างเดียว (compositor ไม่ repaint)
+ * หยุดเมื่อพ้นจอ/สลับแท็บ (data-paused) · โหมดประหยัดเน็ต (data-still) และ prefers-reduced-motion = ขอบไล่สีนิ่ง
+ */
+.spotlight-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--purple) 25%, transparent);
+}
+
+.spotlight-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  /* ด้าน = เส้นทแยงของแบนเนอร์ (useDiagonalVar) → หมุนกี่องศาก็คลุมทุกมุม ทั้งจอกว้างและจอแคบที่แบนเนอร์สูง
+     ก่อน JS ตั้งค่าใช้ 200% ของความกว้าง (พอสำหรับแบนเนอร์แนวนอน) */
+  width: var(--ring-size, 200%);
+  aspect-ratio: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 62%,
+    color-mix(in srgb, var(--purple) 70%, transparent) 80%,
+    var(--gold) 88%,
+    transparent 94%
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spotlight-ring:not([data-still='true'])::before {
+    animation: spotlight-spin 8s linear infinite;
+  }
+  .spotlight-ring[data-paused='true']::before {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes spotlight-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
