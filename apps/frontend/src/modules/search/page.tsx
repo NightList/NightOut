@@ -147,7 +147,7 @@ export function SearchPage() {
           {bars.length === 0 ? (
             <Empty description="ไม่พบร้านตามตัวกรอง ลองลดเงื่อนไขดู" />
           ) : view === 'map' ? (
-            <BarMap bars={bars} className="h-[70vh]" expandable />
+            <BarMap bars={bars} className="h-[70dvh]" expandable />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {bars.map((b) => (

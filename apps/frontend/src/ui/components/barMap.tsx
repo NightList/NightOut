@@ -52,6 +52,7 @@ export function BarMap({
 }) {
   const { resolved } = useThemeMode();
   const [expanded, setExpanded] = useState(false);
+  const [modalReady, setModalReady] = useState(false);
   if (bars.length === 0) return null;
   const single = bars.length === 1;
   const bounds: LatLngBoundsExpression | null = single
@@ -89,7 +90,7 @@ export function BarMap({
   return (
     <>
       <div className={`relative overflow-hidden rounded-2xl border border-border ${className}`}>
-        {renderMap()}
+        {!expanded && renderMap()}
         {expandable && (
           <button
             type="button"
@@ -104,7 +105,12 @@ export function BarMap({
       {expandable && (
         <Modal
           open={expanded}
-          onCancel={() => setExpanded(false)}
+          onCancel={() => {
+            setExpanded(false);
+            setModalReady(false);
+          }}
+          afterOpenChange={setModalReady}
+          destroyOnHidden
           footer={null}
           closeIcon={<CornersIn size={22} aria-hidden="true" />}
           title={<span className="sr-only">แผนที่ร้านแบบเต็มจอ</span>}
@@ -124,7 +130,7 @@ export function BarMap({
             },
           }}
         >
-          {expanded && renderMap()}
+          {expanded && modalReady && renderMap()}
         </Modal>
       )}
     </>
