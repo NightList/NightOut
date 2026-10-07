@@ -21,6 +21,8 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'อันดับจากโหวตของคนที่ไปจริง',
     to: '/ranking',
     icon: Crown,
+    image: '/images/categories/night-out-group-toast.webp',
+    badge: 'อันดับประจำสัปดาห์',
   },
   {
     key: 'pub',
@@ -28,6 +30,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'ดื่ม เต้น สังสรรค์',
     to: '/search?category=PUB_BAR',
     icon: Martini,
+    image: '/images/categories/intimate-cocktail-bar.webp',
   },
   {
     key: 'food',
@@ -35,6 +38,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'มื้อเย็นก่อนออกเที่ยว',
     to: '/search?category=RESTAURANT',
     icon: ForkKnife,
+    image: '/images/categories/friends-dinner-toast.webp',
   },
   {
     key: 'live',
@@ -42,6 +46,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'ร้านที่มีวงเล่นสด',
     to: '/search?style=Live%20Music',
     icon: MusicNotes,
+    image: '/images/categories/live-music-dinner.webp',
   },
   {
     key: 'rooftop',
@@ -49,6 +54,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'นั่งชมวิวเมืองบนดาดฟ้า',
     to: '/search?style=Rooftop',
     icon: Buildings,
+    image: '/images/categories/rooftop-lounge-skyline.webp',
   },
   {
     key: 'chill',
@@ -56,6 +62,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'เพลงเบา คุยกันสบาย',
     to: '/search?category=CHILL',
     icon: Armchair,
+    image: '/images/categories/vinyl-listening-bar.webp',
   },
   {
     key: 'outdoor',
@@ -63,6 +70,7 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'โต๊ะกลางแจ้ง รับลมเย็น',
     to: '/search?style=Outdoor',
     icon: Tree,
+    image: '/images/categories/outdoor-garden-dinner.webp',
   },
   {
     key: 'party',
@@ -70,5 +78,6 @@ export const CATEGORIES: HomeCategory[] = [
     hint: 'ดีเจ ฟลอร์เต้นรำ',
     to: '/search?style=Party%20%26%20Dancing',
     icon: DiscoBall,
+    image: '/images/categories/edm-dance-floor.webp',
   },
 ];

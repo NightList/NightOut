@@ -8,4 +8,8 @@ export interface HomeCategory {
   hint: string;
   to: string;
   icon: Icon;
+  /** ภาพพื้นการ์ด (public/images/categories) */
+  image: string;
+  /** ป้ายเล็กเหนือชื่อ — ใช้กับการ์ดเด่น (ร้านยอดนิยม) */
+  badge?: string;
 }
