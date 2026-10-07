@@ -6,15 +6,19 @@ import { Link } from 'react-router';
 import { useEffect } from 'react';
 import { useThemeMode } from '@nightout/ui';
 import { MapBaseLayer } from './mapBaseLayer';
+import { barImage } from '@/ui/utils/barImage';
 
-/** หมุดทอง (ไม่ใช้รูป marker ของ Leaflet — bundler จัดการ path รูปยาก) */
-const pin = (label?: string) =>
+const escapeAttribute = (value: string) =>
+  value.replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
+
+/** หมุดรูปหน้าร้านแบบวงกลม */
+const pin = (bar: BarWithTier) =>
   divIcon({
     className: '',
-    html: `<div class="nl-pin">${label ? `<span>${label}</span>` : ''}</div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -26],
+    html: `<div class="nl-pin"><img src="${escapeAttribute(barImage(bar))}" alt="" /></div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -20],
   });
 
 function FitBounds({ bounds }: { bounds: LatLngBoundsExpression | null }) {
@@ -60,7 +64,7 @@ export function BarMap({
         <MapBaseLayer theme={resolved} />
         <FitBounds bounds={bounds} />
         {bars.map((b) => (
-          <Marker key={b.id} position={[b.lat, b.lng]} icon={pin()}>
+          <Marker key={b.id} position={[b.lat, b.lng]} icon={pin(b)}>
             <Popup>
               <div className="min-w-40">
                 <p className="font-semibold">{b.name}</p>
