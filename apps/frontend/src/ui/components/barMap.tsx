@@ -16,9 +16,9 @@ const pin = (bar: BarWithTier) =>
   divIcon({
     className: '',
     html: `<div class="nl-pin"><img src="${escapeAttribute(barImage(bar))}" alt="" /></div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -20],
+    iconSize: [36, 45],
+    iconAnchor: [18, 45],
+    popupAnchor: [0, -43],
   });
 
 function FitBounds({ bounds }: { bounds: LatLngBoundsExpression | null }) {
