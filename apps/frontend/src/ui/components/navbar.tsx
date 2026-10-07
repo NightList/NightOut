@@ -10,6 +10,7 @@ import { useDemo } from '@/hooks/useDemo';
 import { useScrolled } from '@/hooks/useScrolled';
 import { useAuth } from '@/services/auth';
 import { timeAgo } from '@/ui/utils/format';
+import { BrandLogo } from './brandLogo';
 
 export interface NavItem {
   to: string;
@@ -90,21 +91,14 @@ export function Navbar({
     >
       <Link
         to="/"
-        className="flex shrink-0 items-center gap-2 rounded-full pr-2 !text-gold"
+        className="flex shrink-0 items-center rounded-full px-2"
         aria-label="NightOut หน้าแรก"
       >
-        <img
-          src="/images/common/logo.png"
+        <BrandLogo
+          surface={glass ? 'dark' : 'auto'}
           alt=""
-          width={36}
-          height={35}
-          className={scrolled ? 'size-8' : 'size-9'}
+          className={`transition-[height] duration-300 ${scrolled ? 'h-6' : 'h-7'}`}
         />
-        <span
-          className={`font-display text-lg font-bold ${glass ? 'text-gold' : 'text-gold-text'}`}
-        >
-          NightOut
-        </span>
       </Link>
 
       <nav className="ml-auto hidden items-center md:flex" aria-label="เมนูหลัก">

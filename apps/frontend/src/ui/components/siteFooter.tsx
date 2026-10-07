@@ -5,6 +5,7 @@ import {
   YoutubeLogoIcon,
 } from '@phosphor-icons/react';
 import { Link } from 'react-router';
+import { BrandLogo } from './brandLogo';
 
 const MENU = [
   { to: '/', label: 'หน้าหลัก' },
@@ -66,15 +67,8 @@ export function SiteFooter({ className = '' }: { className?: string }) {
       <div className="mx-auto max-w-6xl rounded-[28px] border border-white/15 bg-black/35 p-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl md:p-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-stretch md:gap-12">
           <div className="md:flex-1">
-            <Link to="/" className="inline-flex items-center gap-3 !text-white">
-              <img
-                src="/images/common/logo.png"
-                alt=""
-                width={48}
-                height={48}
-                className="size-12 object-contain"
-              />
-              <span className="text-2xl font-bold text-purple">NightOut</span>
+            <Link to="/" className="inline-flex" aria-label="NightOut หน้าแรก">
+              <BrandLogo surface="dark" alt="" lazy className="h-10 md:h-12" />
             </Link>
             <p className="mt-4 text-white/85">ค้นหาร้านเหล้า บาร์ และสถานที่นั่งชิล ใกล้คุณ</p>
             <p className="mt-1 text-xs text-white/55">Discover night vibes arround you.</p>

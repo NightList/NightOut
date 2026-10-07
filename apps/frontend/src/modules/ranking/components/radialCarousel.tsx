@@ -50,29 +50,35 @@ export function RadialCarousel({ bars, children }: { bars: BarWithTier[]; childr
   return (
     <section
       ref={root}
-      className="relative isolate h-[24rem] overflow-hidden border-b border-border bg-surface sm:h-[30rem] lg:h-[35rem]"
+      className="relative isolate h-[24rem] overflow-hidden border-b border-border bg-surface dark:border-transparent dark:bg-transparent sm:h-[30rem] lg:h-[35rem]"
     >
-      {/* จุดศูนย์กลางวงล้อ = ตำแหน่งหัวข้อ */}
-      <div className="absolute left-1/2 top-[70%] size-0 [--radius:10.5rem] sm:[--radius:14rem] lg:top-[72%] lg:[--radius:18rem]">
-        <div data-radial-intro className="absolute inset-0">
-        <div data-radial-scroll className="absolute inset-0">
-          <div data-radial-spin className="absolute inset-0">
-            {cards.map((b, i) => (
-              <div
-                key={i}
-                aria-hidden
-                className="absolute left-0 top-0 size-0"
-                style={{ transform: `rotate(${(360 / COUNT) * i}deg) translateY(calc(var(--radius) * -1))` }}
-              >
-                <div
-                  data-radial-face
-                  className="absolute size-14 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/15 bg-card bg-cover bg-center shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)] sm:size-20 lg:size-24"
-                  style={{ backgroundImage: b ? `url(${barImage(b)})` : undefined }}
-                />
+      {/* ธีมมืดพื้นโปร่ง (เห็นภาพพื้นหลังหน้า) → การ์ดครึ่งล่างค่อยๆ จางหายแทนการโดนขอบตัดเป็นเส้นตรง
+          mask เฉพาะชั้นวงล้อ ไม่ครอบหัวข้อ · ธีมสว่างยังเป็นแผงทึบ + เส้นขอบ (ไม่ต้อง mask) */}
+      <div
+        aria-hidden
+        className="absolute inset-0 dark:[mask-image:linear-gradient(to_bottom,#000_55%,transparent_92%)]"
+      >
+        {/* จุดศูนย์กลางวงล้อ = ตำแหน่งหัวข้อ */}
+        <div className="absolute left-1/2 top-[70%] size-0 [--radius:10.5rem] sm:[--radius:14rem] lg:top-[72%] lg:[--radius:18rem]">
+          <div data-radial-intro className="absolute inset-0">
+            <div data-radial-scroll className="absolute inset-0">
+              <div data-radial-spin className="absolute inset-0 will-change-transform">
+                {cards.map((b, i) => (
+                  <div
+                    key={i}
+                    className="absolute left-0 top-0 size-0"
+                    style={{ transform: `rotate(${(360 / COUNT) * i}deg) translateY(calc(var(--radius) * -1))` }}
+                  >
+                    <div
+                      data-radial-face
+                      className="absolute size-14 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/15 bg-card bg-cover bg-center shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)] sm:size-20 lg:size-24"
+                      style={{ backgroundImage: b ? `url(${barImage(b)})` : undefined }}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
         </div>
       </div>
       <div

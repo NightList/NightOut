@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { EASE_IN_OUT, EASE_OUT, MOTION_OK, MOTION_REDUCE, gsap, useGSAP } from '../utils/gsap';
+import { EASE_OUT, MOTION_OK, MOTION_REDUCE, gsap, useGSAP } from '../utils/gsap';
 
 /**
  * แยกข้อความเป็นตัวอักษรแบบ grapheme (Intl.Segmenter) — ภาษาไทยสระ/วรรณยุกต์ติดกับพยัญชนะ
@@ -14,8 +14,9 @@ function graphemes(text: string): string[] {
 }
 
 /**
- * หัวข้อ "สัปดาห์นี้ ผู้ชนะได้แก่…" — text animation ด้วย GSAP
- * ผูกกับการเลื่อนด้วย pin + scrub เพื่อให้ข้อความเป็นจังหวะคั่นก่อนเข้า podium
+ * หัวข้อ "สัปดาห์นี้ ผู้ชนะได้แก่…" — เล่นครั้งเดียวเมื่อเลื่อนมาถึง
+ * ไม่ pin / ไม่ scrub — ข้อความที่ต้องอ่านไม่ควรค้างครึ่งทาง · ไม่มีกรอบ overflow ตัดสระบน/ล่าง
+ * เปลี่ยนสัปดาห์/เดือน (key ใหม่) ขณะอยู่ในจอ → เล่นใหม่ทันที เป็นสัญญาณว่าข้อมูลเปลี่ยน
  */
 export function SplitHeading({ lead, text }: { lead: string; text: string }) {
   const root = useRef<HTMLElement>(null);
@@ -26,30 +27,25 @@ export function SplitHeading({ lead, text }: { lead: string; text: string }) {
       const mm = gsap.matchMedia();
       mm.add(MOTION_OK, () => {
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: root.current,
-            start: 'top top',
-            end: '+=100%',
-            pin: true,
-            scrub: 0.6,
-            anticipatePin: 1,
-          },
+          scrollTrigger: { trigger: root.current, start: 'top 75%', once: true },
         });
         tl.from('[data-lead]', {
-          yPercent: 110,
           opacity: 0,
-          duration: 0.7,
+          y: 24,
+          filter: 'blur(6px)',
+          duration: 0.5,
           ease: EASE_OUT,
         }).from(
           '[data-char]',
           {
-            yPercent: 115,
+            // ไม่ blur รายตัว — filter บนทุก span = rasterize ใหม่ทุกเฟรม (ช้าบนมือถือ)
             opacity: 0,
-            duration: 1,
-            ease: EASE_IN_OUT,
-            stagger: 0.04,
+            yPercent: 40,
+            duration: 0.6,
+            ease: EASE_OUT,
+            stagger: 0.03,
           },
-          '+=0.12',
+          '-=0.25',
         );
       });
       mm.add(MOTION_REDUCE, () => {
@@ -61,40 +57,23 @@ export function SplitHeading({ lead, text }: { lead: string; text: string }) {
   );
 
   return (
-    <section
-      ref={root}
-      className="flex min-h-[100svh] items-center justify-center overflow-hidden"
-    >
+    <section ref={root} className="flex items-center justify-center py-16 sm:py-24">
       <h2
         aria-label={`${lead} ${text}…`}
-        className="max-w-full text-center text-5xl font-bold leading-[1.2] sm:text-7xl lg:text-8xl"
+        className="max-w-full text-center text-5xl font-bold leading-[1.3] sm:text-7xl lg:text-8xl"
       >
-        <span
-          aria-hidden
-          className="-mt-[0.3em] inline-block overflow-hidden align-bottom pb-[0.16em] pt-[0.3em]"
-        >
-          <span data-lead className="inline-block text-muted">
-            {lead}{' '}
-          </span>
+        {/* ช่องว่างท้าย inline-block ถูกตัดทิ้ง → เว้นระยะด้วย margin แทน */}
+        <span aria-hidden data-lead className="me-[0.3em] inline-block text-muted">
+          {lead}
         </span>
-        <span
-          aria-hidden
-          className="-mt-[0.3em] inline-block overflow-hidden align-bottom pb-[0.16em] pt-[0.3em]"
-        >
-          <span className="inline-flex text-gold">
-            {chars.map((c, i) => (
-              <span
-                key={i}
-                data-char
-                className="inline-block whitespace-pre"
-                style={{ transformOrigin: '50% 100%' }}
-              >
-                {c}
-              </span>
-            ))}
-            <span data-char className="inline-block">
-              …
+        <span aria-hidden className="inline-flex text-gold">
+          {chars.map((c, i) => (
+            <span key={i} data-char className="inline-block whitespace-pre">
+              {c}
             </span>
+          ))}
+          <span data-char className="inline-block">
+            …
           </span>
         </span>
       </h2>

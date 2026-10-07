@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router';
 import { barImage } from '@/ui/utils/barImage';
 import { RatingBadge } from './ratingBadge';
-import { EASE_OUT, MOTION_OK, MOTION_REDUCE, gsap, useGSAP } from '../utils/gsap';
+import { EASE_OUT, MOTION_OK, MOTION_REDUCE, NARROW, gsap, useGSAP } from '../utils/gsap';
 
 /**
  * สีอันดับ: ทอง / เงิน / ทองแดง — ทองแดงดันไปทางแดงและเข้มกว่า (hue ~20° vs ทอง ~41°)
@@ -15,12 +15,24 @@ const PLACE = [
   { label: 'ที่ 3', color: 'text-[#d9774a]', border: 'border-[#b8603a]', glow: '' },
 ] as const;
 
-/** ลำดับบนจอ: ที่ 2 · ที่ 1 · ที่ 3 · มุมเอียงและระยะตอนกางเต็ม (Figma) */
+/**
+ * ลำดับบนจอ: ที่ 2 · ที่ 1 · ที่ 3 · มุมเอียงและระยะตอนกางเต็ม (Figma)
+ * จอแคบ (< sm) ใช้ xSm/rotateSm — เอียง 9° รอบฐานทำให้มุมบนการ์ดข้างล้นขอบจอ 375px
+ */
 const SLOTS = [
-  { idx: 1, rotate: -9, x: -78, y: 5 },
-  { idx: 0, rotate: 0, x: 0, y: 0 },
-  { idx: 2, rotate: 9, x: 78, y: 5 },
+  { idx: 1, rotate: -9, x: -78, y: 5, rotateSm: -6, xSm: -60 },
+  { idx: 0, rotate: 0, x: 0, y: 0, rotateSm: 0, xSm: 0 },
+  { idx: 2, rotate: 9, x: 78, y: 5, rotateSm: 6, xSm: 60 },
 ] as const;
+
+/** ค่ากางเต็มของการ์ด — จอแคบกางแคบลงไม่ให้มุมการ์ดล้นขอบจอ */
+function spread(el: HTMLElement, narrow: boolean) {
+  return {
+    xPercent: Number(narrow ? el.dataset.xSm : el.dataset.x),
+    yPercent: Number(el.dataset.y),
+    rotation: Number(narrow ? el.dataset.rotateSm : el.dataset.rotate),
+  };
+}
 
 function PodiumCard({ bar, place }: { bar: RankedBar; place: 0 | 1 | 2 }) {
   const p = PLACE[place];
@@ -71,8 +83,17 @@ export function Podium({ top3 }: { top3: RankedBar[] }) {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      mm.add(MOTION_OK, () => {
+      // matchMedia แบบหลายเงื่อนไข: ข้ามขนาดจอ sm (หมุนจอ/ย่อหน้าต่าง) → revert แล้วกางใหม่ด้วยค่าที่ถูก
+      mm.add({ ok: MOTION_OK, reduce: MOTION_REDUCE, narrow: NARROW }, (ctx) => {
+        // ต้องมี key reduce ด้วย ไม่งั้นจอกว้าง + reduced motion จะไม่เข้า callback นี้เลย
+        const { ok, narrow } = ctx.conditions as { ok: boolean; narrow: boolean };
         const cards = gsap.utils.toArray<HTMLElement>('[data-podium-card]');
+        // reduced motion: กางไว้เลย ไม่มีการเคลื่อนที่ แค่จางเข้า
+        if (!ok) {
+          cards.forEach((el) => gsap.set(el, spread(el, narrow)));
+          gsap.from(cards, { opacity: 0, duration: 0.3 });
+          return;
+        }
         const tl = gsap.timeline({
           scrollTrigger: { trigger: root.current, start: 'top 95%', end: 'top 30%', scrub: 0.8 },
         });
@@ -80,14 +101,7 @@ export function Podium({ top3 }: { top3: RankedBar[] }) {
           tl.fromTo(
             el,
             { xPercent: 0, yPercent: 45, rotation: 0, opacity: 0, scale: 0.9 },
-            {
-              xPercent: Number(el.dataset.x),
-              yPercent: Number(el.dataset.y),
-              rotation: Number(el.dataset.rotate),
-              opacity: 1,
-              scale: 1,
-              ease: EASE_OUT,
-            },
+            { ...spread(el, narrow), opacity: 1, scale: 1, ease: EASE_OUT },
             0,
           );
         });
@@ -108,17 +122,6 @@ export function Podium({ top3 }: { top3: RankedBar[] }) {
           });
         });
       });
-      // reduced motion: กางไว้เลย ไม่มีการเคลื่อนที่ แค่จางเข้า
-      mm.add(MOTION_REDUCE, () => {
-        gsap.utils.toArray<HTMLElement>('[data-podium-card]').forEach((el) =>
-          gsap.set(el, {
-            xPercent: Number(el.dataset.x),
-            yPercent: Number(el.dataset.y),
-            rotation: Number(el.dataset.rotate),
-          }),
-        );
-        gsap.from('[data-podium-card]', { opacity: 0, duration: 0.3 });
-      });
       return () => mm.revert();
     },
     { scope: root, dependencies: [top3.map((b) => b.id).join()], revertOnUpdate: true },
@@ -126,7 +129,7 @@ export function Podium({ top3 }: { top3: RankedBar[] }) {
 
   return (
     <div ref={root} className="relative mx-auto flex h-[19rem] max-w-4xl items-end justify-center sm:h-[28rem] lg:h-[32rem]">
-      {SLOTS.map(({ idx, rotate, x, y }) => {
+      {SLOTS.map(({ idx, rotate, x, y, rotateSm, xSm }) => {
         const bar = top3[idx];
         if (!bar) return null;
         const place = idx as 0 | 1 | 2;
@@ -137,6 +140,8 @@ export function Podium({ top3 }: { top3: RankedBar[] }) {
             data-rotate={rotate}
             data-x={x}
             data-y={y}
+            data-rotate-sm={rotateSm}
+            data-x-sm={xSm}
             className={`absolute bottom-0 flex flex-col items-center ${place === 0 ? 'z-10' : 'z-0'}`}
             style={{ transformOrigin: '50% 100%' }}
           >
