@@ -14,6 +14,7 @@ export * from './account';
 export * from './promotion';
 export * from './billing';
 export * from './site-team';
+export * from './site-content';
 export * from './storage';
 export * from './pricing';
 export * from './backoffice';

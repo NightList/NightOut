@@ -53,15 +53,18 @@ const MAX_PHOTO = 10 * 1024 * 1024;
 
 /**
  * เพิ่ม / แก้ทีมงาน 1 คน — member = null คือเพิ่มใหม่
+ * lockEmail = แอดมินทั่วไป: อีเมลคือตัวผูกแถวกับบัญชี เปลี่ยนไม่ได้ (DB ตอบ TEAM_MEMBER_EMAIL_LOCKED)
  * รูปย่อเป็น webp แล้วอัปโหลดเข้า team-photos ทันทีที่เลือก (ยังไม่บันทึกจนกด "บันทึก")
  */
 export function TeamMemberDrawer({
   open,
   member,
+  lockEmail = false,
   onClose,
 }: {
   open: boolean;
   member: Db.AdminTeamMember | null;
+  lockEmail?: boolean;
   onClose: () => void;
 }) {
   const { message } = App.useApp();
@@ -77,15 +80,15 @@ export function TeamMemberDrawer({
     form.setFieldsValue(
       member
         ? {
-            nickname: member.nickname,
-            full_name: member.full_name ?? undefined,
-            roles: member.roles,
-            skills: member.skills,
-            bio: member.bio ?? undefined,
-            photo_url: member.photo_url,
-            contacts: member.contacts ?? {},
-            active: member.active,
-          }
+          nickname: member.nickname,
+          full_name: member.full_name ?? undefined,
+          roles: member.roles,
+          skills: member.skills,
+          bio: member.bio ?? undefined,
+          photo_url: member.photo_url,
+          contacts: member.contacts ?? {},
+          active: member.active,
+        }
         : { roles: [], skills: [], contacts: {}, active: true, photo_url: null },
     );
   }, [open, member, form]);
@@ -121,11 +124,11 @@ export function TeamMemberDrawer({
       await act.mutateAsync(
         member
           ? {
-              method: 'PATCH',
-              path: `team-members/${member.id}`,
-              body,
-              success: `บันทึกข้อมูล${body.nickname}แล้ว`,
-            }
+            method: 'PATCH',
+            path: `team-members/${member.id}`,
+            body,
+            success: `บันทึกข้อมูล${body.nickname}แล้ว`,
+          }
           : { method: 'POST', path: 'team-members', body, success: `เพิ่ม${body.nickname}แล้ว` },
       );
       onClose();
@@ -229,18 +232,12 @@ export function TeamMemberDrawer({
             placeholder="เล่าสั้นๆ ว่าทำอะไรในทีม"
           />
         </Form.Item>
-        <Form.Item
-          name="skills"
-          label="ทักษะ"
-          extra="พิมพ์แล้วกด Enter · สูงสุด 20"
-          rules={[{ type: 'array', max: 20, message: 'ใส่ได้สูงสุด 20 ทักษะ' }]}
-        >
+        <Form.Item name="skills" label="ทักษะ" extra="พิมพ์แล้วกด Enter · ใส่ได้ไม่จำกัด">
           <Select
             mode="tags"
             tokenSeparators={[',']}
             placeholder="เช่น React, NestJS"
             open={false}
-            maxCount={20}
           />
         </Form.Item>
 
@@ -256,14 +253,19 @@ export function TeamMemberDrawer({
               key={f.key}
               name={['contacts', f.key]}
               label={f.label}
+              extra={
+                lockEmail && f.kind === 'email'
+                  ? 'อีเมลบัญชีของคุณ — เปลี่ยนได้เฉพาะซูเปอร์แอดมิน'
+                  : undefined
+              }
               rules={
                 f.kind === 'url'
                   ? [
-                      {
-                        pattern: /^https:\/\/\S+\.\S+/,
-                        message: 'ต้องเป็นลิงก์เต็มที่ขึ้นต้นด้วย https://',
-                      },
-                    ]
+                    {
+                      pattern: /^https:\/\/\S+\.\S+/,
+                      message: 'ต้องเป็นลิงก์เต็มที่ขึ้นต้นด้วย https://',
+                    },
+                  ]
                   : f.kind === 'email'
                     ? [{ type: 'email', message: 'อีเมลไม่ถูกต้อง' }]
                     : f.kind === 'phone'
@@ -274,6 +276,7 @@ export function TeamMemberDrawer({
               <Input
                 placeholder={f.placeholder}
                 inputMode={f.kind === 'phone' ? 'tel' : f.kind === 'email' ? 'email' : undefined}
+                disabled={lockEmail && f.kind === 'email'}
                 allowClear
               />
             </Form.Item>

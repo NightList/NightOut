@@ -6,6 +6,9 @@
  */
 const OSM = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const env = import.meta.env;
+const loadTimeout = Number(env.VITE_MAP_LOAD_TIMEOUT_MS);
+export const MAP_LOAD_TIMEOUT_MS =
+  Number.isFinite(loadTimeout) && loadTimeout > 0 ? loadTimeout : 15000;
 
 /** ตั้ง env raster ไว้ = บังคับใช้ raster แทนสไตล์แบบ Google */
 export const MAP_USE_RASTER = !!env.VITE_MAP_TILE_URL_LIGHT;

@@ -1,8 +1,9 @@
-import { SignOut } from '@phosphor-icons/react';
+import { SignOutIcon } from '@phosphor-icons/react';
 import { ProLayout } from '@ant-design/pro-components';
 import { ThemeToggle } from '@nightout/ui';
 import { Button, Spin, Tooltip, Typography } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
+import logo from '/favicon.svg';
 import { ADMIN_ROUTES } from '@/configs/menu';
 import { useAdminAuth } from '@/services/adminAuth';
 
@@ -16,14 +17,18 @@ export function MainLayout() {
   return (
     <ProLayout
       title="NightOut Admin"
-      logo={<img src="/favicon.svg" alt="" width={28} height={28} />}
+      logo={<img src={logo} alt="" width={28} height={28} />}
       layout="mix"
       fixSiderbar
       location={{ pathname: location.pathname }}
       route={{ path: '/', routes: ADMIN_ROUTES }}
       menuItemRender={(item, dom) => <Link to={item.path ?? '/'}>{dom}</Link>}
       actionsRender={() => [
-        <Typography.Text key="me" type="secondary" className="hidden whitespace-nowrap text-sm md:inline">
+        <Typography.Text
+          key="me"
+          type="secondary"
+          className="hidden whitespace-nowrap text-sm md:inline"
+        >
           {auth.displayName} · {auth.roleLabel}
         </Typography.Text>,
         <ThemeToggle key="theme" />,
@@ -32,7 +37,7 @@ export function MainLayout() {
             type="text"
             shape="circle"
             aria-label="ออกจากระบบ"
-            icon={<SignOut size={18} />}
+            icon={<SignOutIcon size={18} />}
             onClick={() => {
               void auth.signOut().then(() => navigate('/login'));
             }}

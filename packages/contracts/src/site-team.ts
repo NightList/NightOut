@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { uuid } from './common';
 
-/** โดเมน site-team — ทีมงาน NightOut บนหน้า /about (view public_team) · Backoffice จัดการที่ /team */
+/** โดเมน site-team — ทีมงาน NightOut บนหน้า /about (view public_team) · Backoffice จัดการที่ /team (เพิ่ม/ลบ/ลำดับ = Super Admin · แก้/ซ่อน = Super Admin หรือ Admin เฉพาะแถวที่ contacts.email = อีเมลตัวเอง) */
 
 const https = z.url().startsWith('https://').max(300);
 /** ช่องทางติดต่อ — ว่าง = ไม่แสดงไอคอนนั้น (DB เก็บเฉพาะ key เหล่านี้) */
@@ -66,4 +66,6 @@ export const SITE_TEAM_ERRORS = {
   TEAM_MEMBER_NOT_FOUND: 'ไม่พบทีมงานคนนี้แล้ว (อาจถูกลบไปแล้ว)',
   INVALID_TEAM_MEMBER: 'ข้อมูลทีมงานไม่ครบหรือไม่ถูกต้อง (ชื่อเล่น 1–40 ตัว · รูปต้องเป็น URL หรือ path ที่ขึ้นต้นด้วย /)',
   INVALID_TEAM_ORDER: 'ลำดับทีมงานไม่ถูกต้อง — รีเฟรชหน้าแล้วลองใหม่',
+  TEAM_MEMBER_NOT_OWN: 'แอดมินแก้หรือซ่อนได้เฉพาะแถวของตัวเอง (อีเมลในช่องทางติดต่อต้องตรงกับอีเมลบัญชี) — แถวอื่นให้ซูเปอร์แอดมินแก้',
+  TEAM_MEMBER_EMAIL_LOCKED: 'อีเมลในช่องทางติดต่อต้องเป็นอีเมลบัญชีของคุณ — เปลี่ยนได้เฉพาะซูเปอร์แอดมิน',
 } as const satisfies Record<string, string>;

@@ -49,6 +49,9 @@
 | `…001700_app_actions` | แอปจริง | ฟังก์ชันการกระทำของลูกค้า/ร้าน `app_*` 26 ตัว (service_role เท่านั้น เรียกผ่าน NestJS) · trigger ผลของสถานะการจอง (มัดจำ → รอโอน/รอคืน, เช็กอิน, ค่าคอม, แจ้งเตือน) · `run_booking_timeouts()` · view `my_bar_detail` / `my_reviews` / `admin_bar_promotions` · RPC `zone_availability`, `bar_deposit_ledger`, `bar_team`, `my_invites` · `booking_detail` เพิ่ม `customer_name, share_token, has_review` |
 | `…20261003000200_admin_create_user` | Backoffice เพิ่มผู้ใช้ | ฟังก์ชัน `admin_finish_new_user` (ตั้ง role + ผูกร้าน + audit · service_role) |
 | `…20261003000100_admin_team_members` | Backoffice จัดการทีมงาน | view `admin_team_members` · policy `admin_read` บน team_members · ฟังก์ชัน `admin_save/delete/reorder_team_member(s)` (service_role) · bucket `team-photos` (public · เขียนได้เฉพาะแอดมิน + MFA) |
+| `…20261007000100_site_content_home` | Backoffice แก้หน้าแรก | ตาราง **home_content** (แถวเดียว: Hero หัวข้อ 3 ท่อน/คำโปรย/ช่องค้นหา/ภาพ · ชื่อ section หมวด) · **home_categories** (การ์ดหมวด 8 slot ตายตัว: ชื่อ/คำอธิบาย/ลิงก์/ภาพ/ป้าย — ไอคอนลบใน `…20261008000100`) · view `public_home_content` / `public_home_categories` (anon) · `admin_home_content` / `admin_home_categories` · ฟังก์ชัน `admin_save_home_content` / `admin_save_home_category` (service_role · audit) · bucket `site-media` (public · เขียนได้เฉพาะแอดมิน + MFA) · seed = เนื้อหาเดิมของหน้าแรก |
+| `…20261008000100_site_content_drop_category_icon` | หน้าแรกไม่มีไอคอนหมวด | ลบคอลัมน์ `home_categories.icon` · สร้าง view `public_home_categories` / `admin_home_categories` ใหม่ (ไม่มี icon) · `home_category_check` / `admin_save_home_category` ไม่ตรวจ/ไม่เขียน icon |
+| `…20261008000200_site_team_super_admin_rules` | สิทธิ์จัดการทีมงาน | เพิ่ม/ลบ/สลับลำดับ เฉพาะ Super Admin (`super_admin_assert` ใน `admin_save_team_member` ตอนเพิ่ม · `admin_delete_team_member` · `admin_reorder_team_members`) · แก้/ซ่อน: Admin ได้เฉพาะแถวที่ `contacts.email` ตรงกับ `users.email` ของตัวเอง (`team_member_is_own` · `TEAM_MEMBER_NOT_OWN`) และเปลี่ยน/ลบอีเมลนั้นไม่ได้ (`TEAM_MEMBER_EMAIL_LOCKED`) · Super Admin แก้ได้ทุกแถว |
 | `…20261006000100_slip_reject_reasons_fake_slip_ban` | กันสลิปปลอม | `deposits.reject_code` (FAKE_SLIP · AMOUNT_MISMATCH · WRONG_ACCOUNT · UNREADABLE · DUPLICATE · OTHER) · `users.banned_at/ban_reason` · ตาราง **user_flags** (ธงสลิปปลอม, เก็บเบอร์ในแถว) · **banned_phones** · `admin_review_deposit(…, p_reason_code)` ติดธง → ครบ 2 ครั้ง (นับทั้งบัญชีและเบอร์) แบนบัญชี + ทุกเบอร์ที่บัญชีเคยใช้ · `admin_unban_user` (ปลด + ล้างธง) · `booking_ban_check` ใช้ตอนจอง/ส่งสลิป · แก้บั๊ก: ลูกค้ายกเลิกระหว่างรอตรวจ แล้วแอดมินอนุมัติ → คง `REFUND_PENDING` (เดิมทับเป็น HELD) / ปฏิเสธ → `NONE` (เดิมชน CHECK) |
 | `…20261006000200_checkout_deposit_consent` | Checkout | ตาราง **booking_deposit_consents** (หลักฐานการติ๊กยอมรับเงื่อนไขริบมัดจำ: ข้อความที่เห็น + เวอร์ชัน + ค่ามัดจำ/ชั่วโมงคืนเงิน/grace/นโยบายร้าน ณ ตอนนั้น + IP + User-Agent + เวลา · trigger ห้าม update/delete) · `app_create_booking` ตัวใหม่ (`p_contact_phone`, `p_consent`) = ตรวจแบน → `app_create_booking_core` (ตัวเดิม) → บันทึกเบอร์ + consent ในธุรกรรมเดียว · จำเบอร์ไว้ที่ `users.phone_e164` · `admin_bookings` + `contact_phone` (ผ่าน `admin_booking_contact_phone()` เพราะคอลัมน์นี้ไม่ได้ grant ให้ authenticated) + `deposit_consent` |
 | `…20261006000300_merchant_move_table_refund` | Dashboard ร้าน | `app_team_move_booking` (ย้ายโซน/โต๊ะ ช่วงเวลาเดิม · ทีมร้านทุกบทบาท) · `bar_booking_table_options(booking)` (โต๊ะว่างให้เลือก) · `app_team_refund_deposit` (ร้านอนุมัติคืนมัดจำ → `REFUND_PENDING` + `deposits.refund_reason/requested_by/requested_at`) · `booking_deposit_summary` เป็น security definer (ทีมร้านเห็นสถานะมัดจำใน `booking_detail` ได้ — ไม่มี path สลิป) · `admin_deposits` + เหตุผลคืนเงิน |
@@ -152,7 +155,9 @@ stateDiagram-v2
 | `promotion` | `admin_review_promotion` | `20261002001600_admin` |
 |  | `app_order_promotion` | `20261002001700_app_actions` |
 |  | `bar_is_promoted` | `20261002001200_promoted_listings` |
-| `site-team` | `admin_delete_team_member` · `admin_reorder_team_members` · `admin_save_team_member` | `20261003000100_admin_team_members` |
+| `site-team` | `admin_delete_team_member` · `admin_reorder_team_members` · `admin_save_team_member` · `team_member_is_own` | `20261008000200_site_team_super_admin_rules` |
+| `site-content` | `admin_save_home_category` | `20261008000100_site_content_drop_category_icon` |
+|  | `admin_save_home_content` | `20261007000100_site_content_home` |
 | `backoffice` | `admin_dashboard` | `20261002001600_admin` |
 | `(helper ทุกโดเมน)` | `admin_audit` · `app_notify_admins` | `20261005000200_roles` |
 |  | `app_audit` · `app_fmt` · `app_notify` · `app_notify_team` | `20261002001700_app_actions` |
@@ -171,6 +176,7 @@ stateDiagram-v2
 | `booking_detail` | รายละเอียดการจอง (ลูกค้า/ทีมร้าน · ไม่มี contact_phone · deposit ไม่มี slip_path) | authenticated | `Db.BookingDetail` |
 | `my_favorites` | ร้านโปรด (bar_cards + favorited_at) | authenticated | `Db.MyFavorite` |
 | `public_team` | ทีมงานหน้า `/about` (nickname, full_name, roles, bio, skills, photo_url, contacts, sort_order) · เฉพาะ active เรียง sort_order | anon + authenticated | `Db.PublicTeamMember` |
+| `public_home_content` · `public_home_categories` | หน้าแรก: Hero + การ์ดหมวด (`GET /public/home` → `{content, categories}`) · ไม่ตอบ = หน้าใช้ค่าตั้งต้นใน `modules/home/utils/categories.ts` | anon + authenticated | `C.PublicHomeResult` |
 | `rpc('search_bars', {p_keyword, p_district_id, p_category, p_style_ids, p_pr_gender, p_limit, p_offset})` | ค้นหา · แบ่งหน้า (limit ≤ 100) · เรียง โปรโมท → คะแนน | anon + authenticated | `Db.BarCard[]` |
 | `rpc('nearby_bars', {p_lat, p_lng, p_radius_m})` | ใกล้ฉัน · เรียงตามระยะ | anon + authenticated | `Db.NearbyBar[]` |
 
@@ -195,6 +201,7 @@ stateDiagram-v2
 | `admin_billing_events` | ค่าคอม | `Db.AdminBillingEvent` |
 | `admin_audit_logs` | Audit log + ผู้ทำ | `Db.AdminAuditLog` |
 | `admin_team_members` (`…20261003000100`) | จัดการทีมงาน — ทีมงานหน้า /about ทุกคน (รวมที่ซ่อน) | `Db.AdminTeamMember` |
+| `admin_home_content` · `admin_home_categories` (`…20261007000100`) | หน้าแรก — Hero + การ์ดหมวด | `Db.AdminHomeContent` · `Db.AdminHomeCategory` |
 
 **เขียน** — ผ่าน NestJS `/api/admin/*` เท่านั้น (guard: token Supabase + ชั้นบัญชีที่ `roles.can_enter_backoffice` (แอดมิน / ซูเปอร์แอดมิน) + `aal2`) → เรียกฟังก์ชัน `admin_*` ด้วย service_role · ฟังก์ชันตรวจ ADMIN ซ้ำ (`admin_assert`) และเขียน `audit_logs` ในธุรกรรมเดียวกัน · หน้าเว็บเรียกฟังก์ชันเหล่านี้ตรงไม่ได้
 
@@ -211,10 +218,12 @@ stateDiagram-v2
 | `POST users` `{email, display_name, account_type, bar_id?, birthdate, password?}` | Supabase Auth admin (สร้างบัญชี ยืนยันอีเมลแล้ว) → `admin_finish_new_user` (`…20261003000200`) | เพิ่มผู้ใช้: ลูกค้า / เจ้าของ (MERCHANT + OWNER) / ผู้จัดการ (MERCHANT + MANAGER) / พนักงาน (STAFF) / แอดมิน / ซูเปอร์แอดมิน (2 แบบหลังเฉพาะ Super Admin → 403 `SUPER_ADMIN_REQUIRED`) · อีเมลซ้ำ → 409 `EMAIL_EXISTS` · ขั้นที่ 2 พลาด = ลบบัญชีทิ้ง · ไม่ใส่รหัส = สุ่มแล้วตอบกลับครั้งเดียว |
 | `GET roles` | ตาราง `roles` (อ่านในนามผู้เรียก) | ห้าชั้นบัญชี + `can_create` / `can_assign` ของผู้เรียก (ฟอร์มเพิ่มผู้ใช้ / คอลัมน์ชั้นบัญชี) |
 | `PATCH users/:id/role` `{role}` | `admin_set_user_role` (`…20261006000500`) | แก้ชั้นบัญชีที่สร้างผิด — เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) · ชั้นใหม่เป็นลูกค้า/แอดมิน/ซูเปอร์แอดมิน → หลุดจากทุกร้าน · ห้ามเหลือ Super Admin เป็นศูนย์ (`LAST_SUPER_ADMIN`) |
-| `POST team-members` `{nickname, full_name?, roles, bio?, skills, photo_url?, contacts, active}` | `admin_save_team_member` (p_id = null) | เพิ่มทีมงาน (ต่อท้ายลำดับ) |
-| `PATCH team-members/:id` (ส่งเฉพาะ field ที่แก้) | `admin_save_team_member` | แก้ / ซ่อน-แสดง (`active`) · audit เก็บก่อน/หลัง |
-| `DELETE team-members/:id` | `admin_delete_team_member` | ลบถาวร |
-| `PUT team-members/order` `{ids}` | `admin_reorder_team_members` | เรียงใหม่ → sort_order 10, 20, 30 … |
+| `POST team-members` `{nickname, full_name?, roles, bio?, skills, photo_url?, contacts, active}` | `admin_save_team_member` (p_id = null) | เพิ่มทีมงาน (ต่อท้ายลำดับ) · เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) |
+| `PATCH team-members/:id` (ส่งเฉพาะ field ที่แก้) | `admin_save_team_member` | แก้ / ซ่อน-แสดง (`active`) · audit เก็บก่อน/หลัง · Super Admin ทุกแถว · Admin เฉพาะแถวที่ `contacts.email` = อีเมลตัวเอง (`TEAM_MEMBER_NOT_OWN`) และเปลี่ยนอีเมลนั้นไม่ได้ (`TEAM_MEMBER_EMAIL_LOCKED`) |
+| `DELETE team-members/:id` | `admin_delete_team_member` | ลบถาวร · เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) |
+| `PUT team-members/order` `{ids}` | `admin_reorder_team_members` (`…20261008000200`) | เรียงใหม่ → sort_order 10, 20, 30 … · เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) |
+| `PATCH home-content` (ส่งเฉพาะ field ที่แก้) | `admin_save_home_content` | แก้ Hero / ชื่อ section หมวด · `hero_image_url: null` = ภาพตั้งต้น · audit เก็บก่อน/หลัง |
+| `PATCH home-categories/:slot` (ส่งเฉพาะ field ที่แก้) | `admin_save_home_category` | แก้การ์ดหมวด 1 ช่อง (slot: popular · pub · food · live · rooftop · chill · outdoor · party) |
 
 error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 404, `DEPOSIT_ALREADY_REVIEWED` / `LAST_SUPER_ADMIN` ฯลฯ → 409 · `SUPER_ADMIN_REQUIRED` → 403) · หน้าแอดมินแปลเป็นภาษาไทยใน `apps/admin/src/services/api.ts`
 

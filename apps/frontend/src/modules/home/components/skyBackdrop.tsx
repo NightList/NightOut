@@ -77,8 +77,16 @@ const GLINTS: readonly Glint[] = [
  * - ภาพขึ้นทันทีเป็น LCP · โทนน้ำเงินเข้ม + ลำแสงทองเข้ากับธีม Midnight Gold อยู่แล้ว จึงไม่ปรับสี
  * - ชั้นภาพลอยซ้าย-ขวา ±10px ช้ามาก · ดาว/ไฟตึกระยิบ · แสงบนผิวน้ำพริ้ว · ดาวตกนานๆ ครั้ง (ดู skyBackdrop.css)
  * - หยุดเมื่อพ้นจอ/สลับแท็บ · prefers-reduced-motion (CSS) หรือเน็ตช้า/ประหยัดเน็ต → ภาพนิ่ง
+ * - imageUrl = ภาพที่แอดมินอัปโหลด (Backoffice → หน้าแรก) → ไม่มีชั้น SVG เพราะพิกัดดาว/ไฟตึกผูกกับภาพตั้งต้น (ภาพยังลอยช้าๆ ได้)
+ * - pending = ยังไม่รู้ว่าจะใช้ภาพไหน → แสดงแค่พื้นสีกลางคืน ไม่โหลดภาพตั้งต้นทิ้ง (เปิดครั้งแรกที่ยังไม่มี cache)
  */
-export function SkyBackdrop() {
+export function SkyBackdrop({
+  imageUrl,
+  pending = false,
+}: {
+  imageUrl?: string | null;
+  pending?: boolean;
+}) {
   const reduce = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const [still] = useState(() => prefersLightweight());
@@ -112,18 +120,21 @@ export function SkyBackdrop() {
       {/* ชั้นภาพ 16:9 ขนาด "cover" คำนวณด้วย container units (ดู skyBackdrop.css) แล้ววางด้วย --sky-x (0 = ชิดซ้าย · 1 = ชิดขวา)
           ภาพและ SVG อยู่ในกล่องสัดส่วนเดียวกัน ตำแหน่งดาว/ไฟจึงตรงกับภาพทุกขนาดจอ */}
       <div className="sky-layer">
-        <img
-          src={SKY}
-          alt=""
-          srcSet={SKY_SET}
-          sizes={SKY_SIZES}
-          width={3840}
-          height={2160}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 size-full object-cover"
-        />
-        {!still && (
+        {!pending && (
+          <img
+            key={imageUrl ?? SKY}
+            src={imageUrl ?? SKY}
+            alt=""
+            srcSet={imageUrl ? undefined : SKY_SET}
+            sizes={imageUrl ? undefined : SKY_SIZES}
+            width={3840}
+            height={2160}
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 size-full object-cover"
+          />
+        )}
+        {!pending && !still && !imageUrl && (
           <svg
             viewBox={`0 0 ${W} ${H}`}
             preserveAspectRatio="xMidYMid slice"

@@ -58,7 +58,26 @@ export function apiBaseUrlFromEnv(env: { VITE_API_BASE_URL?: string; VITE_API_UR
   return (env.VITE_API_BASE_URL || env.VITE_API_URL || (env.DEV ? 'http://localhost:3000/api' : '/api')).replace(/\/$/, '');
 }
 
-type Timed = AxiosRequestConfig & { metadata?: { t0: number } };
+/** config ต่อ request ของ Rest — `retryable` = ส่งซ้ำได้โดยไม่เกิดผลซ้ำ (GET/HEAD/PUT/DELETE ถือว่าได้อยู่แล้ว) */
+export type RestRequestConfig = AxiosRequestConfig & { retryable?: boolean };
+
+type Timed = RestRequestConfig & { metadata?: { t0: number }; attempt?: number };
+
+/**
+ * หน่วงก่อนลองซ้ำแต่ละรอบ (รวม ~3.5 วิ) — พอให้ backend ที่ `node --watch` รีสตาร์ตตอน dev บูตเสร็จ
+ * และครอบเคสกลับมาที่แท็บหลังทิ้งไว้นาน (เบราว์เซอร์หยิบ connection ที่ server ปิดไปแล้วมาใช้) / เน็ตกระตุกสั้น ๆ
+ */
+export const RETRY_DELAYS_MS = [500, 1000, 2000] as const;
+
+/** method ที่ส่งซ้ำแล้วผลเท่าเดิม (HTTP idempotent) — POST / PATCH ต้องตั้ง `retryable` เอง กันบันทึกซ้ำ */
+const IDEMPOTENT = new Set(['get', 'head', 'put', 'delete']);
+
+/** ลองซ้ำเฉพาะต่อไม่ติด (`ERR_NETWORK`) ของ request ที่ส่งซ้ำได้ และยังไม่ครบรอบ */
+const shouldRetry = (err: AxiosError) => {
+  const c = err.config as Timed | undefined;
+  if (!c || err.code !== AxiosError.ERR_NETWORK || (c.attempt ?? 0) >= RETRY_DELAYS_MS.length) return false;
+  return c.retryable === true || IDEMPOTENT.has((c.method ?? 'get').toLowerCase());
+};
 
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 const elapsed = (t0?: number) => `${Math.round(now() - (t0 ?? now()))}ms`;
@@ -88,7 +107,7 @@ export class Rest {
         if (token) headers.set('Authorization', `Bearer ${token}`);
       }
       req.headers = headers;
-      (req as Timed).metadata = { t0: now() };
+      (req as Timed).metadata ??= { t0: now() };
       return req;
     });
 
@@ -101,8 +120,18 @@ export class Rest {
       (err: unknown) => {
         if (!(err instanceof AxiosError)) return Promise.reject(err);
         const t0 = (err.config as Timed | undefined)?.metadata?.t0;
+        if (!err.response && shouldRetry(err)) {
+          const prev = err.config as Timed;
+          const attempt = (prev.attempt ?? 0) + 1;
+          const wait = RETRY_DELAYS_MS[attempt - 1];
+          log.warn(`API ${describe(prev)} ต่อไม่ติด (${err.code}) — ลองใหม่ครั้งที่ ${attempt}/${RETRY_DELAYS_MS.length} ใน ${wait}ms`);
+          // t0 เดิมคงไว้ → log สุดท้ายบอกเวลารวมทุกรอบ
+          const next: Timed = { ...prev, attempt };
+          return new Promise((r) => setTimeout(r, wait)).then(() => client.request(next));
+        }
         if (!err.response) {
-          log.error(`ติดต่อ API ไม่ได้ ${describe(err.config)} (${cfg.baseURL})`);
+          // code บอกสาเหตุ: ERR_NETWORK = ต่อไม่ติด/CORS · ECONNABORTED = เกิน timeout · ERR_CANCELED = ถูกยกเลิก
+          log.error(`ติดต่อ API ไม่ได้ ${describe(err.config)} (${cfg.baseURL}) · ${err.code ?? err.message} · ${elapsed(t0)}`);
           return Promise.reject(new ApiError(0, `ติดต่อเซิร์ฟเวอร์ไม่ได้ (${cfg.baseURL}) — เปิดหลังบ้านด้วย pnpm dev แล้วลองใหม่`));
         }
         const { status, data } = err.response;
@@ -132,23 +161,23 @@ export class Rest {
     return Rest.instance;
   }
 
-  static async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  static async get<T>(url: string, config?: RestRequestConfig): Promise<T> {
     return (await Rest.client.get<T>(url, config)).data;
   }
 
-  static async post<T = unknown>(url: string, body?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  static async post<T = unknown>(url: string, body?: unknown, config?: RestRequestConfig): Promise<T> {
     return (await Rest.client.post<T>(url, body, config)).data;
   }
 
-  static async put<T = unknown>(url: string, body?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  static async put<T = unknown>(url: string, body?: unknown, config?: RestRequestConfig): Promise<T> {
     return (await Rest.client.put<T>(url, body, config)).data;
   }
 
-  static async patch<T = unknown>(url: string, body?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  static async patch<T = unknown>(url: string, body?: unknown, config?: RestRequestConfig): Promise<T> {
     return (await Rest.client.patch<T>(url, body, config)).data;
   }
 
-  static async delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  static async delete<T = unknown>(url: string, config?: RestRequestConfig): Promise<T> {
     return (await Rest.client.delete<T>(url, config)).data;
   }
 

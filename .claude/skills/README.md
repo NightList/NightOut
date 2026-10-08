@@ -5,5 +5,10 @@
 | `ant-design` | [ant-design/antd-skill](https://github.com/ant-design/antd-skill) @ `e65d2d3` (MIT) | เลือกคอมโพเนนต์ / theming / ProComponents (CRUD, layout, access) ของ antd v6 |
 | `frontend-design` | [anthropics/claude-code](https://github.com/anthropics/claude-code/blob/main/plugins/frontend-design/skills/frontend-design/SKILL.md) | ออกแบบ/ปรับหน้าจอให้มีทิศทางชัด ไม่ดูเป็นเทมเพลต (Figma + Midnight Gold ยังเป็นโจทย์หลัก) |
 | `antd` | [ant-design/antd-skill](https://github.com/ant-design/antd-skill) @ `e65d2d3` (MIT) | ค้น API / props / token / demo ด้วย `@ant-design/cli` แบบ offline, lint, migrate |
+| `third-tutor` | เขียนเองในโปรเจคนี้ (สำเนาเดียวกับ skill ในบัญชี claude.ai) | สอนคนพื้นฐานเป็นศูนย์ให้เข้าใจโค้ดของ module ทีละบท ไวยากรณ์รายบรรทัด เพิ่ม API ต่อ database และแบบทดสอบหลังเรียน (`/third-tutor`) |
 
 อัปเดตเป็นเวอร์ชันล่าสุด: `npx skills add ant-design/antd-skill` หรือ copy โฟลเดอร์ `skills/*` จาก repo ต้นทางมาทับ
+
+## ใช้กับ AI หลายเจ้า
+- `.claude/skills/` = Claude Code · `.agents/skills/` = Cursor / Codex / Antigravity และเครื่องมืออื่นที่อ่านโฟลเดอร์ `.agents` — **เนื้อหาเหมือนกันทุกไฟล์**
+- เพิ่ม/แก้ skill ที่ `.claude/skills/` แล้ว copy ทับอีกฝั่ง: `rm -rf .agents/skills && cp -r .claude/skills .agents/skills` (ไม่ใช้ symlink เพราะ Windows ปิด `core.symlinks`)

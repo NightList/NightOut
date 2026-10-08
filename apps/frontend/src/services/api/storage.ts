@@ -15,8 +15,11 @@ const ext = (f: Blob) =>
 
 export type { UploadBucket };
 
+/** ขอ URL อย่างเดียว ไม่เขียนข้อมูล → ต่อไม่ติดแล้วลองซ้ำได้ (Rest retryable) */
+const RETRYABLE = { retryable: true } as const;
+
 async function upload(bucket: UploadBucket, path: string, file: Blob): Promise<string> {
-  const { upload_url } = await Rest.post<UploadUrlResult>('/storage/upload-url', { bucket, path });
+  const { upload_url } = await Rest.post<UploadUrlResult>('/storage/upload-url', { bucket, path }, RETRYABLE);
   try {
     // URL มี token ในตัว — Rest.upload ไม่แนบ baseURL / Bearer ของ API
     await Rest.upload(upload_url, file, { 'x-upsert': 'false' });
@@ -37,7 +40,7 @@ export async function signedUrls(bucket: UploadBucket, paths: string[], seconds 
       bucket,
       paths: paths.slice(i, i + 500),
       expires_in: seconds,
-    });
+    }, RETRYABLE);
     for (const [p, u] of Object.entries(urls)) out.set(p, u);
   }
   return out;

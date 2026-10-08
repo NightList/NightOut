@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CreateBookingBody, ERROR_MESSAGES, ReorderTeamBody, ReviewDepositBody, TeamMemberBody, UpdateTeamMemberBody } from './index';
 import { canCreateRole, CreateUserBody } from './account';
+import { UpdateHomeCategoryBody, UpdateHomeContentBody } from './site-content';
 
 describe('booking', () => {
   const base = {
@@ -50,6 +51,20 @@ describe('site-team', () => {
   });
 });
 
+describe('site-content', () => {
+  it('partial update keeps only sent fields', () => {
+    expect(UpdateHomeContentBody.parse({ categories_title: ' คืนนี้อยากได้ฟีลไหน ' })).toEqual({ categories_title: 'คืนนี้อยากได้ฟีลไหน' });
+    expect(UpdateHomeContentBody.parse({ hero_image_url: null })).toEqual({ hero_image_url: null });
+  });
+  it('rejects unsafe images and external links', () => {
+    expect(UpdateHomeCategoryBody.safeParse({ image_url: 'javascript:alert(1)' }).success).toBe(false);
+    expect(UpdateHomeCategoryBody.safeParse({ link_to: 'https://evil.example' }).success).toBe(false);
+    expect(UpdateHomeCategoryBody.safeParse({ link_to: '//evil.example' }).success).toBe(false);
+    expect(UpdateHomeCategoryBody.safeParse({ title: '' }).success).toBe(false);
+    expect(UpdateHomeCategoryBody.safeParse({ link_to: '/search?style=Rooftop' }).success).toBe(true);
+  });
+});
+
 describe('account', () => {
   const base = { email: ' New@Mail.com ', display_name: 'ใหม่', birthdate: '1995-05-05' };
   it('normalizes email and ties bar to account type', () => {
@@ -73,6 +88,8 @@ describe('errors', () => {
     expect(ERROR_MESSAGES.ZONE_FULL).toContain('เต็ม');
     expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_FOUND).toBeTruthy();
     expect(ERROR_MESSAGES.LAST_SUPER_ADMIN).toBeTruthy();
+    expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_OWN).toBeTruthy();
+    expect(ERROR_MESSAGES.TEAM_MEMBER_EMAIL_LOCKED).toBeTruthy();
     expect(Object.keys(ERROR_MESSAGES).length).toBeGreaterThan(70);
   });
 });

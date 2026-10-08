@@ -33,5 +33,6 @@ export default defineConfig({
       },
     },
   },
-  server: { port: 5173 },
+  // strictPort: พอร์ตไม่ว่าง = error ทันที (ไม่ขยับไป 5174 ไปชน Backoffice)
+  server: { port: 5173, strictPort: true },
 });

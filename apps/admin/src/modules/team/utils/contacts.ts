@@ -22,3 +22,14 @@ export const CONTACT_FIELDS: {
 /** จำนวนช่องทางที่กรอกไว้ */
 export const contactCount = (c: TeamContacts | null | undefined) =>
   CONTACT_FIELDS.filter((f) => (c?.[f.key] ?? '').trim() !== '').length;
+
+const normEmail = (s: string | null | undefined) => (s ?? '').trim().toLowerCase();
+
+/**
+ * แถวนี้เป็นของบัญชีที่ล็อกอินอยู่ไหม — อีเมลในช่องทางติดต่อตรงกับอีเมลบัญชี (ไม่สนตัวพิมพ์)
+ * ใช้ซ่อน/ปิดปุ่มเท่านั้น · DB ตรวจจริงใน team_member_is_own (migration …20261008000200)
+ */
+export const isOwnMember = (
+  c: TeamContacts | null | undefined,
+  accountEmail: string | null | undefined,
+) => normEmail(accountEmail) !== '' && normEmail(c?.email) === normEmail(accountEmail);

@@ -1,4 +1,5 @@
 import type { StyleSpecification, LayerSpecification } from 'maplibre-gl';
+import { MAP_LOAD_TIMEOUT_MS } from './mapTiles';
 
 /**
  * สไตล์แผนที่แบบ Google Maps (vector tiles ฟรีจาก OpenFreeMap — ไม่ต้องมี API key ไม่จำกัดจำนวน)
@@ -101,14 +102,18 @@ function recolor(layer: LayerSpecification, p: Palette): LayerSpecification {
   else if (id.includes('motorway') && id.includes('casing')) set('line-color', p.highwayCasing);
   else if (id.includes('motorway')) set('line-color', p.highway);
   else if (id === 'highway_major_casing') set('line-color', p.majorCasing);
-  else if (id === 'highway_major_inner' || id === 'highway_major_subtle') set('line-color', p.major);
+  else if (id === 'highway_major_inner' || id === 'highway_major_subtle')
+    set('line-color', p.major);
   else if (id === 'highway_minor' || id === 'highway_path') set('line-color', p.road);
   else if (id.startsWith('railway')) set('line-color', id.includes('dashline') ? p.land : p.rail);
   else if (id.startsWith('boundary')) set('line-color', p.boundary);
   else if (layer.type === 'symbol') {
     const isWater = id.startsWith('water');
     const isRoad = id.startsWith('highway-name');
-    set('text-color', isWater ? p.waterLabel : isRoad ? p.roadLabel : id === 'label_other' ? p.labelMuted : p.label);
+    set(
+      'text-color',
+      isWater ? p.waterLabel : isRoad ? p.roadLabel : id === 'label_other' ? p.labelMuted : p.label,
+    );
     set('text-halo-color', p.halo);
     set('text-halo-width', 1.2);
   }
@@ -121,7 +126,7 @@ const cache = new Map<string, Promise<StyleSpecification>>();
 export function loadGoogleStyle(theme: 'light' | 'dark'): Promise<StyleSpecification> {
   const hit = cache.get(theme);
   if (hit) return hit;
-  const p = fetch(MAP_STYLE_URL)
+  const p = fetch(MAP_STYLE_URL, { signal: AbortSignal.timeout(MAP_LOAD_TIMEOUT_MS) })
     .then((r) => {
       if (!r.ok) throw new Error(`map style ${r.status}`);
       return r.json() as Promise<StyleSpecification>;

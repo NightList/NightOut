@@ -1799,7 +1799,7 @@ export type Database = {
           id?: string
           lat: number
           lng: number
-          location?: never
+          location?: unknown
           name: string
           owner_id?: string | null
           perks?: string[]
@@ -1822,7 +1822,7 @@ export type Database = {
           id?: string
           lat?: number
           lng?: number
-          location?: never
+          location?: unknown
           name?: string
           owner_id?: string | null
           perks?: string[]
@@ -2090,9 +2090,9 @@ export type Database = {
         Row: {
           booking_id: string
           created_at: string
-          fees: NonNullable<Json>
+          fees: Json
           id: string
-          items: NonNullable<Json>
+          items: Json
           package_id: string | null
           package_name: string
           package_price: number
@@ -2101,9 +2101,9 @@ export type Database = {
         Insert: {
           booking_id: string
           created_at?: string
-          fees?: NonNullable<Json>
+          fees?: Json
           id?: string
-          items?: NonNullable<Json>
+          items?: Json
           package_id?: string | null
           package_name: string
           package_price: number
@@ -2112,9 +2112,9 @@ export type Database = {
         Update: {
           booking_id?: string
           created_at?: string
-          fees?: NonNullable<Json>
+          fees?: Json
           id?: string
-          items?: NonNullable<Json>
+          items?: Json
           package_id?: string | null
           package_name?: string
           package_price?: number
@@ -2164,8 +2164,8 @@ export type Database = {
           created_at: string
           estimated_total: number
           id: string
-          items: NonNullable<Json>
-          other_fees: NonNullable<Json>
+          items: Json
+          other_fees: Json
           per_person: number
           service_charge_rate: number
           subtotal: number
@@ -2177,8 +2177,8 @@ export type Database = {
           created_at?: string
           estimated_total: number
           id?: string
-          items?: NonNullable<Json>
-          other_fees?: NonNullable<Json>
+          items?: Json
+          other_fees?: Json
           per_person: number
           service_charge_rate?: number
           subtotal: number
@@ -2190,8 +2190,8 @@ export type Database = {
           created_at?: string
           estimated_total?: number
           id?: string
-          items?: NonNullable<Json>
-          other_fees?: NonNullable<Json>
+          items?: Json
+          other_fees?: Json
           per_person?: number
           service_charge_rate?: number
           subtotal?: number
@@ -2234,7 +2234,7 @@ export type Database = {
           booking_id: string
           created_at: string
           id: string
-          perk_snapshot: NonNullable<Json>
+          perk_snapshot: Json
           promotion_id: string | null
           redeemed_at: string | null
           title_snapshot: string
@@ -2244,7 +2244,7 @@ export type Database = {
           booking_id: string
           created_at?: string
           id?: string
-          perk_snapshot: NonNullable<Json>
+          perk_snapshot: Json
           promotion_id?: string | null
           redeemed_at?: string | null
           title_snapshot: string
@@ -2254,7 +2254,7 @@ export type Database = {
           booking_id?: string
           created_at?: string
           id?: string
-          perk_snapshot?: NonNullable<Json>
+          perk_snapshot?: Json
           promotion_id?: string | null
           redeemed_at?: string | null
           title_snapshot?: string
@@ -2596,7 +2596,7 @@ export type Database = {
           pax: number
           request_pr?: Database["public"]["Enums"]["pr_gender"] | null
           reserved_from: string
-          reserved_period?: never
+          reserved_period?: unknown
           reserved_until: string
           status?: Database["public"]["Enums"]["booking_status"]
           table_id?: string | null
@@ -2625,7 +2625,7 @@ export type Database = {
           pax?: number
           request_pr?: Database["public"]["Enums"]["pr_gender"] | null
           reserved_from?: string
-          reserved_period?: never
+          reserved_period?: unknown
           reserved_until?: string
           status?: Database["public"]["Enums"]["booking_status"]
           table_id?: string | null
@@ -3422,6 +3422,78 @@ export type Database = {
           },
         ]
       }
+      home_categories: {
+        Row: {
+          badge: string | null
+          hint: string
+          image_url: string
+          link_to: string
+          slot: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          hint?: string
+          image_url: string
+          link_to: string
+          slot: string
+          sort_order: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          hint?: string
+          image_url?: string
+          link_to?: string
+          slot?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_content: {
+        Row: {
+          categories_eyebrow: string
+          categories_title: string
+          hero_image_url: string | null
+          hero_search_placeholder: string
+          hero_subtitle: string
+          hero_title_highlight: string
+          hero_title_lead: string
+          hero_title_tail: string
+          id: boolean
+          updated_at: string
+        }
+        Insert: {
+          categories_eyebrow?: string
+          categories_title: string
+          hero_image_url?: string | null
+          hero_search_placeholder: string
+          hero_subtitle?: string
+          hero_title_highlight: string
+          hero_title_lead: string
+          hero_title_tail?: string
+          id?: boolean
+          updated_at?: string
+        }
+        Update: {
+          categories_eyebrow?: string
+          categories_title?: string
+          hero_image_url?: string | null
+          hero_search_placeholder?: string
+          hero_subtitle?: string
+          hero_title_highlight?: string
+          hero_title_lead?: string
+          hero_title_tail?: string
+          id?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           bar_id: string
@@ -3869,7 +3941,7 @@ export type Database = {
           dedupe_key: string | null
           event_type: string
           id: string
-          payload: NonNullable<Json>
+          payload: Json
           read_at: string | null
           title: string
           updated_at: string
@@ -3883,7 +3955,7 @@ export type Database = {
           dedupe_key?: string | null
           event_type: string
           id?: string
-          payload?: NonNullable<Json>
+          payload?: Json
           read_at?: string | null
           title: string
           updated_at?: string
@@ -3897,7 +3969,7 @@ export type Database = {
           dedupe_key?: string | null
           event_type?: string
           id?: string
-          payload?: NonNullable<Json>
+          payload?: Json
           read_at?: string | null
           title?: string
           updated_at?: string
@@ -4004,7 +4076,7 @@ export type Database = {
           key: string
           updated_at: string
           updated_by: string | null
-          value: NonNullable<Json>
+          value: Json
         }
         Insert: {
           created_at?: string
@@ -4012,7 +4084,7 @@ export type Database = {
           key: string
           updated_at?: string
           updated_by?: string | null
-          value: NonNullable<Json>
+          value: Json
         }
         Update: {
           created_at?: string
@@ -4020,7 +4092,7 @@ export type Database = {
           key?: string
           updated_at?: string
           updated_by?: string | null
-          value?: NonNullable<Json>
+          value?: Json
         }
         Relationships: [
           {
@@ -5181,7 +5253,7 @@ export type Database = {
         Row: {
           active: boolean
           bio: string | null
-          contacts: NonNullable<Json>
+          contacts: Json
           created_at: string
           full_name: string | null
           id: string
@@ -5191,12 +5263,11 @@ export type Database = {
           skills: string[]
           sort_order: number
           updated_at: string
-          team_member_check: undefined | null
         }
         Insert: {
           active?: boolean
           bio?: string | null
-          contacts?: NonNullable<Json>
+          contacts?: Json
           created_at?: string
           full_name?: string | null
           id?: string
@@ -5210,7 +5281,7 @@ export type Database = {
         Update: {
           active?: boolean
           bio?: string | null
-          contacts?: NonNullable<Json>
+          contacts?: Json
           created_at?: string
           full_name?: string | null
           id?: string
@@ -5590,7 +5661,8 @@ export type Database = {
       users: {
         Row: {
           age_verification_method:
-            Database["public"]["Enums"]["age_verification_method"] | null
+            | Database["public"]["Enums"]["age_verification_method"]
+            | null
           age_verified: boolean
           age_verified_at: string | null
           anonymized_at: string | null
@@ -5611,7 +5683,8 @@ export type Database = {
         }
         Insert: {
           age_verification_method?:
-            Database["public"]["Enums"]["age_verification_method"] | null
+            | Database["public"]["Enums"]["age_verification_method"]
+            | null
           age_verified?: boolean
           age_verified_at?: string | null
           anonymized_at?: string | null
@@ -5632,7 +5705,8 @@ export type Database = {
         }
         Update: {
           age_verification_method?:
-            Database["public"]["Enums"]["age_verification_method"] | null
+            | Database["public"]["Enums"]["age_verification_method"]
+            | null
           age_verified?: boolean
           age_verified_at?: string | null
           anonymized_at?: string | null
@@ -5687,7 +5761,8 @@ export type Database = {
           description: string | null
           id: string | null
           moderation_status:
-            Database["public"]["Enums"]["moderation_status"] | null
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
           title: string | null
           updated_at: string | null
         }
@@ -5774,6 +5849,75 @@ export type Database = {
           slip_ref: string | null
           status: Database["public"]["Enums"]["deposit_status"] | null
           verified_at: string | null
+        }
+        Relationships: []
+      }
+      admin_home_categories: {
+        Row: {
+          badge: string | null
+          hint: string | null
+          image_url: string | null
+          link_to: string | null
+          slot: string | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          badge?: string | null
+          hint?: string | null
+          image_url?: string | null
+          link_to?: string | null
+          slot?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          badge?: string | null
+          hint?: string | null
+          image_url?: string | null
+          link_to?: string | null
+          slot?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      admin_home_content: {
+        Row: {
+          categories_eyebrow: string | null
+          categories_title: string | null
+          hero_image_url: string | null
+          hero_search_placeholder: string | null
+          hero_subtitle: string | null
+          hero_title_highlight: string | null
+          hero_title_lead: string | null
+          hero_title_tail: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          categories_eyebrow?: string | null
+          categories_title?: string | null
+          hero_image_url?: string | null
+          hero_search_placeholder?: string | null
+          hero_subtitle?: string | null
+          hero_title_highlight?: string | null
+          hero_title_lead?: string | null
+          hero_title_tail?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          categories_eyebrow?: string | null
+          categories_title?: string | null
+          hero_image_url?: string | null
+          hero_search_placeholder?: string | null
+          hero_subtitle?: string | null
+          hero_title_highlight?: string | null
+          hero_title_lead?: string | null
+          hero_title_tail?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -6311,6 +6455,75 @@ export type Database = {
           },
         ]
       }
+      public_home_categories: {
+        Row: {
+          badge: string | null
+          hint: string | null
+          image_url: string | null
+          link_to: string | null
+          slot: string | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          badge?: string | null
+          hint?: string | null
+          image_url?: string | null
+          link_to?: string | null
+          slot?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          badge?: string | null
+          hint?: string | null
+          image_url?: string | null
+          link_to?: string | null
+          slot?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      public_home_content: {
+        Row: {
+          categories_eyebrow: string | null
+          categories_title: string | null
+          hero_image_url: string | null
+          hero_search_placeholder: string | null
+          hero_subtitle: string | null
+          hero_title_highlight: string | null
+          hero_title_lead: string | null
+          hero_title_tail: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          categories_eyebrow?: string | null
+          categories_title?: string | null
+          hero_image_url?: string | null
+          hero_search_placeholder?: string | null
+          hero_subtitle?: string | null
+          hero_title_highlight?: string | null
+          hero_title_lead?: string | null
+          hero_title_tail?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          categories_eyebrow?: string | null
+          categories_title?: string | null
+          hero_image_url?: string | null
+          hero_search_placeholder?: string | null
+          hero_subtitle?: string | null
+          hero_title_highlight?: string | null
+          hero_title_lead?: string | null
+          hero_title_tail?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       public_reviews: {
         Row: {
           bar_id: string | null
@@ -6428,7 +6641,7 @@ export type Database = {
         Returns: string
       }
       admin_dashboard: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           bars_pending: number
           bookings_today: number
@@ -6440,6 +6653,10 @@ export type Database = {
       }
       admin_delete_team_member: {
         Args: { p_actor: string; p_id: string }
+        Returns: Json
+      }
+      admin_delete_user: {
+        Args: { p_actor: string; p_user: string }
         Returns: Json
       }
       admin_finish_new_user: {
@@ -6493,6 +6710,14 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_save_home_category: {
+        Args: { p: Json; p_actor: string; p_slot: string }
+        Returns: Json
+      }
+      admin_save_home_content: {
+        Args: { p: Json; p_actor: string }
+        Returns: Json
+      }
       admin_save_team_member: {
         Args: { p: Json; p_actor: string; p_id: string }
         Returns: Json
@@ -6530,6 +6755,10 @@ export type Database = {
         Args: { p_actor: string; p_reason?: string; p_user: string }
         Returns: Json
       }
+      admin_update_user_account: {
+        Args: { p: Json; p_actor: string; p_user: string }
+        Returns: Json
+      }
       admin_verify_safety: {
         Args: { p_actor: string; p_feature: string }
         Returns: Json
@@ -6553,7 +6782,8 @@ export type Database = {
         Args: { p_actor: string }
         Returns: {
           age_verification_method:
-            Database["public"]["Enums"]["age_verification_method"] | null
+            | Database["public"]["Enums"]["age_verification_method"]
+            | null
           age_verified: boolean
           age_verified_at: string | null
           anonymized_at: string | null
@@ -6809,7 +7039,7 @@ export type Database = {
       }
       assert_keeps_super_admin: { Args: { p_user: string }; Returns: undefined }
       auth_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
       bar_booking_table_options: {
@@ -6887,11 +7117,20 @@ export type Database = {
           zone_name: string
         }[]
       }
-      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      home_category_check: {
+        Args: { r: Database["public"]["Tables"]["home_categories"]["Row"] }
+        Returns: undefined
+      }
+      home_content_check: {
+        Args: { r: Database["public"]["Tables"]["home_content"]["Row"] }
+        Returns: undefined
+      }
+      home_image_ok: { Args: { u: string }; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
       is_bar_member: { Args: { p_bar: string }; Returns: boolean }
       is_bar_member_path: { Args: { p_folder: string }; Returns: boolean }
       my_invites: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           bar_id: string
           bar_name: string
@@ -6941,8 +7180,8 @@ export type Database = {
         Args: { p_role: Database["public"]["Enums"]["user_role"] }
         Returns: boolean
       }
-      run_booking_timeouts: { Args: Record<PropertyKey, never>; Returns: Json }
-      run_retention_jobs: { Args: Record<PropertyKey, never>; Returns: Json }
+      run_booking_timeouts: { Args: never; Returns: Json }
+      run_retention_jobs: { Args: never; Returns: Json }
       search_bars: {
         Args: {
           p_category?: Database["public"]["Enums"]["bar_category"]
@@ -6992,6 +7231,10 @@ export type Database = {
         Args: { r: Database["public"]["Tables"]["team_members"]["Row"] }
         Returns: undefined
       }
+      team_member_is_own: {
+        Args: { p_actor: string; p_contacts: Json }
+        Returns: boolean
+      }
       zone_availability: {
         Args: { p_bar: string; p_datetime: string }
         Returns: {
@@ -7019,7 +7262,11 @@ export type Database = {
       bar_category: "PUB_BAR" | "CHILL" | "RESTAURANT"
       bar_staff_role: "OWNER" | "MANAGER" | "STAFF"
       bar_status:
-        "DRAFT" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "SUSPENDED"
+        | "DRAFT"
+        | "PENDING_REVIEW"
+        | "APPROVED"
+        | "REJECTED"
+        | "SUSPENDED"
       billing_event_type: "CHECK_IN" | "NO_SHOW"
       billing_status: "PENDING" | "INVOICED" | "PAID" | "WAIVED"
       booking_status:
@@ -7140,7 +7387,8 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -7164,7 +7412,8 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -7188,7 +7437,8 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
