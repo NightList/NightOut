@@ -21,6 +21,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '@/services/auth';
 import { useDemo } from '@/hooks/useDemo';
 import { barImage } from '@/ui/utils/barImage';
+import './merchant.css';
 
 const ITEMS = [
   { key: '/merchant', icon: <Gauge />, label: 'แดชบอร์ด', staff: false },
@@ -64,8 +65,8 @@ export function MerchantLayout() {
     .find((i) => location.pathname.startsWith(i.key))?.key;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-      <aside className="lg:sticky lg:top-24 lg:self-start">
+    <div className="merchant-layout grid min-w-0 gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+      <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
         <div
           className="mb-3 rounded-2xl border border-border bg-cover bg-center p-4"
           style={{
@@ -73,9 +74,13 @@ export function MerchantLayout() {
           }}
         >
           <p className="text-xs text-white/80">
-            {bar.staffRole === 'STAFF' ? 'พนักงาน' : bar.staffRole === 'MANAGER' ? 'ผู้จัดการร้าน' : 'ร้านของฉัน'}
+            {bar.staffRole === 'STAFF'
+              ? 'พนักงาน'
+              : bar.staffRole === 'MANAGER'
+                ? 'ผู้จัดการร้าน'
+                : 'ร้านของฉัน'}
           </p>
-          <p className="font-display text-xl font-bold text-white">{bar.name}</p>
+          <p className="break-words font-display text-xl font-bold text-white">{bar.name}</p>
         </div>
         <Menu
           mode="inline"
@@ -84,20 +89,23 @@ export function MerchantLayout() {
           onClick={(e) => navigate(e.key)}
           className="!hidden !rounded-2xl !border !border-border lg:!block"
         />
-        <div className="flex gap-2 overflow-x-auto pb-2 lg:hidden">
-          {items.map((i) => (
-            <button
-              key={i.key}
-              type="button"
-              onClick={() => navigate(i.key)}
-              className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-sm ${selected === i.key ? 'border-gold text-gold-text' : 'border-border text-muted'}`}
-            >
-              {i.icon} {i.label}
-            </button>
-          ))}
-        </div>
+        <label className="block lg:hidden">
+          <span className="mb-1 block text-sm text-muted">เมนูร้าน</span>
+          <select
+            aria-label="เลือกหน้าเมนูร้าน"
+            value={selected ?? '/merchant'}
+            onChange={(e) => navigate(e.target.value)}
+            className="merchant-nav-select w-full rounded-xl border border-border bg-card px-4 text-text"
+          >
+            {items.map((i) => (
+              <option key={i.key} value={i.key}>
+                {i.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </aside>
-      <section className="min-w-0">
+      <section className="merchant-content min-w-0">
         {bar.status !== 'APPROVED' && (
           <Alert
             className="!mb-4"

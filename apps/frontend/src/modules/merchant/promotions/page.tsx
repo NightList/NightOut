@@ -44,7 +44,11 @@ export function MerchantPromotionsPage() {
     setSaving(true);
     try {
       const pending = await setBarPromotions(bar.id, list);
-      message.success(pending ? 'บันทึกแล้ว — โปรที่เพิ่ม/แก้ข้อความ รอทีม NightOut ตรวจถ้อยคำก่อนแสดง' : 'บันทึกแล้ว');
+      message.success(
+        pending
+          ? 'บันทึกแล้ว — โปรที่เพิ่ม/แก้ข้อความ รอทีม NightOut ตรวจถ้อยคำก่อนแสดง'
+          : 'บันทึกแล้ว',
+      );
       return true;
     } catch (e) {
       message.error((e as Error).message);
@@ -72,6 +76,7 @@ export function MerchantPromotionsPage() {
           pagination={false}
           dataSource={bar.promotions}
           locale={{ emptyText: 'ยังไม่มีโปรโมชัน' }}
+          scroll={{ x: 620 }}
           columns={[
             {
               title: 'โปร',

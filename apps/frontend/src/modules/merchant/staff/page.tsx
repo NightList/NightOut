@@ -23,10 +23,14 @@ export function MerchantStaffPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="พนักงาน" subtitle="พนักงานเห็นเฉพาะหน้า คืนนี้ และ การจอง · ผู้จัดการแก้ข้อมูลร้านได้" />
+      <PageHeader
+        title="พนักงาน"
+        subtitle="พนักงานเห็นเฉพาะหน้า คืนนี้ และ การจอง · ผู้จัดการแก้ข้อมูลร้านได้"
+      />
       <Card title="เชิญเข้าทีมทางอีเมล">
         <p className="mb-3 text-sm text-muted">
-          ให้พนักงานสมัคร NightOut ด้วยอีเมลนี้ก่อน แล้วเปิดลิงก์ <code>/accept-invite</code> (หรือกดจากแจ้งเตือน) เพื่อตอบรับ
+          ให้พนักงานสมัคร NightOut ด้วยอีเมลนี้ก่อน แล้วเปิดลิงก์ <code>/accept-invite</code>{' '}
+          (หรือกดจากแจ้งเตือน) เพื่อตอบรับ
         </p>
         <Form
           form={form}
@@ -47,12 +51,15 @@ export function MerchantStaffPage() {
             }
           }}
         >
-          <Form.Item name="email" rules={[{ required: true, type: 'email', message: 'กรอกอีเมลให้ถูกต้อง' }]}>
-            <Input placeholder="staff@example.com" className="!w-64" />
+          <Form.Item
+            name="email"
+            rules={[{ required: true, type: 'email', message: 'กรอกอีเมลให้ถูกต้อง' }]}
+          >
+            <Input placeholder="staff@example.com" className="w-full sm:!w-64" />
           </Form.Item>
           <Form.Item name="role">
             <Select
-              className="!w-36"
+              className="w-full sm:!w-36"
               options={[
                 { value: 'STAFF', label: 'พนักงาน' },
                 { value: 'MANAGER', label: 'ผู้จัดการ' },

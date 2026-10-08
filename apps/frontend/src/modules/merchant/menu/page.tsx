@@ -55,6 +55,7 @@ export function MerchantMenuPage() {
           loading={saving}
           dataSource={bar.menu}
           pagination={false}
+          scroll={{ x: 620 }}
           columns={[
             {
               title: 'หมวด',
@@ -101,7 +102,12 @@ export function MerchantMenuPage() {
                   title="ลบรายการนี้?"
                   okText="ลบ"
                   cancelText="ยกเลิก"
-                  onConfirm={() => save(bar.menu.filter((m) => m.id !== r.id), 'ลบรายการแล้ว')}
+                  onConfirm={() =>
+                    save(
+                      bar.menu.filter((m) => m.id !== r.id),
+                      'ลบรายการแล้ว',
+                    )
+                  }
                 >
                   <Button type="default" danger icon={<TrashIcon />} aria-label="ลบ" />
                 </Popconfirm>
@@ -125,7 +131,10 @@ export function MerchantMenuPage() {
         confirmLoading={saving}
         onOk={async () => {
           const v = await form.validateFields();
-          await save([...bar.menu, { ...v, id: `new-${Date.now()}`, available: true }], 'เพิ่มรายการแล้ว');
+          await save(
+            [...bar.menu, { ...v, id: `new-${Date.now()}`, available: true }],
+            'เพิ่มรายการแล้ว',
+          );
           form.resetFields();
           setOpen(false);
         }}

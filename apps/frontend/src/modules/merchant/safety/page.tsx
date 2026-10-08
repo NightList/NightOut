@@ -17,7 +17,7 @@ export function MerchantSafetyPage() {
         <ul className="divide-y divide-border">
           {bar.safety.map((s) => (
             <li key={s.key} className="flex flex-wrap items-center gap-3 py-3">
-              <span className="flex-1">{SAFETY_LABELS[s.key]}</span>
+              <span className="merchant-safety-label min-w-0 flex-1">{SAFETY_LABELS[s.key]}</span>
               {s.source === 'ADMIN_VERIFIED' && (
                 <span className="flex items-center gap-1 text-xs text-gold-text">
                   <SealCheck weight="fill" /> ยืนยันแล้ว
