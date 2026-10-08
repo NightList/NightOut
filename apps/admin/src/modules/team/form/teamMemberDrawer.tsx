@@ -80,15 +80,15 @@ export function TeamMemberDrawer({
     form.setFieldsValue(
       member
         ? {
-            nickname: member.nickname,
-            full_name: member.full_name ?? undefined,
-            roles: member.roles,
-            skills: member.skills,
-            bio: member.bio ?? undefined,
-            photo_url: member.photo_url,
-            contacts: member.contacts ?? {},
-            active: member.active,
-          }
+          nickname: member.nickname,
+          full_name: member.full_name ?? undefined,
+          roles: member.roles,
+          skills: member.skills,
+          bio: member.bio ?? undefined,
+          photo_url: member.photo_url,
+          contacts: member.contacts ?? {},
+          active: member.active,
+        }
         : { roles: [], skills: [], contacts: {}, active: true, photo_url: null },
     );
   }, [open, member, form]);
@@ -124,11 +124,11 @@ export function TeamMemberDrawer({
       await act.mutateAsync(
         member
           ? {
-              method: 'PATCH',
-              path: `team-members/${member.id}`,
-              body,
-              success: `บันทึกข้อมูล${body.nickname}แล้ว`,
-            }
+            method: 'PATCH',
+            path: `team-members/${member.id}`,
+            body,
+            success: `บันทึกข้อมูล${body.nickname}แล้ว`,
+          }
           : { method: 'POST', path: 'team-members', body, success: `เพิ่ม${body.nickname}แล้ว` },
       );
       onClose();
@@ -232,7 +232,7 @@ export function TeamMemberDrawer({
             placeholder="เล่าสั้นๆ ว่าทำอะไรในทีม"
           />
         </Form.Item>
-        <Form.Item name="skills" label="ทักษะ" extra="พิมพ์แล้วกด Enter · สูงสุด 20">
+        <Form.Item name="skills" label="ทักษะ" extra="พิมพ์แล้วกด Enter · ใส่ได้ไม่จำกัด">
           <Select
             mode="tags"
             tokenSeparators={[',']}
@@ -261,11 +261,11 @@ export function TeamMemberDrawer({
               rules={
                 f.kind === 'url'
                   ? [
-                      {
-                        pattern: /^https:\/\/\S+\.\S+/,
-                        message: 'ต้องเป็นลิงก์เต็มที่ขึ้นต้นด้วย https://',
-                      },
-                    ]
+                    {
+                      pattern: /^https:\/\/\S+\.\S+/,
+                      message: 'ต้องเป็นลิงก์เต็มที่ขึ้นต้นด้วย https://',
+                    },
+                  ]
                   : f.kind === 'email'
                     ? [{ type: 'email', message: 'อีเมลไม่ถูกต้อง' }]
                     : f.kind === 'phone'
