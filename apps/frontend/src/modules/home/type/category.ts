@@ -1,4 +1,4 @@
-/** การ์ดหมวดหมู่ในหน้าแรก (หลังแปลงจาก API / ค่าตั้งต้น) — ลิงก์ไป /ranking, /search?category= หรือ /search?style= */
+/** การ์ดหมวดหมู่ในหน้าแรก (หลังแปลงจาก API) — ลิงก์ไป /ranking, /search?category= หรือ /search?style= */
 export interface HomeCategory {
   /** ช่องบนกริด bento (popular = การ์ดใหญ่ · party = กว้าง 2) */
   key: string;

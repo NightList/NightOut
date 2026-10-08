@@ -31,8 +31,8 @@ const routes: RouteObject[] = [
     children: [
       // ---- สาธารณะ ----
       { index: true, element: <HomePage /> },
-      { path: 'ranking', handle: { fullBleed: true }, lazy: () => import('@/modules/ranking/page').then((m) => ({ Component: m.RankingPage })) },
-      { path: 'search', lazy: () => import('@/modules/search/page').then((m) => ({ Component: m.SearchPage })) },
+      { path: 'ranking', handle: { fullBleed: true, hideFooter: true }, lazy: () => import('@/modules/ranking/page').then((m) => ({ Component: m.RankingPage })) },
+      { path: 'search', handle: { hideFooter: true }, lazy: () => import('@/modules/search/page').then((m) => ({ Component: m.SearchPage })) },
       { path: 'bars/:slug', lazy: () => import('@/modules/barDetail/page').then((m) => ({ Component: m.BarDetailPage })) },
       { path: 'bars/:slug/reviews', lazy: () => import('@/modules/barReviews/page').then((m) => ({ Component: m.BarReviewsPage })) },
       { path: 'share/:token', lazy: () => import('@/modules/share/page').then((m) => ({ Component: m.SharePage })) },
@@ -48,7 +48,7 @@ const routes: RouteObject[] = [
         children: [
           { path: 'onboarding', lazy: () => import('@/modules/onboarding/page').then((m) => ({ Component: m.OnboardingPage })) },
           { path: 'bars/:slug/book', lazy: () => import('@/modules/book/page').then((m) => ({ Component: m.BookPage })) },
-          { path: 'bookings', lazy: () => import('@/modules/bookings/page').then((m) => ({ Component: m.BookingsPage })) },
+          { path: 'bookings', handle: { hideFooter: true }, lazy: () => import('@/modules/bookings/page').then((m) => ({ Component: m.BookingsPage })) },
           { path: 'bookings/:id', lazy: () => import('@/modules/bookingDetail/page').then((m) => ({ Component: m.BookingDetailPage })) },
           { path: 'bookings/:id/deposit', lazy: () => import('@/modules/deposit/page').then((m) => ({ Component: m.DepositPage })) },
           { path: 'reviews/new', lazy: () => import('@/modules/reviewNew/page').then((m) => ({ Component: m.ReviewNewPage })) },
