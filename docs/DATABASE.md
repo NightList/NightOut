@@ -176,7 +176,7 @@ stateDiagram-v2
 | `booking_detail` | รายละเอียดการจอง (ลูกค้า/ทีมร้าน · ไม่มี contact_phone · deposit ไม่มี slip_path) | authenticated | `Db.BookingDetail` |
 | `my_favorites` | ร้านโปรด (bar_cards + favorited_at) | authenticated | `Db.MyFavorite` |
 | `public_team` | ทีมงานหน้า `/about` (nickname, full_name, roles, bio, skills, photo_url, contacts, sort_order) · เฉพาะ active เรียง sort_order | anon + authenticated | `Db.PublicTeamMember` |
-| `public_home_content` · `public_home_categories` | หน้าแรก: Hero + การ์ดหมวด (`GET /public/home` → `{content, categories}`) · ไม่ตอบ = หน้าใช้ค่าตั้งต้นใน `modules/home/utils/categories.ts` | anon + authenticated | `C.PublicHomeResult` |
+| `public_home_content` · `public_home_categories` | หน้าแรก: Hero + การ์ดหมวด (`GET /public/home` → `{content, categories}`) · ไม่ตอบ = หน้าแรกแสดง skeleton / ปุ่มลองใหม่ (ไม่มีค่าตั้งต้นในหน้าเว็บ) | anon + authenticated | `C.PublicHomeResult` |
 | `rpc('search_bars', {p_keyword, p_district_id, p_category, p_style_ids, p_pr_gender, p_limit, p_offset})` | ค้นหา · แบ่งหน้า (limit ≤ 100) · เรียง โปรโมท → คะแนน | anon + authenticated | `Db.BarCard[]` |
 | `rpc('nearby_bars', {p_lat, p_lng, p_radius_m})` | ใกล้ฉัน · เรียงตามระยะ | anon + authenticated | `Db.NearbyBar[]` |
 

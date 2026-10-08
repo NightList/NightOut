@@ -16,16 +16,18 @@ const SPAN: Record<string, string> = {
 /**
  * "คืนนี้อยากได้ฟีลไหน" — การ์ดภาพเต็มใบ + ไล่เข้มด้านล่าง · ชื่อ/คำอธิบาย + ปุ่มลูกศรด้านล่าง
  * เนื้อหา (ชื่อ/คำอธิบาย/ลิงก์/ภาพ/ป้าย) มาจาก useHomeContent — แอดมินแก้ได้ · ตำแหน่งบนกริดตายตัวตาม key
+ * ยังไม่มา (categories = undefined) → skeleton ตามกริดเดียวกัน
  */
 export function CategoryGrid({
   eyebrow,
   title,
   categories,
 }: {
-  eyebrow: string;
-  title: string;
-  categories: HomeCategory[];
+  eyebrow?: string;
+  title?: string;
+  categories?: HomeCategory[];
 }) {
+  if (!categories || title === undefined) return <CategoryGridSkeleton />;
   return (
     <section aria-labelledby="home-categories" className="mx-auto max-w-7xl px-4 md:px-8">
       <SectionHeader
@@ -34,11 +36,40 @@ export function CategoryGrid({
         title={title}
         to="/search"
       />
-      <ul className="grid auto-rows-[150px] grid-cols-2 gap-3 md:auto-rows-[190px] md:gap-4 lg:grid-cols-4 lg:auto-rows-[200px]">
+      <ul className={GRID}>
         {categories.map((c) => (
           <li key={c.key} className={SPAN[c.key] ?? ''}>
             <CategoryCard category={c} />
           </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const GRID =
+  'grid auto-rows-[150px] grid-cols-2 gap-3 md:auto-rows-[190px] md:gap-4 lg:grid-cols-4 lg:auto-rows-[200px]';
+
+/** ช่องบนกริดตามลำดับ slot ของ API (ใช้แค่วาง skeleton ให้ตรงตำแหน่งการ์ดจริง) */
+const SKELETON_SLOTS = ['popular', 'pub', 'food', 'live', 'rooftop', 'chill', 'outdoor', 'party'];
+
+function CategoryGridSkeleton() {
+  return (
+    <section
+      role="status"
+      aria-label="กำลังโหลดหมวดหมู่"
+      className="mx-auto max-w-7xl px-4 motion-safe:animate-pulse md:px-8"
+    >
+      <div className="mb-5">
+        <span className="mb-2 block h-4 w-24 rounded bg-muted/20" />
+        <span className="block h-7 w-56 rounded-md bg-muted/20 md:h-9 md:w-72" />
+      </div>
+      <ul className={GRID}>
+        {SKELETON_SLOTS.map((slot) => (
+          <li
+            key={slot}
+            className={`rounded-2xl border border-white/[0.08] bg-[#14121c] ${SPAN[slot] ?? ''}`}
+          />
         ))}
       </ul>
     </section>
