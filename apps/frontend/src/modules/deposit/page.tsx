@@ -1,5 +1,6 @@
 import { UploadSimple } from '@phosphor-icons/react';
-import { getBar, getBooking, MASTER, promptPayPayload, submitDeposit } from '@/services/data';
+import { getBar, getBooking, MASTER, promptPayPayload } from '@/services/data';
+import { submitDeposit } from './api';
 import { Alert, App, Button, Card, Result, Upload } from 'antd';
 import { QRCodeSVG } from 'qrcode.react';
 import { useState } from 'react';

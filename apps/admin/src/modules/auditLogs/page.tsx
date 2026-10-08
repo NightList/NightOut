@@ -2,19 +2,16 @@ import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Table, Tag } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { dateTime } from '@/ui/utils/format';
 import { AUDIT_ACTION } from '@/ui/utils/labels';
+import { useAuditLogs } from './api';
 
 const json = (v: unknown) => (v == null ? '-' : JSON.stringify(v, null, 2));
 
 /** ทุกการกระทำของแอดมิน/ระบบ (500 รายการล่าสุด) · กดแถวเพื่อดูค่าก่อน–หลัง */
 export function AuditLogsPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_audit_logs', {
-    order: { column: 'created_at', ascending: false },
-    limit: 500,
-  });
+  const { data, isLoading, error, refetch } = useAuditLogs();
   return (
     <PageContainer title="Audit Log">
       <LoadError error={error} onRetry={() => void refetch()} />

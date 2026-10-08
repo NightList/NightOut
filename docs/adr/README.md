@@ -10,3 +10,5 @@
 | [0004](0004-shared-rest-client.md) | Rest client กลางใน `@nightout/utils/rest` ใช้ร่วมทุกแอป | Accepted |
 | [0005](0005-account-role-catalog.md) | ชั้นบัญชีอิงตาราง `roles` และมีแต่ Super Admin ที่แก้ชั้นของบัญชีที่มีอยู่แล้ว | Accepted |
 | [0006](0006-domain-sliced-api-and-shared-contracts.md) | จัดโค้ด API ตามโดเมน + สัญญา API ชุดเดียวใน `packages/contracts` | Accepted |
+| [0007](0007-module-api-file.md) | API ของหน้าอยู่ใน `modules/<หน้า>/api.ts` ของโมดูลนั้น (Supersede บางส่วนของ 0006) | Accepted |
+| [0008](0008-api-response-envelope.md) | ทุกคำตอบของ API เป็น `ApiResponse` { status, status_code, data, code, err_msg } · Rest แกะให้ | Accepted |

@@ -1,19 +1,29 @@
 import { ArrowCounterClockwise, Camera } from '@phosphor-icons/react';
 import type { UpdateHomeContentBody } from '@nightout/contracts';
 import type { Db } from '@nightout/types';
-import { App, Button, Card, Divider, Form, Input, Typography, Upload } from 'antd';
+import { App, Button, Card, Form, Input, Typography, Upload } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAdminAction } from '@/services/adminData';
 import { webSrc } from '@/ui/utils/image';
 import { checkImage, IMAGE_ACCEPT, uploadSiteImage } from '../utils/media';
+import { homeContentAction } from '../api';
 
-type Values = Omit<Db.AdminHomeContent, 'updated_at'>;
+/** เฉพาะ field ของ Hero — หัวข้อ section การ์ดหมวด/ร้านยอดนิยมแก้ใน Card ของ section นั้น (SectionHeadingForm) */
+type Values = Pick<
+  Db.AdminHomeContent,
+  | 'hero_title_lead'
+  | 'hero_title_highlight'
+  | 'hero_title_tail'
+  | 'hero_subtitle'
+  | 'hero_search_placeholder'
+  | 'hero_image_url'
+>;
 
 /** ภาพตั้งต้นของ Hero (ไฟล์ใน public/ ของเว็บลูกค้า) — ใช้เมื่อ hero_image_url = null */
 const DEFAULT_HERO = '/images/home/hero-night-1280.jpg';
 
 /**
- * Hero ของหน้าแรก + ชื่อ section หมวด — บันทึกครั้งเดียวทั้งฟอร์ม (PATCH /admin/home-content)
+ * Hero ของหน้าแรก — บันทึกครั้งเดียวทั้งฟอร์ม (PATCH /admin/home-content ส่งเฉพาะ field ของ Hero)
  * ภาพอัปโหลดทันทีที่เลือก แต่ยังไม่ขึ้นเว็บจนกด "บันทึก"
  */
 export function HeroForm({ content }: { content: Db.AdminHomeContent | undefined }) {
@@ -57,17 +67,15 @@ export function HeroForm({ content }: { content: Db.AdminHomeContent | undefined
       hero_subtitle: v.hero_subtitle?.trim() ?? '',
       hero_search_placeholder: v.hero_search_placeholder.trim(),
       hero_image_url: v.hero_image_url || null,
-      categories_eyebrow: v.categories_eyebrow?.trim() ?? '',
-      categories_title: v.categories_title.trim(),
     };
     await act
-      .mutateAsync({ method: 'PATCH', path: 'home-content', body, success: 'บันทึกหน้าแรกแล้ว' })
+      .mutateAsync({ ...homeContentAction(body), success: 'บันทึก Hero แล้ว' })
       .catch(() => undefined); // useAdminAction แจ้งเหตุผลแล้ว
   };
 
   return (
     <Card
-      title="Hero และหัวข้อ"
+      title="Hero"
       loading={!content}
       extra={
         <Button type="primary" loading={act.isPending} disabled={uploading} onClick={() => void save()}>
@@ -139,27 +147,11 @@ export function HeroForm({ content }: { content: Db.AdminHomeContent | undefined
         <Form.Item
           name="hero_search_placeholder"
           label="ข้อความในช่องค้นหา"
+          className="!mb-0"
           rules={[{ required: true, whitespace: true, message: 'กรอกข้อความในช่องค้นหา' }]}
         >
           <Input maxLength={60} />
         </Form.Item>
-
-        <Divider titlePlacement="start" plain>
-          Section การ์ดหมวด
-        </Divider>
-        <div className="grid gap-x-4 sm:grid-cols-2">
-          <Form.Item name="categories_eyebrow" label="บรรทัดเล็กเหนือชื่อ" className="!mb-0">
-            <Input maxLength={40} placeholder="เลือกตามสไตล์ (เว้นว่างได้)" />
-          </Form.Item>
-          <Form.Item
-            name="categories_title"
-            label="ชื่อ section"
-            className="!mb-0"
-            rules={[{ required: true, whitespace: true, message: 'กรอกชื่อ section' }]}
-          >
-            <Input maxLength={60} placeholder="คืนนี้อยากได้ฟีลไหน" />
-          </Form.Item>
-        </div>
       </Form>
     </Card>
   );

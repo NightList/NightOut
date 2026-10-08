@@ -1,4 +1,4 @@
-import { useBillingEvents } from '@/services/data';
+import { useBillingEvents } from './api';
 import { Alert, Card, Statistic, Table, Tag } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { baht, dateTime } from '@/ui/utils/format';

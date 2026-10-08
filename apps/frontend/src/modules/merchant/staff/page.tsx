@@ -1,6 +1,6 @@
 import { App, Avatar, Button, Card, Form, Input, Listy, Popconfirm, Select, Tag } from 'antd';
 import { useState } from 'react';
-import { inviteStaff, removeStaff, useBarTeam } from '@/services/data';
+import { inviteStaff, removeStaff, useBarTeam } from './api';
 import { useAuth } from '@/services/auth';
 import { ListRow } from '@/ui/components/listRow';
 import { PageHeader } from '@/ui/components/pageHeader';

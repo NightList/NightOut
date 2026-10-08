@@ -1,6 +1,7 @@
 import { App, Alert, Input, Modal, Select, Typography } from 'antd';
 import { useMemo, useState } from 'react';
-import { moveBooking, useTableOptions, type Booking, type TableOption } from '@/services/data';
+import { type Booking } from '@/services/data';
+import { moveBooking, useTableOptions, type TableOption } from '../api';
 import { dateTime } from '@/ui/utils/format';
 
 const keyOf = (o: Pick<TableOption, 'zone_id' | 'table_id'>) => `${o.zone_id}:${o.table_id ?? ''}`;

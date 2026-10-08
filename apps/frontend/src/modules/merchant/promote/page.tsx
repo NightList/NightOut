@@ -1,5 +1,6 @@
 import { Megaphone, UploadSimple } from '@phosphor-icons/react';
-import { getState, MASTER, orderPromotion, promptPayPayload } from '@/services/data';
+import { getState, MASTER, promptPayPayload } from '@/services/data';
+import { orderPromotion } from './api';
 import { App, Button, Card, Modal, Table, Tag, Upload } from 'antd';
 import { QRCodeSVG } from 'qrcode.react';
 import { useState } from 'react';
@@ -72,7 +73,7 @@ export function MerchantPromotePage() {
           </Card>
         ))}
       </div>
-      {bar.status !== 'APPROVED' && <p className="text-sm text-muted">ซื้อโปรโมทได้หลังร้านผ่านการตรวจและเปิดแสดงแล้ว</p>}
+      {bar.status !== 'APPROVED' && <p className="text-sm text-muted">ซื้อโปรโมทได้หลังร้านผ่านการตรวจและแสดงบนเว็บแล้ว</p>}
       <Card title="ประวัติการโปรโมท">
         <Table
           rowKey="id"

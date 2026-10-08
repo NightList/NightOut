@@ -32,7 +32,7 @@
 - สถาปัตยกรรมและ route อ้างอิง `docs/ARCHITECTURE.md` และ `docs/SITEMAP.md` · รายชื่อโมดูลทั้งหมด `docs/STRUCTURE.md`
 
 ## โครงโฟลเดอร์ (apps/frontend, apps/admin)
-- 1 หน้า = `src/modules/<ชื่อหน้า camelCase>/page.tsx` · ของใช้เฉพาะหน้าไว้ใน `components/ type/ form/ modal/ utils/` ของโมดูลนั้น
+- 1 หน้า = `src/modules/<ชื่อหน้า camelCase>/page.tsx` · ของใช้เฉพาะหน้าไว้ใน `components/ type/ form/ modal/ utils/` ของโมดูลนั้น · **API ที่โมดูลใช้อยู่ `api.ts` ของโมดูลนั้น** (Rest + `useQuery` · ใช้เส้นเดียวกับโมดูลอื่นก็ประกาศซ้ำได้ ไม่ import ข้ามโมดูล — ADR 0007 · ทั้ง `apps/frontend` และ `apps/admin`)
 - ใช้หลายหน้า → `src/ui/components`, `src/ui/utils`, `src/hooks` · API/Auth → `src/services`
 - route อยู่ `src/router/index.tsx`, guard อยู่ `src/router/middleware.tsx`, layout อยู่ `src/layouts/`
 - รายละเอียด: `docs/ARCHITECTURE.md` หัวข้อ "โครงภายในแอป"
@@ -43,6 +43,7 @@
 
 ## API (NestJS)
 - key ใน body / query / response เป็น **snake_case ทั้งหมด** (เช่น `qty`, `unit_price`, `service_charge_rate`) — โค้ดภายในที่ใช้ camelCase ให้แปลงใน service
+- **ทุกคำตอบเป็น `{ status: "ok" | "no", status_code, data, code, err_msg }`** (`ApiResponse` ใน contracts) — ห่อให้อัตโนมัติด้วย `common/api-response.ts` (controller คืน data ตามปกติ ห้ามห่อเอง) · HTTP status เป็นค่าจริง · err_msg = ข้อความไทยจาก `<DOMAIN>_ERRORS` · หน้าเว็บ**ไม่ต้อง**เช็ก `status`: `Rest` คืน `data` ให้ และ throw `ApiError` (`e.message` = err_msg · `e.code` = รหัส)
 - ทุก endpoint ต้องมี `@ApiDoc({ summary, description, returns })` (`apps/backend/src/common/api-doc.ts`) บอกว่าเส้นนี้ทำอะไรและตอบอะไรกลับ · field ใน DTO ใส่ `.describe()` ได้
 
 ## Auth
@@ -67,6 +68,7 @@
 - รีวิวแนบรูป/วิดีโอได้สูงสุด 6 ไฟล์ (วิดีโอ ≤ 60 วิ / 60MB) · ของจริงเก็บ Supabase Storage `review-media` (migration 0003) · ตอนเลือกไฟล์: รูปเป็น data URL, วิดีโอพักใน IndexedDB (`services/mediaStore.ts`) แล้วอัปโหลดตอนส่งรีวิว
 - ธีมมืดเป็นค่าเริ่มต้น · หน้า Auth ไม่มีปุ่มเปลี่ยนธีม/ปุ่มเข้าสู่ระบบบน navbar (`<Navbar minimal />`)
 - ไม่มีโหมดเดโมแล้ว (เอาปุ่มเข้าเร็วเดโม/ปุ่มรีเซ็ตออก)
+- **ไม่มี Editor's Pick** (ตัดออก 2026-10-08) · ป้ายร้านมีแค่ "แนะนำ · โฆษณา" (ร้านจ่ายเงินโปรโมท — แอดมินเปิดเองไม่ได้ จัดการที่ `/promotions`) และ "ร้านใหม่" · สถานะร้าน `APPROVED` เรียกว่า "แสดง" (Backoffice `/bars` สวิตช์แสดง ↔ ระงับ)
 - หน้าจัดการทีมงาน (`/team` Backoffice): **เพิ่ม / ลบ / สลับลำดับ เฉพาะ Super Admin** · แก้/ซ่อน: Super Admin ทุกแถว · Admin เฉพาะแถวที่ `contacts.email` ตรงกับอีเมลบัญชีตัวเอง (เปลี่ยนอีเมลนั้นไม่ได้) — DB ตรวจใน `admin_*_team_member*` (`…20261008000200`)
 
 ## ชื่อโปรเจกต์
@@ -76,7 +78,7 @@
 - **1 เรื่องธุรกิจ = ชื่อโดเมนเดียวกันใน 4 ที่** — ไล่เรื่องไหน grep ชื่อโดเมนนั้น: `catalog` `booking` `deposit` `review` `bar` `bar-team` `account` `promotion` `billing` `site-team` `site-content` `storage` `pricing` `backoffice`
   1. `packages/contracts/src/<domain>.ts` — zod ของ body/query + type ของ response + `<DOMAIN>_ERRORS` (ไม่มี Nest/React) · `ERROR_MESSAGES` รวมอยู่ใน `errors.ts`
   2. `apps/backend/src/domains/<domain>/` — `<domain>.module.ts` · `<domain>.{public,me,merchant,admin}.controller.ts` (แยกตามคนเรียก · guard ต่างกัน) · `<domain>.dto.ts` = `class XDto extends createZodDto(C.XBody)` · `<domain>.service.ts` เฉพาะที่มี logic มากกว่าเรียก rpc 1 ครั้ง
-  3. `apps/frontend/src/services/api/<domain>.ts` (เรียก `Rest` · body `satisfies C.XBody` · response `C.XResult` · เขียนแล้ว `refresh()`) + `services/queries/<domain>.ts` (hook TanStack · key จาก `queries/keys.ts`) + `services/mappers/<domain>.ts` (แถว view → model) · **หน้า import ผ่าน `services/data.ts` เท่านั้น** (re-export) · Backoffice: `apps/admin/src/services/api|queries/<domain>.ts` + หน้าต่าง `adminData.ts`
+  3. หน้าเว็บ (ADR 0007): **`modules/<หน้า>/api.ts` ของแต่ละโมดูล** — ทุกเส้นที่โมดูลใช้ (เรียก `Rest` · body `satisfies C.XBody` · response `C.XResult` · อ่าน = `useQuery` · เขียนแล้ว **ไม่ต้อง** `refresh()` — Rest โหลด store ใหม่ให้เอง: `afterWrite` → `refreshAfterWrite` ใน `services/sync.ts`) · Backoffice: `api.ts` ของโมดูลประกาศ view (`useAdminView('admin_x', opts)`) + action builder (`xAction(id, body): AdminActionInput`) แล้วหน้าเรียก `useAdminAction().mutate({ ...xAction(…), success })` · ของกลางที่เหลือใน `services/`: `sync.ts` + `mappers/` (store ของ catalog / `/me/overview`) · `data.ts` (อ่าน store) · `api/storage.ts` · `auth.tsx` · admin: `adminData.ts` (hook กลาง)
   4. migration `apps/backend/supabase/migrations/<ts>_<domain>_<เรื่อง>.sql` · ฟังก์ชันตัวล่าสุดดูตาราง `docs/DATABASE.md` ข้อ 5.0
 - `health` / `jobs` อยู่นอก `domains/` (ระบบ) · `packages/types` = enum กลาง + type ของแถว view/ตาราง (`Db.*`) ไม่ใช่สัญญา API
 
@@ -92,7 +94,7 @@
 2. **contracts** — `packages/contracts/src/<domain>.ts`: `export const XBody = z.object({…})` + `export type XBody = z.infer<…>` (ใช้ `z.input` ถ้ามี default/transform) + `export interface XResult` · รหัส error ใหม่ → `<DOMAIN>_ERRORS` (ข้อความไทย) · เทสต์ใน `contracts.test.ts`
 3. **API** — `domains/<domain>/<domain>.dto.ts` เพิ่ม `class XDto extends createZodDto(C.XBody)` · endpoint ใน controller ที่ตรงกับคนเรียก (`public` / `me` / `merchant` / `admin`) · `@ApiDoc` ทุกเส้น (บอกชื่อ rpc ที่เรียกใน description) · อ่าน = `db.selectAs/rpcAs(bearerOf(req), …)` · เขียน = `db.rpc('app_*', { p_actor: me.id, … })` · param ใช้ `Id()` / `BarId()` / `BookingId()` จาก `common/params` · view ใหม่ของ Backoffice → `ADMIN_VIEWS` ใน `contracts/backoffice.ts` + `AdminViewRows` ใน `apps/admin/src/services/api/backoffice.ts`
 4. **type ของแถว** — `packages/types/src/database.ts` (`Db.*`) + รัน `db:types` หลัง `db:push` · response ที่หน้าเว็บใช้ต้องตรงกับ API (อย่าซ่อน/กรองค่าเงียบๆ ใน mapper)
-5. **หน้าเว็บ** — เขียน: ฟังก์ชันใน `services/api/<domain>.ts` · อ่านสด: `fetchX` ใน api + hook ใน `services/queries/<domain>.ts` (key ใน `queries/keys.ts`) · ข้อมูลที่อยู่ใน catalog/overview: mapper ใน `services/mappers/<domain>.ts` · แล้ว re-export ใน `services/data.ts` · Backoffice: `useAdminView` / `useAdminAction` (`method` POST/PATCH/PUT/DELETE · `success` เป็นข้อความหรือฟังก์ชันจากผล API)
+5. **หน้าเว็บ** — เพิ่มใน `modules/<หน้า>/api.ts` ของโมดูลที่ใช้ (ไฟล์เดียว): เขียน = ฟังก์ชันเรียก `Rest.post/put/patch/delete` · อ่านสด = hook `useQuery` (key ขึ้นต้นด้วยชื่อโดเมน เช่น `['booking', …]`) · 2 โมดูลใช้เส้นเดียวกัน = ประกาศในแต่ละ `api.ts` (ไม่ import ข้ามโมดูล) · ข้อมูลที่อยู่ใน catalog/overview: mapper ใน `services/mappers/<domain>.ts` · Backoffice: `api.ts` ของโมดูล = `useXxx = () => useAdminView('admin_x', opts)` + `xAction(…): AdminActionInput` (`method` POST/PATCH/PUT/DELETE + path ต่อจาก `/admin/`) · หน้าเรียก `useAdminAction().mutate({ ...xAction(…), success })` · query อื่นของ admin ต้องขึ้นต้น `['admin', …]`
 6. **logic ที่ทั้งหน้าเว็บและ backend ใช้** (ข้อความเงื่อนไข, เบอร์โทร, ราคา, state machine) → `packages/utils` + เทสต์ (utils ห้าม import contracts — contracts พึ่ง utils)
 7. **เอกสาร** — `docs/DATABASE.md` (ข้อ 5.0 + migration + endpoint), `docs/SITEMAP.md` (หน้า), `docs/STRUCTURE.md` (โมดูล/โดเมนใหม่), กฎธุรกิจใหม่ใส่หัวข้อด้านบนของไฟล์นี้, การตัดสินใจเชิงโครงสร้าง = ADR ใหม่ใน `docs/adr/`
 8. **ทดสอบ** — `pnpm lint && pnpm typecheck && pnpm test && pnpm build` · migration ลองกับ Postgres ในเครื่องก่อน push (`supabase db reset` หรือรันไฟล์ใน DB เปล่า) · เช็กสิทธิ์ด้วย token ของ role จริง (anon / ลูกค้า / ทีมร้าน / แอดมิน aal2)
@@ -105,9 +107,9 @@
 
 ## การเชื่อมต่อ API (ADR 0002 — `docs/adr/0002-migrate-direct-db-calls-to-backend-api.md`)
 - `apps/frontend` และ `apps/admin` **ห้าม query DB / Storage ตรง** — `supabase` ใช้ได้เฉพาะ `supabase.auth.*` (ESLint บล็อก `supabase.from/rpc/storage`) · Backoffice: ADR 0003 (`/admin/views/:view`, `/admin/dashboard`, `/admin/master/:table`)
-- ลำดับชั้น: `Component → services/data.ts → services/queries/<domain>.ts (TanStack) → services/api/<domain>.ts → Rest (@nightout/utils/rest — class กลางใช้ร่วม frontend + admin) → Backend domains/<domain>` · type/body จาก `@nightout/contracts`
+- ลำดับชั้น: `Component → modules/<หน้า>/api.ts (Rest + TanStack Query) → Rest (@nightout/utils/rest — class กลางใช้ร่วม frontend + admin) → Backend domains/<domain>` · type/body จาก `@nightout/contracts`
 - ห้ามสร้าง axios/fetch client ของแต่ละแอปเอง — ตั้งค่า `Rest.configure({ …, errorMessages: ERROR_MESSAGES })` ที่ `main.tsx` แล้ว import `Rest` จาก `@nightout/utils/rest` · รหัส error ใหม่ → `<DOMAIN>_ERRORS` ใน `packages/contracts/src/<domain>.ts`
-- อ่านข้อมูลใหม่: endpoint ใน `domains/<domain>` (อ่านในนามผู้เรียกด้วย `selectAs`/`rpcAs` ห้ามใช้ service_role) → `fetchX` ใน `services/api/<domain>.ts` → hook ใน `services/queries/<domain>.ts` · เขียน: ฟังก์ชันใน `services/api/<domain>.ts` ที่เรียก `Rest.post/put/patch/delete<T>()`
+- อ่านข้อมูลใหม่: endpoint ใน `domains/<domain>` (อ่านในนามผู้เรียกด้วย `selectAs`/`rpcAs` ห้ามใช้ service_role) → hook `useQuery` ใน `modules/<หน้า>/api.ts` · เขียน: ฟังก์ชันใน `modules/<หน้า>/api.ts` ที่เรียก `Rest.post/put/patch/delete<T>()`
 - อัปโหลดไฟล์: `services/api/storage.ts` (ขอ URL จาก `POST /storage/upload-url` แล้ว PUT ไฟล์ตรง)
 - env: `VITE_API_BASE_URL` (ว่าง = dev `http://localhost:3000/api`, deploy `/api`) · backend ต้องมี `SUPABASE_ANON_KEY` (หรือใช้ `VITE_SUPABASE_ANON_KEY` ที่ root)
 
@@ -115,7 +117,7 @@
 - `apps/frontend`: **ข้อมูลร้านมาจาก Supabase ผ่าน NestJS เท่านั้น** — ต้องมี `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (Auth) ใน `.env` ที่ root และเปิด backend (ไม่มี → หน้าแจ้งให้ตั้งค่า, ต่อไม่ได้ → หน้า error + ปุ่มลองใหม่) ห้ามใช้ร้านเดโมเป็น fallback
   - `main.tsx` รอ `loadPublic()` (`src/services/sync.ts` → `GET /public/catalog`) ก่อน render แล้วเอาข้อมูลไปใส่ store ของ `@nightout/mock` → หน้าเว็บยังเรียก `listBars()` / `getBarBySlug()` ได้เหมือนเดิม
   - ร้านเดโมอยู่ใน DB แล้ว (`apps/backend/supabase/seed.sql` สร้างจาก `@nightout/mock` ด้วย `db:seed:gen`) — ห้ามใส่ชื่อร้านจริงใน seed
-- ทุกหน้าใช้ข้อมูลจริงแล้ว: `src/services/sync.ts` โหลดจาก API (`/public/catalog`, `/me/overview`) ใส่ store ของ `@nightout/mock` (cache) · หน้า import จาก `@/services/data` (ห้าม import `@nightout/mock` ตรงในหน้า) · การเขียนเรียก `src/services/api/<domain>.ts` → NestJS `domains/<domain>` → `rpc('app_*')` (`docs/DATABASE.md` หัวข้อ 5.2)
+- ทุกหน้าใช้ข้อมูลจริงแล้ว: `src/services/sync.ts` โหลดจาก API (`/public/catalog`, `/me/overview`) ใส่ store ของ `@nightout/mock` (cache) · หน้า import จาก `@/services/data` (ห้าม import `@nightout/mock` ตรงในหน้า) · การเขียนเรียกจาก `modules/<หน้า>/api.ts` → NestJS `domains/<domain>` → `rpc('app_*')` (`docs/DATABASE.md` หัวข้อ 5.2)
 - log การเชื่อมต่อออก Console ผ่าน `src/services/log.ts` (ป้าย `NightOut`) — ดูวิธีเช็กใน `docs/SUPABASE.md` หัวข้อ 5
 - มัดจำ/โอนเงินให้ร้านยังเป็น DRAFT (ข้อ 10.3) ห้ามเปิดรับเงินจริง
 - โครงสร้างตาราง: `docs/DATABASE.md` (spec: `docs/DATABASE_CHANGES.md`) · types: `import { Db } from '@nightout/types'` (`Db.BarCard`, `Db.BarDetail` …)

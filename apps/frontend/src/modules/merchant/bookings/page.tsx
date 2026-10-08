@@ -1,6 +1,7 @@
 import { ArrowsLeftRight, HandCoins } from '@phosphor-icons/react';
 import type { TeamBookingStatusBody } from '@nightout/contracts';
-import { barBookings, setBookingStatus, type Booking } from '@/services/data';
+import { barBookings, type Booking } from '@/services/data';
+import { setBookingStatus } from './api';
 import type { BookingStatus } from '@nightout/types';
 import { nextStatuses } from '@nightout/utils';
 import { App, Button, Card, Drawer, Segmented, Space, Table, Timeline } from 'antd';

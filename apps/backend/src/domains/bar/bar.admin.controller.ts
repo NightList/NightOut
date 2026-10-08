@@ -6,9 +6,9 @@ import { SupabaseJwtGuard, type AuthUser } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
 import { ADMIN_FORBIDDEN, Id } from '../../common/params';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { ApproveDto, SetBarStatusDto, SetEditorPickDto } from './bar.dto';
+import { ApproveDto, SetBarStatusDto } from './bar.dto';
 
-/** bar · Backoffice — อนุมัติ/ระงับร้าน · Editor's Pick · ยืนยัน Safety · ตรวจถ้อยคำโปรของร้าน (audit log ในธุรกรรมเดียว) */
+/** bar · Backoffice — อนุมัติ/ระงับร้าน · ยืนยัน Safety · ตรวจถ้อยคำโปรของร้าน (audit log ในธุรกรรมเดียว) */
 @ApiTags('bar')
 @ApiBearerAuth()
 @UseGuards(SupabaseJwtGuard, AdminGuard)
@@ -25,17 +25,6 @@ export class BarAdminController {
   })
   setStatus(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: SetBarStatusDto) {
     return this.db.rpc('admin_set_bar_status', { p_actor: me.id, p_bar: id, p_status: b.status, p_reason: b.reason ?? null });
-  }
-
-  @Patch('bars/:id/editor-pick')
-  @ApiDoc({
-    summary: "ตั้ง/ยกเลิก Editor's Pick",
-    description: 'ติดป้ายร้านแนะนำโดยทีมงาน (rpc admin_set_editor_pick)',
-    returns: '`id` รหัสร้าน · `is_editor_pick`',
-    forbidden: ADMIN_FORBIDDEN,
-  })
-  setEditorPick(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: SetEditorPickDto) {
-    return this.db.rpc('admin_set_editor_pick', { p_actor: me.id, p_bar: id, p_value: b.value });
   }
 
   @Post('safety/:id/verify')

@@ -18,6 +18,7 @@ export const ADMIN_VIEWS = [
   'admin_team_members',
   'admin_home_content',
   'admin_home_categories',
+  'admin_home_popular',
 ] as const;
 export type AdminView = (typeof ADMIN_VIEWS)[number];
 

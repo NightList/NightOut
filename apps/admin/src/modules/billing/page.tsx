@@ -2,17 +2,15 @@ import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Table, Tag } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { baht, dateTime } from '@/ui/utils/format';
 import { BILLING_STATUS } from '@/ui/utils/labels';
+import { useBillingEvents } from './api';
 
 /** ค่าคอมมิชชันที่เกิดจากการจอง (เช็กอิน = คิดค่าคอม · ไม่มาตามนัด = ยกเว้น) */
 export function BillingPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_billing_events', {
-    order: { column: 'created_at', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = useBillingEvents();
   const total = (data ?? []).filter((r) => r.status !== 'WAIVED').reduce((s, r) => s + r.amount, 0);
   return (
     <PageContainer title="ค่าคอม" content={`ยอดค่าคอมที่ยังไม่ยกเว้นทั้งหมด ${baht(total)}`}>

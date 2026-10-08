@@ -1,5 +1,6 @@
 import { Bell } from '@phosphor-icons/react';
-import { markAllRead, myNotifications } from '@/services/data';
+import { myNotifications } from '@/services/data';
+import { markAllRead } from './api';
 import { App, Badge, Button, Empty, Listy } from 'antd';
 import { ListRow } from '@/ui/components/listRow';
 import { Link } from 'react-router';

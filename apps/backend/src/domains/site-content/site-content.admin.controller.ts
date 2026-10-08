@@ -1,6 +1,6 @@
-import { Body, Controller, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { HomeCategorySlot } from '@nightout/contracts';
+import { HomeCategorySlot, type UpdateHomePopularResult } from '@nightout/contracts';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AdminGuard } from '../../auth/admin.guard';
 import { CurrentUser } from '../../auth/current-user.decorator';
@@ -8,9 +8,9 @@ import { SupabaseJwtGuard, type AuthUser } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
 import { ADMIN_FORBIDDEN } from '../../common/params';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { UpdateHomeCategoryDto, UpdateHomeContentDto } from './site-content.dto';
+import { UpdateHomeCategoryDto, UpdateHomeContentDto, UpdateHomePopularDto } from './site-content.dto';
 
-/** site-content · Backoffice — แก้เนื้อหาหน้าแรก (rpc admin_save_home_content, admin_save_home_category · audit log) */
+/** site-content · Backoffice — แก้เนื้อหาหน้าแรก (rpc admin_save_home_content, admin_save_home_category, admin_save_home_popular · audit log) */
 @ApiTags('site-content')
 @ApiBearerAuth()
 @UseGuards(SupabaseJwtGuard, AdminGuard)
@@ -43,5 +43,17 @@ export class SiteContentAdminController {
     @Body() b: UpdateHomeCategoryDto,
   ) {
     return this.db.rpc('admin_save_home_category', { p_actor: me.id, p_slot: slot, p: b });
+  }
+
+  @Put('home-popular')
+  @ApiDoc({
+    summary: 'ตั้งร้านยอดนิยมบนหน้าแรก',
+    description:
+      'แทนที่ทั้งรายการตามลำดับใน `bar_ids` (สูงสุด 8 · ไม่ซ้ำ · เฉพาะร้าน APPROVED) · `[]` = ไม่ปัก หน้าแรกเรียงตามคะแนนรีวิวทั้งหมด · ช่องที่เหลือหน้าเว็บเติมด้วยร้านคะแนนรีวิวสูงสุด · rpc admin_save_home_popular · บันทึก audit log',
+    returns: '`bar_ids` รายการหลังบันทึก',
+    forbidden: ADMIN_FORBIDDEN,
+  })
+  savePopular(@CurrentUser() me: AuthUser, @Body() b: UpdateHomePopularDto) {
+    return this.db.rpc<UpdateHomePopularResult>('admin_save_home_popular', { p_actor: me.id, p_bar_ids: b.bar_ids });
   }
 }

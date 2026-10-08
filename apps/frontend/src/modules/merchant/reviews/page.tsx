@@ -1,4 +1,5 @@
-import { barReviews, reportReview } from '@/services/data';
+import { barReviews } from '@/services/data';
+import { reportReview } from './api';
 import { StarRating } from '@nightout/ui';
 import { App, Button, Card, Listy, Tag } from 'antd';
 import { ListRow } from '@/ui/components/listRow';

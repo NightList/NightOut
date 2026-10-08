@@ -1,5 +1,6 @@
 import { Plus, TrashIcon } from '@phosphor-icons/react';
-import { setMenu, type MenuItem } from '@/services/data';
+import { type MenuItem } from '@/services/data';
+import { setMenu } from './api';
 import {
   App,
   Button,

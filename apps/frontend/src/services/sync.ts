@@ -22,7 +22,7 @@ import { mediaPaths, signReviewPaths, toMyReview, toPublicReview, type MyReviewR
  * ดึงข้อมูลจาก NestJS API (Rest → GET /public/catalog, /me/overview) มาใส่ store ของ @nightout/mock (cache ฝั่งหน้าเว็บ) — ไม่ query DB ตรง (ADR 0002)
  * - สาธารณะ (ตอนเปิดเว็บ): ร้าน (bar_detail) · รีวิว (public_reviews) · ย่าน/สไตล์/แพ็กเกจโปรโมท/PromptPay
  * - ผู้ใช้ (หลังล็อกอิน): การจอง · มัดจำ · แจ้งเตือน · ร้านโปรด · รีวิวของฉัน · ร้านของฉัน (ทุกสถานะ) + การจองของร้าน
- * หน้าเว็บอ่านจาก store แบบเดิม (listBars, myBookings, ...) · การเขียนทั้งหมดไป NestJS (services/api/<domain>.ts) แล้วโหลดใหม่
+ * หน้าเว็บอ่านจาก store แบบเดิม (listBars, myBookings, ...) · การเขียนทั้งหมดไป NestJS (modules/<หน้า>/api.ts) แล้ว Rest โหลดใหม่ให้เอง (refreshAfterWrite)
  * ไม่มีข้อมูลเดโม: store ถูกล้างแล้วแทนด้วยข้อมูลจาก DB ทุกครั้ง
  */
 
@@ -298,16 +298,30 @@ export function clearUser() {
   commit();
 }
 
-/** โหลดใหม่หลังบันทึก (เรียกจาก services/api/<domain>.ts) */
+/** โหลด store ใหม่ (`/me/overview` + `/public/catalog` ถ้า public) */
 export async function refresh(opts: { public?: boolean } = {}) {
   await Promise.all([opts.public ? loadPublic() : Promise.resolve(), lastProfile ? loadUser(lastProfile) : Promise.resolve()]);
+}
+
+/** การเขียนที่ไม่ต้องโหลด store ใหม่ — POST ที่จริงเป็นการขอ URL ไฟล์ / ลบบัญชี (เข้าสู่ระบบไม่ได้แล้ว) */
+const NO_REFRESH = /^\/storage\/|^\/me\/delete$/;
+/** การเขียนที่เปลี่ยนข้อมูลหน้าร้าน → โหลด `/public/catalog` ใหม่ด้วย */
+const PUBLIC_WRITES = /^\/merchant\/bars\/[^/]+\/(crowd|info|menu|promotions|fees|zones|safety|booking-settings)|^\/bookings\/[^/]+\/review$/;
+
+/**
+ * ตั้งเป็น `afterWrite` ของ Rest ใน main.tsx — ทุก POST/PUT/PATCH/DELETE ที่สำเร็จโหลด store ใหม่ให้อัตโนมัติ
+ * (modules/<หน้า>/api.ts เรียก `Rest.post(...)` อย่างเดียว ไม่ต้อง refresh เอง)
+ */
+export async function refreshAfterWrite({ url }: { url: string }) {
+  if (NO_REFRESH.test(url)) return;
+  await refresh({ public: PUBLIC_WRITES.test(url) });
 }
 
 /** ชื่อผู้ใช้ใน store (ใช้หลังแก้โปรไฟล์) */
 export function currentProfile(): SessionProfile | null {
   return lastProfile;
 }
-/** โปรไฟล์ที่ล็อกอินอยู่ — โยน error ถ้ายังไม่ได้เข้าสู่ระบบ (ใช้ใน services/api/* ที่ต้องรู้ user id) */
+/** โปรไฟล์ที่ล็อกอินอยู่ — โยน error ถ้ายังไม่ได้เข้าสู่ระบบ (ใช้ใน modules/<หน้า>/api.ts ที่ต้องรู้ user id) */
 export function me(): SessionProfile {
   const p = lastProfile;
   if (!p) throw new Error('กรุณาเข้าสู่ระบบ');

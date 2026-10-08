@@ -2,20 +2,15 @@ import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Button, Table, Tag } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { SlipImage } from '@/ui/components/SlipImage';
 import { dateTime } from '@/ui/utils/format';
+import { useSafetyQueue, verifySafetyAction } from './api';
 
 /** มาตรการที่ร้านแจ้งว่า "มี" แต่ทีมยังไม่ได้ตรวจหลักฐาน — ยืนยันแล้วคะแนน Safety ของร้านคำนวณใหม่ทันที */
 export function SafetyPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_safety_queue', {
-    filters: [
-      ['source', 'SELF_DECLARED'],
-      ['value', 'YES'],
-    ],
-    order: { column: 'updated_at', ascending: true },
-  });
+  const { data, isLoading, error, refetch } = useSafetyQueue();
   const act = useAdminAction();
   return (
     <PageContainer title="ยืนยัน Safety" content="รายการที่ร้านแจ้งว่า “มี” แต่ทีมยังไม่ได้ตรวจหลักฐาน">
@@ -47,9 +42,9 @@ export function SafetyPage() {
             render: (_, r) => (
               <Button
                 type="primary"
-                loading={act.isPending && act.variables?.path === `safety/${r.id}/verify`}
+                loading={act.isPending && act.variables?.path === verifySafetyAction(r.id).path}
                 onClick={() =>
-                  act.mutate({ method: 'POST', path: `safety/${r.id}/verify`, success: `ยืนยัน ${r.name_th} ของ ${r.bar.name} แล้ว` })
+                  act.mutate({ ...verifySafetyAction(r.id), success: `ยืนยัน ${r.name_th} ของ ${r.bar.name} แล้ว` })
                 }
               >
                 ยืนยันแล้ว

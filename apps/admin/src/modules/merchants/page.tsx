@@ -2,25 +2,21 @@ import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Button, Space, Table } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { RejectButton } from '@/ui/components/RejectButton';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { dateTime } from '@/ui/utils/format';
 import { BAR_STATUS, CATEGORY } from '@/ui/utils/labels';
+import { usePendingBars, barStatusAction } from './api';
 
 /** ร้านที่ส่งข้อมูลมาให้ตรวจ — อนุมัติแล้วร้านจะแสดงบนเว็บทันที */
 export function MerchantsPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_bars', {
-    filters: [['status', ['PENDING_REVIEW', 'DRAFT']]],
-    order: { column: 'created_at', ascending: true },
-  });
+  const { data, isLoading, error, refetch } = usePendingBars();
   const act = useAdminAction();
   const setStatus = (b: Db.AdminBar, status: 'APPROVED' | 'REJECTED', reason?: string) =>
     act.mutate({
-      method: 'PATCH',
-      path: `bars/${b.id}/status`,
-      body: { status, reason },
+      ...barStatusAction(b.id, { status, reason }),
       success: status === 'APPROVED' ? `อนุมัติ ${b.name} แล้ว` : `ไม่อนุมัติ ${b.name}`,
     });
 

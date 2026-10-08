@@ -1,6 +1,7 @@
 import { App, Alert, Input, Modal, Tag, Typography } from 'antd';
 import { useState } from 'react';
-import { refundDeposit, type Booking } from '@/services/data';
+import { type Booking } from '@/services/data';
+import { refundDeposit } from '../api';
 import { baht } from '@/ui/utils/format';
 
 const QUICK_REASONS = ['ไม่มีโต๊ะให้ลูกค้า', 'ร้านปิดกะทันหัน', 'ลูกค้ามาแล้วแต่ร้านรับไม่ได้', 'ร้านยกเลิกเอง'];

@@ -2,6 +2,7 @@ import type { Db } from '@nightout/types';
 import { Button, Form, Input, Modal } from 'antd';
 import { useEffect } from 'react';
 import { useAdminAction } from '@/services/adminData';
+import { updateUserAction } from '../api';
 
 interface Values {
   display_name: string;
@@ -33,14 +34,12 @@ export function EditUserModal({
     try {
       const v = await form.validateFields();
       await act.mutateAsync({
-        method: 'PATCH',
-        path: `users/${user.id}`,
-        body: {
+        ...updateUserAction(user.id, {
           display_name: v.display_name.trim(),
           email: v.email.trim(),
           phone_e164: v.phone_e164?.trim() || null,
           ...(v.password ? { password: v.password } : {}),
-        },
+        }),
         success: `บันทึกบัญชี ${v.display_name.trim()} แล้ว`,
       });
       onClose();

@@ -115,7 +115,7 @@ values (${q(id)}, null, ${q(bar.slug)}, ${q(bar.name)}, ${q(bar.category)}, ${q(
 where bar_id = ${q(id)};`);
   out.push(`update bar_stats set avg_price_per_person = ${bar.avgPerPerson}, safety_score = ${safetyScore(bar.safety)}, score = ${approved ? n(bar.score) : 'null'},
   current_stars = ${n(stars)}, current_tier = ${stars ? q(starsToTier(stars)) : 'null'}, is_new = ${b(isNew)},
-  rating_avg = ${bar.rating > 0 ? bar.rating : 'null'}, rating_count = ${bar.reviewCount}, is_editor_pick = ${b(bar.editorsPick)}
+  rating_avg = ${bar.rating > 0 ? bar.rating : 'null'}, rating_count = ${bar.reviewCount}
 where bar_id = ${q(id)};`);
   if (approved)
     out.push(`update bar_live_status set current_crowd = ${q(bar.crowd)}, crowd_updated_at = now() - interval '20 minutes' where bar_id = ${q(id)};`);
@@ -236,13 +236,11 @@ where bar_id = ${q(id)};`);
       ';',
   );
 
-  // ร้านโปรโมท (ป้าย "แนะนำ · โฆษณา") และ Editor's pick
+  // ร้านโปรโมท (ป้าย "แนะนำ · โฆษณา")
   if (bar.promoted)
     out.push(`insert into promoted_listings (bar_id, package_id, placement, price_paid, starts_at, ends_at, status, approved_at)
 select ${q(id)}, id, placement, price, now() - interval '1 day', now() + interval '30 days', 'ACTIVE', now()
 from promotion_packages where placement = 'HOME_RECOMMENDED' and duration_days = 7 limit 1;`);
-  if (bar.editorsPick)
-    out.push(`insert into editor_picks (bar_id, note) values (${q(id)}, 'คัดเลือกโดยทีม NightOut');`);
 
   return out;
 }

@@ -1,5 +1,6 @@
 import { ChatCircleDots, SignOut } from '@phosphor-icons/react';
-import { MASTER, myPrefs, updateProfile } from '@/services/data';
+import { MASTER, myPrefs } from '@/services/data';
+import { updateProfile } from './api';
 import { useState } from 'react';
 import { App, Avatar, Button, Card, Form, Input, InputNumber, Select } from 'antd';
 import { Link, useNavigate } from 'react-router';

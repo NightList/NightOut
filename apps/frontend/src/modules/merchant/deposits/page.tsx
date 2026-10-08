@@ -1,4 +1,4 @@
-import { useBarLedger, type DepositLedgerRow } from '@/services/data';
+import { useBarLedger, type DepositLedgerRow } from './api';
 import { Alert, Card, Col, Row, Statistic, Table, Tag } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { baht, dateTime } from '@/ui/utils/format';

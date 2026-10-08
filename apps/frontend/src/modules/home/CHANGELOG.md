@@ -1,5 +1,19 @@
 # home — ประวัติการแก้ไข
 
+## 2026-10-09 — ย้าย API เข้า `api.ts` ของโมดูล (ADR 0007)
+- เพิ่ม `api.ts`: `prefetchSiteHome` · `useSiteHome` (`GET /public/home`) — ย้ายมาจาก `services/api/<domain>.ts` / `services/queries/<domain>.ts` (ลบแล้ว) · เรียก `Rest` ตรง
+- หน้าในโมดูล import จาก `./api` แทน `@/services/data` · พฤติกรรมเดิม (ชื่อฟังก์ชัน, query key)
+
+## 2026-10-08 — ตัดป้าย "ทีมงานเลือก"
+- การ์ดกริดร้านยอดนิยมไม่มีป้าย "ทีมงานเลือก" (Editor's Pick) แล้ว เหลือ "แนะนำ" (โฆษณา) และ "ร้านใหม่"
+- ไฟล์: `components/popularGrid.tsx`
+
+## 2026-10-08 — ร้านยอดนิยมตามที่แอดมินปัก
+- กริด "ร้านยอดนิยม" ใช้ร้านที่แอดมินปักไว้ก่อน (`popular_bar_ids` จาก `GET /public/home`) แล้วเติมช่องที่เหลือด้วยร้านคะแนนรีวิวสูงสุดที่ไม่ซ้ำจนครบ 8 (`utils/popularBars.ts`)
+- หัวข้อ/บรรทัดเล็กของ section มาจาก API (ระหว่างรอใช้ข้อความเดิม เพราะ section อยู่พ้นจอแรก)
+- cache หน้าแรกใน localStorage ขึ้นเป็น `nightout-site-home:v2` (รูปแบบข้อมูลเปลี่ยน)
+- ไฟล์: `page.tsx`, `components/popularGrid.tsx`, `utils/useHomeContent.ts`, `utils/popularBars.ts` (ใหม่), `services/queries/site-content.ts`
+
 ## 2026-10-08 — เลิกใช้ค่าตั้งต้นของ Hero/การ์ดหมวด ใช้ skeleton แทน
 - เนื้อหา Hero + การ์ด "คืนนี้อยากได้ฟีลไหน" มาจาก `GET /public/home` อย่างเดียว ไม่มีค่าตั้งต้นในหน้าเว็บแล้ว (ลบ `utils/categories.ts`) — กันเห็นข้อความตั้งต้นแวบก่อนเปลี่ยนเป็นของที่แอดมินแก้
 - ระหว่างรอ: Hero แสดงพื้นสีกลางคืน + skeleton แทนหัวข้อ (ช่องค้นหาใช้ได้เลย) · กริดหมวดแสดง skeleton ตามช่อง bento เดิม

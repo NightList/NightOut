@@ -4,15 +4,12 @@ import { TierStars } from '@nightout/ui';
 import { Table, Tag } from 'antd';
 import { useMemo } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
+import { useRankedBars } from './api';
 
 /** อันดับร้านที่เปิดแสดง เรียงตามคะแนนรวม — การโปรโมทไม่มีผลต่อดาว */
 export function RankingPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_bars', {
-    filters: [['status', 'APPROVED']],
-    order: { column: 'score', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = useRankedBars();
   const rows = useMemo(() => (data ?? []).map((b, i) => ({ ...b, rank: i + 1 })), [data]);
   return (
     <PageContainer

@@ -48,6 +48,33 @@ describe('Rest (HTTP client กลาง)', () => {
     expect((err as Error).message).toContain('โซนนี้เต็มแล้ว');
   });
 
+  describe('ApiResponse envelope ({ status, status_code, data, code, err_msg })', () => {
+    const ok = (data: unknown, status_code = 200) => ({ status: 'ok', status_code, data, code: null, err_msg: null });
+    const no = (status_code: number, code: string, err_msg: string) => ({ status: 'no', status_code, data: null, code, err_msg });
+
+    it('unwraps data so callers get the payload directly', async () => {
+      configure(fakeAdapter(201, ok({ id: 'b1' }, 201)));
+      await expect(Rest.post<{ id: string }>('/bookings', {})).resolves.toEqual({ id: 'b1' });
+    });
+
+    it('error envelope → ApiError with code + err_msg from the API', async () => {
+      configure(fakeAdapter(409, no(409, 'BOOKING_FULL', 'โต๊ะเต็มแล้ว')));
+      await expect(Rest.post('/bookings', {})).rejects.toMatchObject({ status: 409, code: 'BOOKING_FULL', message: 'โต๊ะเต็มแล้ว' });
+    });
+
+    it('status "no" with HTTP 2xx still throws (and skips afterWrite)', async () => {
+      const afterWrite = vi.fn();
+      configure(fakeAdapter(200, no(400, 'ZONE_FULL', '')), { afterWrite });
+      await expect(Rest.post('/bookings', {})).rejects.toMatchObject({ status: 400, code: 'ZONE_FULL', message: 'โซนนี้เต็มแล้ว' });
+      expect(afterWrite).not.toHaveBeenCalled();
+    });
+
+    it('unauthorizedCode wins over err_msg on 401', async () => {
+      configure(fakeAdapter(401, no(401, 'Invalid token', 'token หมดอายุ')), { unauthorizedCode: 'MFA_REQUIRED', errorMessages: { MFA_REQUIRED: 'ยืนยัน MFA' } });
+      await expect(Rest.get('/admin/x')).rejects.toMatchObject({ code: 'MFA_REQUIRED', message: 'ยืนยัน MFA' });
+    });
+  });
+
   it('uses unauthorizedCode for 401 when configured', async () => {
     configure(fakeAdapter(401, { message: 'Invalid token' }), { unauthorizedCode: 'MFA_REQUIRED' });
     await expect(Rest.patch('/admin/x', {})).rejects.toMatchObject({ status: 401, code: 'MFA_REQUIRED' });
@@ -113,5 +140,35 @@ describe('Rest (HTTP client กลาง)', () => {
     expect(apiBaseUrlFromEnv({ VITE_API_URL: 'https://old/api' })).toBe('https://old/api');
     expect(apiBaseUrlFromEnv({ DEV: true })).toBe('http://localhost:3000/api');
     expect(apiBaseUrlFromEnv({ DEV: false })).toBe('/api');
+  });
+});
+
+describe('afterWrite', () => {
+  it('runs after a successful write (and waits for it) but not after reads or failures', async () => {
+    const calls: string[] = [];
+    const afterWrite = async ({ method, url }: { method: string; url: string }) => {
+      await new Promise((r) => setTimeout(r, 5));
+      calls.push(`${method} ${url}`);
+    };
+    configure(fakeAdapter(200, { id: 1 }), { afterWrite });
+    await Rest.get('/me/profile');
+    await Rest.post('/bookings', {});
+    expect(calls).toEqual(['POST /bookings']); // POST คืนผลหลัง afterWrite เสร็จแล้ว
+    await Rest.patch('/me/profile', {});
+    await Rest.delete('/merchant/bars/x/staff/y');
+    expect(calls).toEqual(['POST /bookings', 'PATCH /me/profile', 'DELETE /merchant/bars/x/staff/y']);
+
+    configure(fakeAdapter(409, { message: 'ZONE_FULL' }), { afterWrite });
+    await expect(Rest.post('/bookings', {})).rejects.toMatchObject({ code: 'ZONE_FULL' });
+    expect(calls).toHaveLength(3);
+  });
+
+  it('a failing afterWrite does not fail the write', async () => {
+    configure(fakeAdapter(200, { id: 1 }), {
+      afterWrite: () => {
+        throw new Error('overview down');
+      },
+    });
+    await expect(Rest.post<{ id: number }>('/bookings', {})).resolves.toEqual({ id: 1 });
   });
 });

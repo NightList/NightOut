@@ -3,14 +3,8 @@ import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { DEPOSIT_TERMS_VERSION, depositTermsLines, depositTermsText, formatThaiPhone, toThaiE164 } from '@nightout/utils';
-import {
-  createBooking,
-  currentProfile,
-  depositFor,
-  promotionApplies,
-  useZoneAvailability,
-  type BarWithTier,
-} from '@/services/data';
+import { currentProfile, depositFor, promotionApplies, type BarWithTier } from '@/services/data';
+import { createBooking, useZoneAvailability } from '../api';
 
 /** state + การส่งของฟอร์มจองโต๊ะ (ใช้ใน /bars/:slug/book) */
 export function useBookingForm(bar: BarWithTier | null) {
@@ -66,14 +60,14 @@ export function useBookingForm(bar: BarWithTier | null) {
     setSubmitting(true);
     try {
       const b = await createBooking({
-        barId: bar.id,
-        zoneId,
+        bar_id: bar.id,
+        zone_id: zoneId,
         datetime: iso,
         pax,
-        promotionId: chosenPromo && promotionApplies(chosenPromo, iso) ? chosenPromo.id : undefined,
-        note,
-        contactPhone: phoneE164,
-        depositTerms: needsTerms ? { version: DEPOSIT_TERMS_VERSION, text: depositTermsText(termsInput) } : null,
+        promotion_id: chosenPromo && promotionApplies(chosenPromo, iso) ? chosenPromo.id : null,
+        note: note.trim() || null,
+        contact_phone: phoneE164,
+        deposit_terms: needsTerms ? { accepted: true, terms_version: DEPOSIT_TERMS_VERSION, terms_text: depositTermsText(termsInput) } : null,
       });
       if (b.status === 'AWAITING_DEPOSIT') {
         message.success('สร้างการจองแล้ว โอนมัดจำเพื่อยืนยันโต๊ะ');

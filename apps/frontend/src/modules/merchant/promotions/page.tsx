@@ -1,5 +1,6 @@
 import { Plus, Trash } from '@phosphor-icons/react';
-import { setBarPromotions, setFees, type BarPromotion } from '@/services/data';
+import { type BarPromotion } from '@/services/data';
+import { setBarPromotions, setFees } from './api';
 import {
   App,
   Button,

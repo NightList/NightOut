@@ -1,4 +1,5 @@
-import { addReview, getBar, getBooking, type ReviewMedia } from '@/services/data';
+import { getBar, getBooking, type ReviewMedia } from '@/services/data';
+import { addReview } from './api';
 import { App, Button, Card, Form, Input, Rate, Result } from 'antd';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';

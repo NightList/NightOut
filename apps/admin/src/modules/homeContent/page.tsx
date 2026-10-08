@@ -3,23 +3,26 @@ import { ArrowSquareOut, PencilSimple } from '@phosphor-icons/react';
 import type { Db } from '@nightout/types';
 import { Button, Card } from 'antd';
 import { useState } from 'react';
-import { useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { webSrc } from '@/ui/utils/image';
 import { CategoryDrawer } from './form/categoryDrawer';
 import { HeroForm } from './form/heroForm';
+import { PopularCard } from './form/popularCard';
+import { SectionHeadingForm } from './form/sectionHeadingForm';
 import { SLOT_LABELS, SLOT_SPAN } from './utils/slots';
+import { useHomeContent, useHomeCategories } from './api';
 
 /** หน้าแรกบนเว็บลูกค้า (deploy: โดเมนเดียวกัน · dev: คนละ port) */
 const HOME_URL = import.meta.env.DEV ? 'http://localhost:5173/' : '/';
 
 /**
- * หน้าแรก — แก้ Hero และการ์ดหมวด "คืนนี้อยากได้ฟีลไหน" ของเว็บลูกค้า
+ * หน้าแรก — แก้ Hero · การ์ดหมวด "คืนนี้อยากได้ฟีลไหน" · ร้านยอดนิยม ของเว็บลูกค้า (เรียงตามลำดับบนเว็บ)
+ * หัวข้อของแต่ละ section แก้ใน Card ของ section นั้น (SectionHeadingForm) ไม่ปนกับฟอร์ม Hero
  * บันทึกแล้วขึ้นเว็บทันที (ลูกค้าที่เปิดหน้าอยู่เห็นเมื่อโหลดใหม่/กลับมาที่แท็บ) · ทุกการแก้ลง Audit Log
  */
 export function HomeContentPage() {
-  const content = useAdminView('admin_home_content');
-  const categories = useAdminView('admin_home_categories', { order: { column: 'sort_order', ascending: true } });
+  const content = useHomeContent();
+  const categories = useHomeCategories();
   const [editing, setEditing] = useState<Db.AdminHomeCategory | null>(null);
 
   return (
@@ -37,6 +40,11 @@ export function HomeContentPage() {
         <HeroForm content={content.data?.[0]} />
 
         <Card title="การ์ดหมวด" loading={categories.isLoading}>
+          <SectionHeadingForm
+            content={content.data?.[0]}
+            fields={{ eyebrow: 'categories_eyebrow', title: 'categories_title' }}
+            placeholders={{ eyebrow: 'เลือกตามสไตล์', title: 'คืนนี้อยากได้ฟีลไหน' }}
+          />
           <p className="mb-4 text-sm opacity-70">ตำแหน่งบนกริดตายตัว กดการ์ดเพื่อแก้ภาพ ชื่อ คำอธิบาย ป้าย หรือลิงก์</p>
           <ul className="grid auto-rows-[120px] grid-cols-2 gap-3 lg:grid-cols-4">
             {(categories.data ?? []).map((c) => {
@@ -70,6 +78,8 @@ export function HomeContentPage() {
             })}
           </ul>
         </Card>
+
+        <PopularCard content={content.data?.[0]} />
       </div>
       <CategoryDrawer category={editing} onClose={() => setEditing(null)} />
     </PageContainer>

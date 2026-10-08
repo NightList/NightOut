@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useAdminAction } from '@/services/adminData';
 import { CONTACT_FIELDS } from '../utils/contacts';
 import { photoSrc, uploadTeamPhoto } from '../utils/photo';
+import { createTeamMemberAction, updateTeamMemberAction } from '../api';
 
 interface Values {
   nickname: string;
@@ -124,12 +125,10 @@ export function TeamMemberDrawer({
       await act.mutateAsync(
         member
           ? {
-            method: 'PATCH',
-            path: `team-members/${member.id}`,
-            body,
+            ...updateTeamMemberAction(member.id, body),
             success: `บันทึกข้อมูล${body.nickname}แล้ว`,
           }
-          : { method: 'POST', path: 'team-members', body, success: `เพิ่ม${body.nickname}แล้ว` },
+          : { ...createTeamMemberAction(body), success: `เพิ่ม${body.nickname}แล้ว` },
       );
       onClose();
     } catch {

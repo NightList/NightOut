@@ -3,9 +3,9 @@ import { Alert, Button, Card, Form, Input, Spin, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { ApiError } from '@nightout/utils/rest';
-import { fetchMyProfile } from '@/services/api/account';
 import { useAdminAuth } from '@/services/adminAuth';
 import { supabase } from '@/services/supabase';
+import { fetchMyProfile } from './api';
 
 type Step = 'password' | 'verify' | 'enroll';
 

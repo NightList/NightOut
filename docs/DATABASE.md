@@ -40,7 +40,7 @@
 | `…000800_views_rls_storage` | 1 | **view 7 ตัว + search_bars / nearby_bars** · RLS · สิทธิ์คอลัมน์ · Storage 6 buckets · Realtime |
 | `…000900_deposits_payouts` | 2 | deposits, bar_payouts, bar_credit_ledger — **DRAFT** (รอข้อ 10.3) · คืนเงินอัตโนมัติเมื่อยกเลิกระหว่างรอตรวจสลิป |
 | `…001000_sharing_safety_crowd` | 2 | booking_shares, booking_share_joins, `get_share_card`, safety_reports, crowd_status_logs → `bar_live_status` |
-| `…001100_ranking` | 2 | tier_scores, editor_picks |
+| `…001100_ranking` | 2 | tier_scores, editor_picks (ลบใน `…20261008000400`) |
 | `…001200_promoted_listings` | 2 | promotion_packages, promoted_listings, payments, stats · `bar_is_promoted()` ตัวจริง |
 | `…001300_billing` | 2 | commission_rules, invoices, billing_events |
 | `…001400_retention_jobs` | 2 | `run_retention_jobs()` (PDPA) + วิธีตั้ง pg_cron |
@@ -51,6 +51,8 @@
 | `…20261003000100_admin_team_members` | Backoffice จัดการทีมงาน | view `admin_team_members` · policy `admin_read` บน team_members · ฟังก์ชัน `admin_save/delete/reorder_team_member(s)` (service_role) · bucket `team-photos` (public · เขียนได้เฉพาะแอดมิน + MFA) |
 | `…20261007000100_site_content_home` | Backoffice แก้หน้าแรก | ตาราง **home_content** (แถวเดียว: Hero หัวข้อ 3 ท่อน/คำโปรย/ช่องค้นหา/ภาพ · ชื่อ section หมวด) · **home_categories** (การ์ดหมวด 8 slot ตายตัว: ชื่อ/คำอธิบาย/ลิงก์/ภาพ/ป้าย — ไอคอนลบใน `…20261008000100`) · view `public_home_content` / `public_home_categories` (anon) · `admin_home_content` / `admin_home_categories` · ฟังก์ชัน `admin_save_home_content` / `admin_save_home_category` (service_role · audit) · bucket `site-media` (public · เขียนได้เฉพาะแอดมิน + MFA) · seed = เนื้อหาเดิมของหน้าแรก |
 | `…20261008000100_site_content_drop_category_icon` | หน้าแรกไม่มีไอคอนหมวด | ลบคอลัมน์ `home_categories.icon` · สร้าง view `public_home_categories` / `admin_home_categories` ใหม่ (ไม่มี icon) · `home_category_check` / `admin_save_home_category` ไม่ตรวจ/ไม่เขียน icon |
+| `…20261008000400_bar_drop_editor_pick` | ตัด Editor's Pick | ลบ `bar_stats.is_editor_pick` · ตาราง `editor_picks` · `admin_set_editor_pick` · drop + สร้างใหม่ `bar_cards` / `bar_detail` / `my_favorites` / `search_bars` / `nearby_bars` / `my_bar_detail` / `admin_bars` (ไม่มี is_editor_pick · สิทธิ์เดิม) · `admin_bars` + `promoted_until` (วันหมดโปรโมทที่กำลังแสดง) |
+| `…20261008000300_site_content_home_popular` | ร้านยอดนิยมหน้าแรก | `home_content` + `popular_eyebrow` / `popular_title` · ตาราง **home_popular_bars** (ร้านที่แอดมินปัก สูงสุด 8 · `sort_order`) · view `public_home_popular` (anon · เฉพาะร้าน APPROVED) · `admin_home_popular` · `admin_save_home_popular(p_actor, p_bar_ids uuid[])` แทนที่ทั้งรายการ (`INVALID_HOME_POPULAR` · `HOME_POPULAR_BAR_NOT_FOUND`) · `admin_save_home_content` / `home_content_check` ตัวใหม่รับ+ตรวจ popular_* |
 | `…20261008000200_site_team_super_admin_rules` | สิทธิ์จัดการทีมงาน | เพิ่ม/ลบ/สลับลำดับ เฉพาะ Super Admin (`super_admin_assert` ใน `admin_save_team_member` ตอนเพิ่ม · `admin_delete_team_member` · `admin_reorder_team_members`) · แก้/ซ่อน: Admin ได้เฉพาะแถวที่ `contacts.email` ตรงกับ `users.email` ของตัวเอง (`team_member_is_own` · `TEAM_MEMBER_NOT_OWN`) และเปลี่ยน/ลบอีเมลนั้นไม่ได้ (`TEAM_MEMBER_EMAIL_LOCKED`) · Super Admin แก้ได้ทุกแถว |
 | `…20261006000100_slip_reject_reasons_fake_slip_ban` | กันสลิปปลอม | `deposits.reject_code` (FAKE_SLIP · AMOUNT_MISMATCH · WRONG_ACCOUNT · UNREADABLE · DUPLICATE · OTHER) · `users.banned_at/ban_reason` · ตาราง **user_flags** (ธงสลิปปลอม, เก็บเบอร์ในแถว) · **banned_phones** · `admin_review_deposit(…, p_reason_code)` ติดธง → ครบ 2 ครั้ง (นับทั้งบัญชีและเบอร์) แบนบัญชี + ทุกเบอร์ที่บัญชีเคยใช้ · `admin_unban_user` (ปลด + ล้างธง) · `booking_ban_check` ใช้ตอนจอง/ส่งสลิป · แก้บั๊ก: ลูกค้ายกเลิกระหว่างรอตรวจ แล้วแอดมินอนุมัติ → คง `REFUND_PENDING` (เดิมทับเป็น HELD) / ปฏิเสธ → `NONE` (เดิมชน CHECK) |
 | `…20261006000200_checkout_deposit_consent` | Checkout | ตาราง **booking_deposit_consents** (หลักฐานการติ๊กยอมรับเงื่อนไขริบมัดจำ: ข้อความที่เห็น + เวอร์ชัน + ค่ามัดจำ/ชั่วโมงคืนเงิน/grace/นโยบายร้าน ณ ตอนนั้น + IP + User-Agent + เวลา · trigger ห้าม update/delete) · `app_create_booking` ตัวใหม่ (`p_contact_phone`, `p_consent`) = ตรวจแบน → `app_create_booking_core` (ตัวเดิม) → บันทึกเบอร์ + consent ในธุรกรรมเดียว · จำเบอร์ไว้ที่ `users.phone_e164` · `admin_bookings` + `contact_phone` (ผ่าน `admin_booking_contact_phone()` เพราะคอลัมน์นี้ไม่ได้ grant ให้ authenticated) + `deposit_consent` |
@@ -73,7 +75,7 @@ view ในเฟส 1 เรียกฟังก์ชัน stub (`bar_is_pro
 |---|---|
 | `bars` | id, owner_id (null ได้), slug, name, category, description, address, district_id (null ได้), lat, lng, **location** (geography generated), phone, cover_image_url, cover_style, perks, status, status_reason, approved_at, trial_ends_at |
 | `bar_booking_settings` | deposit_amount, deposit_unit, deposit_policy, refund_before_hours, **grace_minutes**, pending_timeout_minutes, deposit_timeout_minutes, max_pax_per_booking, **min_advance_minutes**, **max_advance_days** |
-| `bar_stats` | avg_price_per_person, safety_score, score, current_stars, current_tier, is_new, rating_avg, rating_count, checkin_count, is_editor_pick (ตัวนับเริ่ม 0 · ค่าเฉลี่ย/ดาว เริ่ม null) |
+| `bar_stats` | avg_price_per_person, safety_score, score, current_stars, current_tier, is_new, rating_avg, rating_count, checkin_count (ตัวนับเริ่ม 0 · ค่าเฉลี่ย/ดาว เริ่ม null) |
 | `bar_live_status` | current_crowd (**null = ยังไม่เคยอัปเดต**), crowd_updated_at · **ตารางเดียวที่เปิด Realtime** |
 | `bar_pr_counts` | PK (bar_id, gender) · pr_count ≥ 1 · **ไม่มีแถว = ไม่มี PR** |
 
@@ -142,7 +144,7 @@ stateDiagram-v2
 | `review` | `admin_moderate_review` | `20261002001600_admin` |
 |  | `app_add_review` · `app_report_review` | `20261002001700_app_actions` |
 | `bar` | `admin_moderate_bar_promotion` · `app_merchant_join` · `app_set_bar_promotions` · `app_set_crowd` · `app_set_fees` · `app_set_menu` · `app_set_payout_account` · `app_set_safety` · `app_set_safety_evidence` · `app_set_zones` · `app_update_bar_info` · `app_update_booking_settings` | `20261002001700_app_actions` |
-|  | `admin_set_bar_status` · `admin_set_editor_pick` · `admin_verify_safety` | `20261002001600_admin` |
+|  | `admin_set_bar_status` · `admin_verify_safety` | `20261002001600_admin` |
 |  | `bar_is_public` · `is_bar_member` · `is_bar_member_path` | `20261002000400_bars` |
 | `bar-team` | `app_assert_manager` · `app_invite_staff` · `app_remove_staff` · `app_respond_invite` · `app_team_role` · `bar_team` · `my_invites` | `20261002001700_app_actions` |
 | `account` | `admin_assert` · `is_admin` | `20261005000200_roles` |
@@ -157,7 +159,7 @@ stateDiagram-v2
 |  | `bar_is_promoted` | `20261002001200_promoted_listings` |
 | `site-team` | `admin_delete_team_member` · `admin_reorder_team_members` · `admin_save_team_member` · `team_member_is_own` | `20261008000200_site_team_super_admin_rules` |
 | `site-content` | `admin_save_home_category` | `20261008000100_site_content_drop_category_icon` |
-|  | `admin_save_home_content` | `20261007000100_site_content_home` |
+|  | `admin_save_home_content` · `admin_save_home_popular` · `home_content_check` | `20261008000300_site_content_home_popular` |
 | `backoffice` | `admin_dashboard` | `20261002001600_admin` |
 | `(helper ทุกโดเมน)` | `admin_audit` · `app_notify_admins` | `20261005000200_roles` |
 |  | `app_audit` · `app_fmt` · `app_notify` · `app_notify_team` | `20261002001700_app_actions` |
@@ -176,7 +178,7 @@ stateDiagram-v2
 | `booking_detail` | รายละเอียดการจอง (ลูกค้า/ทีมร้าน · ไม่มี contact_phone · deposit ไม่มี slip_path) | authenticated | `Db.BookingDetail` |
 | `my_favorites` | ร้านโปรด (bar_cards + favorited_at) | authenticated | `Db.MyFavorite` |
 | `public_team` | ทีมงานหน้า `/about` (nickname, full_name, roles, bio, skills, photo_url, contacts, sort_order) · เฉพาะ active เรียง sort_order | anon + authenticated | `Db.PublicTeamMember` |
-| `public_home_content` · `public_home_categories` | หน้าแรก: Hero + การ์ดหมวด (`GET /public/home` → `{content, categories}`) · ไม่ตอบ = หน้าแรกแสดง skeleton / ปุ่มลองใหม่ (ไม่มีค่าตั้งต้นในหน้าเว็บ) | anon + authenticated | `C.PublicHomeResult` |
+| `public_home_content` · `public_home_categories` · `public_home_popular` | หน้าแรก: Hero + การ์ดหมวด + ร้านยอดนิยมที่ปักไว้ (`GET /public/home` → `{content, categories, popular_bar_ids}` · ช่องที่ว่างหน้าเว็บเติมด้วยคะแนนรีวิว) · ไม่ตอบ = หน้าแรกแสดง skeleton / ปุ่มลองใหม่ (ไม่มีค่าตั้งต้นในหน้าเว็บ) | anon + authenticated | `C.PublicHomeResult` |
 | `rpc('search_bars', {p_keyword, p_district_id, p_category, p_style_ids, p_pr_gender, p_limit, p_offset})` | ค้นหา · แบ่งหน้า (limit ≤ 100) · เรียง โปรโมท → คะแนน | anon + authenticated | `Db.BarCard[]` |
 | `rpc('nearby_bars', {p_lat, p_lng, p_radius_m})` | ใกล้ฉัน · เรียงตามระยะ | anon + authenticated | `Db.NearbyBar[]` |
 
@@ -201,14 +203,13 @@ stateDiagram-v2
 | `admin_billing_events` | ค่าคอม | `Db.AdminBillingEvent` |
 | `admin_audit_logs` | Audit log + ผู้ทำ | `Db.AdminAuditLog` |
 | `admin_team_members` (`…20261003000100`) | จัดการทีมงาน — ทีมงานหน้า /about ทุกคน (รวมที่ซ่อน) | `Db.AdminTeamMember` |
-| `admin_home_content` · `admin_home_categories` (`…20261007000100`) | หน้าแรก — Hero + การ์ดหมวด | `Db.AdminHomeContent` · `Db.AdminHomeCategory` |
+| `admin_home_content` · `admin_home_categories` (`…20261007000100`) · `admin_home_popular` (`…20261008000300`) | หน้าแรก — Hero + การ์ดหมวด + ร้านยอดนิยมที่ปัก (รวมร้านที่ไม่ APPROVED แล้ว) | `Db.AdminHomeContent` · `Db.AdminHomeCategory` · `Db.AdminHomePopular` |
 
 **เขียน** — ผ่าน NestJS `/api/admin/*` เท่านั้น (guard: token Supabase + ชั้นบัญชีที่ `roles.can_enter_backoffice` (แอดมิน / ซูเปอร์แอดมิน) + `aal2`) → เรียกฟังก์ชัน `admin_*` ด้วย service_role · ฟังก์ชันตรวจ ADMIN ซ้ำ (`admin_assert`) และเขียน `audit_logs` ในธุรกรรมเดียวกัน · หน้าเว็บเรียกฟังก์ชันเหล่านี้ตรงไม่ได้
 
 | endpoint | ฟังก์ชัน | ผล |
 |---|---|---|
 | `PATCH bars/:id/status` `{status, reason?}` | `admin_set_bar_status` | อนุมัติ / ไม่อนุมัติ / ระงับ / เปิดใช้งาน |
-| `PATCH bars/:id/editor-pick` `{value}` | `admin_set_editor_pick` | Editor's Pick |
 | `POST safety/:id/verify` | `admin_verify_safety` | → ADMIN_VERIFIED + ปิดรายงาน + คำนวณคะแนน Safety ใหม่ |
 | `POST deposits/:id/review` `{approve, reason_code?, reason?}` | `admin_review_deposit` | ผ่าน → VERIFIED/HELD + การจอง CONFIRMED (ลูกค้ายกเลิกไปแล้ว → VERIFIED/REFUND_PENDING) · ไม่ผ่าน (ต้องมี `reason_code`, OTHER ต้องมี `reason`) → REJECTED + การจองกลับ AWAITING_DEPOSIT · `FAKE_SLIP` ติดธง → ครบ 2 แบนบัญชี + เบอร์ (`banned` ในผลลัพธ์) |
 | `POST users/:id/unban` `{reason?}` | `admin_unban_user` | ปลดแบนบัญชี + เบอร์ที่โดนเพราะบัญชีนี้ + ล้างธงสลิปปลอม |
@@ -222,8 +223,9 @@ stateDiagram-v2
 | `PATCH team-members/:id` (ส่งเฉพาะ field ที่แก้) | `admin_save_team_member` | แก้ / ซ่อน-แสดง (`active`) · audit เก็บก่อน/หลัง · Super Admin ทุกแถว · Admin เฉพาะแถวที่ `contacts.email` = อีเมลตัวเอง (`TEAM_MEMBER_NOT_OWN`) และเปลี่ยนอีเมลนั้นไม่ได้ (`TEAM_MEMBER_EMAIL_LOCKED`) |
 | `DELETE team-members/:id` | `admin_delete_team_member` | ลบถาวร · เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) |
 | `PUT team-members/order` `{ids}` | `admin_reorder_team_members` (`…20261008000200`) | เรียงใหม่ → sort_order 10, 20, 30 … · เฉพาะ Super Admin (`SUPER_ADMIN_REQUIRED`) |
-| `PATCH home-content` (ส่งเฉพาะ field ที่แก้) | `admin_save_home_content` | แก้ Hero / ชื่อ section หมวด · `hero_image_url: null` = ภาพตั้งต้น · audit เก็บก่อน/หลัง |
+| `PATCH home-content` (ส่งเฉพาะ field ที่แก้) | `admin_save_home_content` | แก้ Hero / ชื่อ section หมวดและร้านยอดนิยม · `hero_image_url: null` = ภาพตั้งต้น · audit เก็บก่อน/หลัง |
 | `PATCH home-categories/:slot` (ส่งเฉพาะ field ที่แก้) | `admin_save_home_category` | แก้การ์ดหมวด 1 ช่อง (slot: popular · pub · food · live · rooftop · chill · outdoor · party) |
+| `PUT home-popular` `{bar_ids}` | `admin_save_home_popular` (`…20261008000300`) | ตั้งร้านยอดนิยมหน้าแรก แทนที่ทั้งรายการตามลำดับ (สูงสุด 8 · ไม่ซ้ำ · เฉพาะ APPROVED) · `[]` = ไม่ปัก · audit เก็บก่อน/หลัง |
 
 error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 404, `DEPOSIT_ALREADY_REVIEWED` / `LAST_SUPER_ADMIN` ฯลฯ → 409 · `SUPER_ADMIN_REQUIRED` → 403) · หน้าแอดมินแปลเป็นภาษาไทยใน `apps/admin/src/services/api.ts`
 
@@ -237,7 +239,7 @@ error เป็นรหัส (`NOT_ADMIN`, `MFA_REQUIRED`, `*_NOT_FOUND` → 4
 | หลังล็อกอิน + ทุก 60 วินาที | `booking_detail` (ของฉัน + ของร้านที่อยู่ในทีม), `notifications`, `my_favorites`, `my_reviews`, `user_preferences`, `my_bar_detail` (ร้านของฉันทุกสถานะ), `review_reports`, `promoted_listings` |
 | ตามหน้า (TanStack Query) | `rpc('zone_availability')` หน้าจอง · `rpc('bar_team')` / `rpc('my_invites')` พนักงาน · `rpc('bar_deposit_ledger')` มัดจำของร้าน (ไม่มี path สลิป) · `billing_events` ค่าคอม · `rpc('get_share_card')` |
 
-**เขียน** — `apps/frontend/src/services/api/<domain>.ts` → NestJS `domains/<domain>` (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
+**เขียน** — `apps/frontend/src/modules/<หน้า>/api.ts` → NestJS `domains/<domain>` (ตรวจ JWT ได้ `user.id`) → `rpc('app_*', { p_actor: user.id, … })` ด้วย service_role → ฟังก์ชันตรวจสิทธิ์ซ้ำใน DB (`app_assert_user`, `app_assert_manager`, `app_team_role`) → หน้าเว็บโหลดข้อมูลใหม่
 
 | endpoint | ฟังก์ชัน |
 |---|---|

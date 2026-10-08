@@ -111,7 +111,6 @@ export interface Bar {
   avgPerPerson: number;
   status: 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
   promoted: boolean;
-  editorsPick: boolean;
   /** มัดจำ — เก็บทุกการจอง เงินเข้าแพลตฟอร์มก่อน แล้วค่อยโอนให้ร้าน/เก็บเป็นเครดิต */
   deposit: {
     amount: number;

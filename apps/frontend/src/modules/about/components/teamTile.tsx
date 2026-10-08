@@ -1,5 +1,5 @@
 import { ArrowUpRight } from '@phosphor-icons/react';
-import type { SiteTeamMember } from '@/services/data';
+import type { SiteTeamMember } from '../api';
 import { TeamPortrait } from './teamPortrait';
 
 /**

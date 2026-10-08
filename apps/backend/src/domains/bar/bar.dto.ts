@@ -13,5 +13,4 @@ export class BookingSettingsDto extends createZodDto(C.BookingSettingsBody) {}
 export class PayoutAccountDto extends createZodDto(C.PayoutAccountBody) {}
 export class CrowdDto extends createZodDto(C.CrowdBody) {}
 export class SetBarStatusDto extends createZodDto(C.SetBarStatusBody) {}
-export class SetEditorPickDto extends createZodDto(C.SetEditorPickBody) {}
 export class ApproveDto extends createZodDto(C.ApproveBody) {}

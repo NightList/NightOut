@@ -1,4 +1,5 @@
-import { MASTER, updateBarInfo } from '@/services/data';
+import { MASTER } from '@/services/data';
+import { updateBarInfo } from './api';
 import { App, Button, Card, Form, Input, Select, Switch, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useState } from 'react';

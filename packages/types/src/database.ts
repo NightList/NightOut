@@ -156,7 +156,7 @@ export interface SafetyEntry {
 // ---------------------------------------------------------------------
 type BarCardNonNull =
   | 'id' | 'slug' | 'name' | 'category' | 'lat' | 'lng' | 'has_pr' | 'is_new'
-  | 'rating_count' | 'checkin_count' | 'is_editor_pick' | 'is_promoted';
+  | 'rating_count' | 'checkin_count' | 'is_promoted';
 type BarCardJson = { district: DistrictRef | null; styles: string[]; pr_counts: PrCounts };
 
 /** bar_cards — ลิสต์ร้าน / แผนที่ / ranking (styles = key ตัวใหญ่ เช่น 'ROOFTOP') */
@@ -282,7 +282,7 @@ export type AdminUser = Override<
 
 export type AdminBar = Override<
   ViewRow<'admin_bars'>,
-  'id' | 'slug' | 'name' | 'category' | 'status' | 'created_at' | 'is_new' | 'rating_count' | 'checkin_count' | 'is_editor_pick' | 'is_promoted',
+  'id' | 'slug' | 'name' | 'category' | 'status' | 'created_at' | 'is_new' | 'rating_count' | 'checkin_count' | 'is_promoted',
   { district: DistrictRef | null; owner: UserRef | null }
 >;
 
@@ -442,6 +442,9 @@ export type AdminTeamMember = Omit<Tables<'team_members'>, 'contacts'> & { conta
 /** admin_home_content / admin_home_categories (migration 20261007000100) — เนื้อหาหน้าแรกที่แก้ได้ · Backoffice "หน้าแรก" */
 export type AdminHomeContent = Omit<Tables<'home_content'>, 'id'>;
 export type AdminHomeCategory = Tables<'home_categories'>;
+/** admin_home_popular (migration 20261008000300) — ร้านยอดนิยมที่ปักไว้บนหน้าแรก (รวมร้านที่ไม่ APPROVED แล้ว) */
+export type AdminHomePopular = Pick<Tables<'home_popular_bars'>, 'bar_id' | 'sort_order'> &
+  Pick<Tables<'bars'>, 'name' | 'slug' | 'status'>;
 
 // ---------------------------------------------------------------------
 // กฎธุรกิจที่ต้องตรงกับ DB

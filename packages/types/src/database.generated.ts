@@ -1495,7 +1495,6 @@ export type Database = {
           created_at: string
           current_stars: number | null
           current_tier: Database["public"]["Enums"]["tier_letter"] | null
-          is_editor_pick: boolean
           is_new: boolean
           rating_avg: number | null
           rating_count: number
@@ -1510,7 +1509,6 @@ export type Database = {
           created_at?: string
           current_stars?: number | null
           current_tier?: Database["public"]["Enums"]["tier_letter"] | null
-          is_editor_pick?: boolean
           is_new?: boolean
           rating_avg?: number | null
           rating_count?: number
@@ -1525,7 +1523,6 @@ export type Database = {
           created_at?: string
           current_stars?: number | null
           current_tier?: Database["public"]["Enums"]["tier_letter"] | null
-          is_editor_pick?: boolean
           is_new?: boolean
           rating_avg?: number | null
           rating_count?: number
@@ -3243,103 +3240,6 @@ export type Database = {
         }
         Relationships: []
       }
-      editor_picks: {
-        Row: {
-          bar_id: string
-          created_at: string
-          ends_at: string | null
-          id: string
-          note: string | null
-          pinned_by: string | null
-          starts_at: string
-          updated_at: string
-        }
-        Insert: {
-          bar_id: string
-          created_at?: string
-          ends_at?: string | null
-          id?: string
-          note?: string | null
-          pinned_by?: string | null
-          starts_at?: string
-          updated_at?: string
-        }
-        Update: {
-          bar_id?: string
-          created_at?: string
-          ends_at?: string | null
-          id?: string
-          note?: string | null
-          pinned_by?: string | null
-          starts_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "admin_bars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "bar_cards"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "bar_detail"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "bars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "my_bar_detail"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "my_bars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_bar_id_fkey"
-            columns: ["bar_id"]
-            isOneToOne: false
-            referencedRelation: "my_favorites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_pinned_by_fkey"
-            columns: ["pinned_by"]
-            isOneToOne: false
-            referencedRelation: "admin_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "editor_picks_pinned_by_fkey"
-            columns: ["pinned_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       favorites: {
         Row: {
           bar_id: string
@@ -3466,6 +3366,8 @@ export type Database = {
           hero_title_lead: string
           hero_title_tail: string
           id: boolean
+          popular_eyebrow: string
+          popular_title: string
           updated_at: string
         }
         Insert: {
@@ -3478,6 +3380,8 @@ export type Database = {
           hero_title_lead: string
           hero_title_tail?: string
           id?: boolean
+          popular_eyebrow?: string
+          popular_title?: string
           updated_at?: string
         }
         Update: {
@@ -3490,9 +3394,79 @@ export type Database = {
           hero_title_lead?: string
           hero_title_tail?: string
           id?: boolean
+          popular_eyebrow?: string
+          popular_title?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      home_popular_bars: {
+        Row: {
+          bar_id: string
+          created_at: string
+          sort_order: number
+        }
+        Insert: {
+          bar_id: string
+          created_at?: string
+          sort_order: number
+        }
+        Update: {
+          bar_id?: string
+          created_at?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "admin_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_favorites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -5779,11 +5753,11 @@ export type Database = {
           current_tier: Database["public"]["Enums"]["tier_letter"] | null
           district: Json | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           name: string | null
           owner: Json | null
+          promoted_until: string | null
           rating_avg: number | null
           rating_count: number | null
           safety_score: number | null
@@ -5895,6 +5869,8 @@ export type Database = {
           hero_title_highlight: string | null
           hero_title_lead: string | null
           hero_title_tail: string | null
+          popular_eyebrow: string | null
+          popular_title: string | null
           updated_at: string | null
         }
         Insert: {
@@ -5906,6 +5882,8 @@ export type Database = {
           hero_title_highlight?: string | null
           hero_title_lead?: string | null
           hero_title_tail?: string | null
+          popular_eyebrow?: string | null
+          popular_title?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -5917,9 +5895,71 @@ export type Database = {
           hero_title_highlight?: string | null
           hero_title_lead?: string | null
           hero_title_tail?: string | null
+          popular_eyebrow?: string | null
+          popular_title?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      admin_home_popular: {
+        Row: {
+          bar_id: string | null
+          name: string | null
+          slug: string | null
+          sort_order: number | null
+          status: Database["public"]["Enums"]["bar_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "admin_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_favorites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       admin_promoted_listings: {
         Row: {
@@ -6087,7 +6127,6 @@ export type Database = {
           district: Json | null
           has_pr: boolean | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           lat: number | null
@@ -6179,7 +6218,6 @@ export type Database = {
           has_pr: boolean | null
           hours: Json | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           lat: number | null
@@ -6280,7 +6318,6 @@ export type Database = {
           has_pr: boolean | null
           hours: Json | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           lat: number | null
@@ -6368,7 +6405,6 @@ export type Database = {
           favorited_at: string | null
           has_pr: boolean | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           lat: number | null
@@ -6498,6 +6534,8 @@ export type Database = {
           hero_title_highlight: string | null
           hero_title_lead: string | null
           hero_title_tail: string | null
+          popular_eyebrow: string | null
+          popular_title: string | null
           updated_at: string | null
         }
         Insert: {
@@ -6509,6 +6547,8 @@ export type Database = {
           hero_title_highlight?: string | null
           hero_title_lead?: string | null
           hero_title_tail?: string | null
+          popular_eyebrow?: string | null
+          popular_title?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -6520,9 +6560,68 @@ export type Database = {
           hero_title_highlight?: string | null
           hero_title_lead?: string | null
           hero_title_tail?: string | null
+          popular_eyebrow?: string | null
+          popular_title?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      public_home_popular: {
+        Row: {
+          bar_id: string | null
+          sort_order: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "admin_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bar_detail"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_popular_bars_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: true
+            referencedRelation: "my_favorites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       public_reviews: {
         Row: {
@@ -6718,6 +6817,10 @@ export type Database = {
         Args: { p: Json; p_actor: string }
         Returns: Json
       }
+      admin_save_home_popular: {
+        Args: { p_actor: string; p_bar_ids: string[] }
+        Returns: Json
+      }
       admin_save_team_member: {
         Args: { p: Json; p_actor: string; p_id: string }
         Returns: Json
@@ -6729,10 +6832,6 @@ export type Database = {
           p_reason?: string
           p_status: Database["public"]["Enums"]["bar_status"]
         }
-        Returns: Json
-      }
-      admin_set_editor_pick: {
-        Args: { p_actor: string; p_bar: string; p_value: boolean }
         Returns: Json
       }
       admin_set_user_role: {
@@ -7155,7 +7254,6 @@ export type Database = {
           district: Json
           has_pr: boolean
           id: string
-          is_editor_pick: boolean
           is_new: boolean
           is_promoted: boolean
           lat: number
@@ -7205,7 +7303,6 @@ export type Database = {
           district: Json | null
           has_pr: boolean | null
           id: string | null
-          is_editor_pick: boolean | null
           is_new: boolean | null
           is_promoted: boolean | null
           lat: number | null

@@ -5,13 +5,14 @@ import { App, Button, Input, Popconfirm, Select, Space, Table, Tag, Typography }
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
 import { useAdminAuth } from '@/services/adminAuth';
-import { useAccountRoles, useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { formatThaiPhone } from '@nightout/utils';
 import { dateTime } from '@/ui/utils/format';
 import { STAFF_ROLE, USER_ROLE } from '@/ui/utils/labels';
 import { CreateUserModal } from './modal/createUserModal';
 import { EditUserModal } from './modal/editUserModal';
+import { useUsers, useAccountRoles, deleteUserAction, setUserRoleAction, unbanUserAction } from './api';
 
 type Role = Db.Enums<'user_role'>;
 /** ชั้นที่ไม่ผูกกับร้าน — แก้เป็นชั้นนี้แล้วหลุดจากทุกร้าน (admin_set_user_role) */
@@ -27,9 +28,7 @@ export function UsersPage() {
   const [q, setQ] = useState('');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Db.AdminUser | null>(null);
-  const { data, isLoading, error, refetch } = useAdminView('admin_users', {
-    order: { column: 'created_at', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = useUsers();
   const roles = useAccountRoles();
   const act = useAdminAction();
   const roleText = (r: Role) =>
@@ -62,9 +61,7 @@ export function UsersPage() {
       cancelText: 'ยกเลิก',
       onOk: () =>
         act.mutateAsync({
-          method: 'POST',
-          path: `users/${u.id}/unban`,
-          body: {},
+          ...unbanUserAction(u.id),
           success: `${u.display_name} จองโต๊ะได้แล้ว`,
         }),
     });
@@ -101,9 +98,7 @@ export function UsersPage() {
       cancelText: 'ยกเลิก',
       onOk: () =>
         act.mutateAsync({
-          method: 'PATCH',
-          path: `users/${u.id}/role`,
-          body: { role },
+          ...setUserRoleAction(u.id, { role }),
           success: `${u.display_name} เป็น${roleText(role)}แล้ว`,
         }),
     });
@@ -237,8 +232,7 @@ export function UsersPage() {
                       cancelText="ยกเลิก"
                       onConfirm={() =>
                         act.mutateAsync({
-                          method: 'DELETE',
-                          path: `users/${u.id}`,
+                          ...deleteUserAction(u.id),
                           success: `ลบบัญชี ${u.display_name} แล้ว`,
                         })
                       }

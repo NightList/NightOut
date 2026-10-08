@@ -1,6 +1,6 @@
 /**
  * ข้อมูลหน้า /about (เกี่ยวกับเรา · ติดต่อเรา) — แก้ข้อความ/ช่องทางติดต่อที่ไฟล์นี้ไฟล์เดียว
- * ทีมงานมาจาก Supabase (view public_team · ตาราง team_members) — ดู services/data.ts → useSiteTeam()
+ * ทีมงานมาจาก Supabase (view public_team · ตาราง team_members) — ดู ../api.ts → useSiteTeam()
  * ⚠️ เบอร์/อีเมลเป็นข้อมูลตัวอย่าง — เปลี่ยนเป็นของจริงก่อนเปิดใช้งาน
  */
 

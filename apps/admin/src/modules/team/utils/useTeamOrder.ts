@@ -9,6 +9,7 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import type { Db } from '@nightout/types';
 import { useMemo, useState } from 'react';
 import { useAdminAction } from '@/services/adminData';
+import { reorderTeamAction } from '../api';
 
 /**
  * ลากเรียงลำดับทีมงาน → PUT /admin/team-members/order (เฉพาะซูเปอร์แอดมิน)
@@ -37,9 +38,7 @@ export function useTeamOrder(rows: Db.AdminTeamMember[]) {
     setDraft({ base: rows, ids: next });
     act.mutate(
       {
-        method: 'PUT',
-        path: 'team-members/order',
-        body: { ids: next },
+        ...reorderTeamAction({ ids: next }),
         success: 'เปลี่ยนลำดับแล้ว',
       },
       { onError: () => setDraft(null) },

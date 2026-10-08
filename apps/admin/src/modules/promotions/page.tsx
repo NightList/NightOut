@@ -2,28 +2,24 @@ import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Button, Space, Table, Tabs, Tag } from 'antd';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { RejectButton } from '@/ui/components/RejectButton';
 import { SlipImage } from '@/ui/components/SlipImage';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { baht, dateTime } from '@/ui/utils/format';
 import { PLACEMENT, PROMO_STATUS } from '@/ui/utils/labels';
+import { usePendingBarPromotions, usePromotedListings, moderateBarPromotionAction, reviewPromotionAction } from './api';
 
 const DAYS = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 
 /** ถ้อยคำโปรโมชันที่ร้านตั้ง (ลูกค้าเลือกตอนจอง) — ตรวจก่อนแสดง ห้ามชักชวนให้ดื่ม */
 function BarPromotionReview() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_bar_promotions', {
-    filters: [['moderation_status', 'PENDING']],
-    order: { column: 'updated_at', ascending: true },
-  });
+  const { data, isLoading, error, refetch } = usePendingBarPromotions();
   const act = useAdminAction();
   const moderate = (p: Db.AdminBarPromotion, approve: boolean, reason?: string) =>
     act.mutate({
-      method: 'POST',
-      path: `bar-promotions/${p.id}/moderate`,
-      body: { approve, reason },
+      ...moderateBarPromotionAction(p.id, { approve, reason }),
       success: approve ? `อนุมัติโปร “${p.title}” แล้ว` : `แจ้ง ${p.bar.name} ว่าโปรไม่ผ่าน`,
     });
   return (
@@ -95,15 +91,11 @@ function BarPromotionReview() {
 
 /** แพ็กเกจโปรโมทที่ร้านซื้อ — ตรวจสลิปแล้วเปิดแสดง · และถ้อยคำโปรโมชันของร้าน */
 export function PromotionsPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_promoted_listings', {
-    order: { column: 'created_at', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = usePromotedListings();
   const act = useAdminAction();
   const review = (p: Db.AdminPromotedListing, approve: boolean, reason?: string) =>
     act.mutate({
-      method: 'POST',
-      path: `promotions/${p.id}/review`,
-      body: { approve, reason },
+      ...reviewPromotionAction(p.id, { approve, reason }),
       success: approve ? `เปิดโปรโมท ${p.bar.name} แล้ว` : `แจ้ง ${p.bar.name} ว่าสลิปไม่ผ่าน`,
     });
 

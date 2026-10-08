@@ -1,5 +1,6 @@
 import { SealCheck } from '@phosphor-icons/react';
-import { SAFETY_LABELS, setSafety, uploadSafetyProof, type SafetyValue } from '@/services/data';
+import { SAFETY_LABELS, type SafetyValue } from '@/services/data';
+import { setSafety, uploadSafetyProof } from './api';
 import { App, Button, Card, Segmented, Upload } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { useMerchantBar } from '@/hooks/useMerchantBar';

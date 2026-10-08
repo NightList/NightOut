@@ -4,13 +4,14 @@ import { Button, Popconfirm, Space, Statistic, Table, Tabs, Tag, Typography } fr
 import type { ColumnsType } from 'antd/es/table';
 import { useMemo } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { SlipImage } from '@/ui/components/SlipImage';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { baht, dateTime } from '@/ui/utils/format';
 import { BOOKING_STATUS, SETTLEMENT } from '@/ui/utils/labels';
 import { RejectSlipButton } from './components/rejectSlipButton';
+import { useDeposits, reviewDepositAction, settleDepositAction } from './api';
 
 type Row = Db.AdminDeposit;
 
@@ -20,9 +21,7 @@ type Row = Db.AdminDeposit;
  * 2) หลังลูกค้าเช็กอิน/ไม่มา → โอนให้ร้านตามบัญชีที่ร้านตั้งไว้ หรือเก็บเป็นเครดิตร้าน · ยกเลิกทันเวลา → คืนลูกค้า
  */
 export function DepositsPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_deposits', {
-    order: { column: 'created_at', ascending: true },
-  });
+  const { data, isLoading, error, refetch } = useDeposits();
   const act = useAdminAction();
 
   const g = useMemo(() => {
@@ -41,7 +40,7 @@ export function DepositsPage() {
   const sum = (rows: Row[]) => rows.reduce((a, b) => a + b.amount, 0);
 
   const settle = (d: Row, how: 'PAID_OUT' | 'CREDIT' | 'REFUNDED', success: string) =>
-    act.mutate({ method: 'POST', path: `deposits/${d.id}/settle`, body: { how }, success });
+    act.mutate({ ...settleDepositAction(d.id, { how }), success });
 
   const base: ColumnsType<Row> = [
     { title: 'รหัสจอง', key: 'code', width: 110, render: (_, d) => d.booking.code },
@@ -117,9 +116,7 @@ export function DepositsPage() {
                         loading={act.isPending}
                         onClick={() =>
                           act.mutate({
-                            method: 'POST',
-                            path: `deposits/${d.id}/review`,
-                            body: { approve: true },
+                            ...reviewDepositAction(d.id, { approve: true }),
                             success: `ยืนยันโต๊ะ ${d.booking.code} ให้ลูกค้าแล้ว`,
                           })
                         }
@@ -131,9 +128,7 @@ export function DepositsPage() {
                         loading={act.isPending}
                         onReject={(code, note) =>
                           act.mutate({
-                            method: 'POST',
-                            path: `deposits/${d.id}/review`,
-                            body: { approve: false, reason_code: code, reason: note || undefined },
+                            ...reviewDepositAction(d.id, { approve: false, reason_code: code, reason: note || undefined }),
                             success: (r) =>
                               (r as { banned?: boolean }).banned
                                 ? 'สลิปไม่ผ่าน · ลูกค้าส่งสลิปปลอมครบ 2 ครั้ง ระบบแบนบัญชีและเบอร์โทรแล้ว'
