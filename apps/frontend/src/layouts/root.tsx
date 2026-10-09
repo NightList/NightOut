@@ -1,4 +1,5 @@
 import { Outlet, ScrollRestoration } from 'react-router';
+import { LoginModalProvider } from '@/ui/components/loginModal';
 
 /**
  * ครอบทุก route — คืนตำแหน่ง scroll ให้ถูก
@@ -7,9 +8,9 @@ import { Outlet, ScrollRestoration } from 'react-router';
  */
 export function RootLayout() {
   return (
-    <>
+    <LoginModalProvider>
       <Outlet />
       <ScrollRestoration />
-    </>
+    </LoginModalProvider>
   );
 }

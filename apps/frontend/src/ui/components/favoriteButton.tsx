@@ -5,8 +5,8 @@ import { favorites } from '@/services/data';
 import { App, Button } from 'antd';
 import { motion } from 'motion/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
 import { useAuth } from '@/services/auth';
+import { useLoginModal } from './loginModal';
 import { useDemo } from '@/hooks/useDemo';
 
 /** POST /me/favorites/:barId/toggle — คืน true = เพิ่มเป็นร้านโปรด · backend: domains/account */
@@ -16,7 +16,7 @@ export function FavoriteButton({ barId, className }: { barId: string; className?
   useDemo();
   const { user } = useAuth();
   const { message } = App.useApp();
-  const navigate = useNavigate();
+  const { open: openLogin } = useLoginModal();
   const [busy, setBusy] = useState(false);
   const active = favorites().includes(barId);
   return (
@@ -29,7 +29,7 @@ export function FavoriteButton({ barId, className }: { barId: string; className?
       onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!user) return navigate('/login');
+        if (!user) return openLogin();
         setBusy(true);
         try {
           const added = await toggleFavorite(barId);
