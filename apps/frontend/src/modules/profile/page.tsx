@@ -16,20 +16,21 @@ export function ProfilePage() {
   const [saving, setSaving] = useState(false);
   if (!user) return null;
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
       <PageHeader title="โปรไฟล์" />
       <Card>
-        <div className="flex items-center gap-4">
-          <Avatar size={64} className="!bg-purple">
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar size={64} className="shrink-0 !bg-purple">
             {user.displayName.slice(0, 2)}
           </Avatar>
-          <div className="flex-1">
-            <p className="text-lg font-semibold">{user.displayName}</p>
-            <p className="text-muted">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-lg font-semibold">{user.displayName}</p>
+            <p className="break-all text-muted">
               {user.email} · {user.roleLabel}
             </p>
           </div>
           <Button
+            className="w-full sm:w-auto"
             icon={<SignOut />}
             onClick={async () => {
               await signOut();
@@ -40,8 +41,8 @@ export function ProfilePage() {
           </Button>
         </div>
         {(user.role === 'MERCHANT' || user.role === 'STAFF') && (
-          <Link to="/merchant">
-            <Button type="primary" className="mt-4">
+          <Link to="/merchant" className="block sm:inline-block">
+            <Button type="primary" className="mt-4 w-full sm:w-auto">
               ไปหน้าร้านของฉัน
             </Button>
           </Link>
@@ -93,7 +94,7 @@ export function ProfilePage() {
           <Form.Item name="districts" label="ย่านที่ชอบ">
             <Select mode="multiple" options={MASTER.districts.map((d) => ({ label: d.name, value: d.id }))} />
           </Form.Item>
-          <Button type="primary" htmlType="submit" loading={saving}>
+          <Button type="primary" htmlType="submit" loading={saving} className="w-full sm:w-auto">
             บันทึก
           </Button>
         </Form>
@@ -104,6 +105,7 @@ export function ProfilePage() {
           ไม่ได้ใช้เข้าสู่ระบบ
         </p>
         <Button
+          className="w-full sm:w-auto"
           icon={<ChatCircleDots />}
           onClick={() => message.info('การแจ้งเตือนทาง LINE กำลังจะเปิดให้ใช้ — ตอนนี้ดูแจ้งเตือนได้ที่กระดิ่งด้านบน')}
         >
