@@ -43,7 +43,7 @@ flowchart TD
 
   MER --> MD["/merchant แดชบอร์ด"]
   MER --> TON["/merchant/tonight Scanner"]
-  MER --> MB["/merchant/bookings · /deposits"]
+  MER --> MB["/merchant/bookings · /bookings/:id · /deposits"]
   MER --> MS["/merchant/store · /menu · /tables · /safety · /promotions · /settings"]
   MER --> MP["/merchant/promote · /reviews · /analytics · /billing · /staff"]
 
@@ -112,7 +112,7 @@ flowchart TD
 | `/merchant` | แดชบอร์ด | 🏪 | จองวันนี้, อัตราเช็กอิน / No-show, ดาว, ช่วงทดลองใช้ |
 | `/merchant/tonight` | คืนนี้ (Scanner) | 🏪🧑‍🍳 | สแกน QR, รายการจองคืนนี้, ปุ่ม Crowd Status · **Dark เสมอ** |
 | `/merchant/bookings` | การจอง | 🏪 | ปฏิทิน / รายการ, ยืนยัน / ปฏิเสธ · รายละเอียด → "จัดการหน้างาน" (ทุกคนในทีมรวม PR): **ย้ายโต๊ะ** (เลือกโต๊ะที่ว่าง) · **ยืนยันการคืนเงิน** (มัดจำเข้าคิวให้ NightOut โอนคืน) |
-| `/merchant/bookings/:id` | รายละเอียดการจอง (📝 ยังไม่มีใน router) | 🏪 | ประวัติสถานะ, โปรที่ลูกค้าเลือก, สถานะเงินมัดจำ |
+| `/merchant/bookings/:id` | รายละเอียดการจอง | 🏪🧑‍🍳 | ประวัติสถานะ, โปรที่ลูกค้าเลือก, สถานะเงินมัดจำ, ปุ่มสถานะ + จัดการหน้างาน (ย้ายโต๊ะ / ยืนยันคืนเงิน) |
 | `/merchant/deposits` | เงินมัดจำ | 🏪 | ยอดที่ NightOut ถือไว้ / รอโอน / โอนแล้ว / เครดิต + รายการ (แอดมินเป็นคนตรวจสลิป) |
 | `/merchant/store` | ข้อมูลร้าน | 🏪 | รูปร้าน (ปก + แกลเลอรี สูงสุด 10 · บันทึกทันที · รูปแรกเป็นปก · ตั้งปก/ลบ), ชื่อ, เวลาเปิด-ปิด, styles, ลิงก์ |
 | `/merchant/safety` | ความปลอดภัย | 🏪 | checklist + อัปโหลดหลักฐาน |

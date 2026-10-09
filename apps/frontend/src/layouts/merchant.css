@@ -1,7 +1,29 @@
-.merchant-nav-select {
-  min-height: 44px;
-  font-size: 16px;
+.merchant-pill,
+.merchant-tab {
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: transform 120ms var(--ease-out, ease-out);
+}
+
+.merchant-pill:active,
+.merchant-tab:active {
+  transform: scale(0.96);
+}
+
+.merchant-tabbar {
+  height: calc(76px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.merchant-appbar {
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(56px + env(safe-area-inset-top, 0px));
+}
+
+/* ปุ่มล่างของหน้า (เช่น รายละเอียดการจอง) — ลอยเหนือขอบล่างมือถือ */
+.merchant-actionbar {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 639px) {

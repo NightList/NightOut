@@ -47,7 +47,8 @@
 | `status` | สถานะการสมัคร / รออนุมัติ | `/merchant/status` | `bar` | `merchants` | 1B |
 | `dashboard` | ภาพรวมร้าน | `/merchant` | `bar` · `booking` | — | 1B |
 | `tonight` | คืนนี้ + สแกน QR เช็กอิน + ความแน่น | `/merchant/tonight` | `booking` · `bar` | — | 1B |
-| `bookings` | จัดการการจอง / ย้ายโต๊ะ | `/merchant/bookings` | `booking` | `bookings` | 1B |
+| `bookings` | รายการ / ปฏิทินการจอง + ปุ่มรับ/ปฏิเสธ/เช็กอิน | `/merchant/bookings` | `booking` | `bookings` | 1B |
+| `bookingDetail` | รายละเอียดการจอง + ย้ายโต๊ะ / ยืนยันคืนเงิน | `/merchant/bookings/:id` | `booking` · `deposit` | `bookings` | 1B |
 | `deposits` | มัดจำของร้าน / ยืนยันคืนมัดจำ | `/merchant/deposits` | `deposit` | `deposits` | 1B |
 | `store` | รูปร้าน (ปก + แกลเลอรี) ข้อมูลร้าน เวลาเปิด-ปิด สไตล์ ลิงก์ | `/merchant/store` | `bar` · `storage` | `bars` · `barMedia` | 1B |
 | `menu` | เมนู ราคา และรูปเมนู | `/merchant/menu` | `bar` · `storage` | `barMedia` | 1B |

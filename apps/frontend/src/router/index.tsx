@@ -58,7 +58,7 @@ const routes: RouteObject[] = [
           { path: 'notifications', lazy: () => import('@/modules/notifications/page').then((m) => ({ Component: m.NotificationsPage })) },
           { path: 'profile', lazy: () => import('@/modules/profile/page').then((m) => ({ Component: m.ProfilePage })) },
           { path: 'settings', lazy: () => import('@/modules/settings/page').then((m) => ({ Component: m.SettingsPage })) },
-          { path: 'merchant/join', lazy: () => import('@/modules/merchant/join/page').then((m) => ({ Component: m.MerchantJoinPage })) },
+          { path: 'merchant/join', handle: { merchantShell: true, hideFooter: true }, lazy: () => import('@/modules/merchant/join/page').then((m) => ({ Component: m.MerchantJoinPage })) },
           { path: 'merchant/status', lazy: () => import('@/modules/merchant/status/page').then((m) => ({ Component: m.MerchantStatusPage })) },
 
           // ---- ร้าน /merchant ----
@@ -68,10 +68,13 @@ const routes: RouteObject[] = [
               {
                 path: 'merchant',
                 element: <MerchantLayout />,
+                // merchantShell: มือถือใช้แถบบน/แท็บล่างของร้านแทน navbar ของเว็บ
+                handle: { merchantShell: true },
                 children: [
                   { index: true, handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/dashboard/page').then((m) => ({ Component: m.MerchantDashboardPage })) },
                   { path: 'tonight', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/tonight/page').then((m) => ({ Component: m.TonightPage })) },
                   { path: 'bookings', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/bookings/page').then((m) => ({ Component: m.MerchantBookingsPage })) },
+                  { path: 'bookings/:id', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/bookingDetail/page').then((m) => ({ Component: m.MerchantBookingDetailPage })) },
                   { path: 'deposits', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/deposits/page').then((m) => ({ Component: m.MerchantDepositsPage })) },
                   { path: 'store', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/store/page').then((m) => ({ Component: m.MerchantStorePage })) },
                   { path: 'menu', handle: { hideFooter: true }, lazy: () => import('@/modules/merchant/menu/page').then((m) => ({ Component: m.MerchantMenuPage })) },

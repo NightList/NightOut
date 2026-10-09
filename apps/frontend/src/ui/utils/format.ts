@@ -21,18 +21,19 @@ export const timeAgo = (iso: string) => {
   return `${Math.round(h / 24)} วันที่แล้ว`;
 };
 
-export const BOOKING_STATUS: Record<BookingStatus, { label: string; color: string }> = {
-  PENDING: { label: 'รอร้านยืนยัน', color: 'gold' },
-  AWAITING_DEPOSIT: { label: 'รอจ่ายมัดจำ', color: 'orange' },
-  DEPOSIT_SUBMITTED: { label: 'รอตรวจสลิป', color: 'purple' },
-  CONFIRMED: { label: 'ยืนยันแล้ว', color: 'green' },
-  REJECTED: { label: 'ร้านปฏิเสธ', color: 'red' },
-  CANCELLED_BY_CUSTOMER: { label: 'ยกเลิกแล้ว', color: 'default' },
-  CANCELLED_BY_MERCHANT: { label: 'ร้านยกเลิก', color: 'red' },
-  CHECKED_IN: { label: 'เช็กอินแล้ว', color: 'cyan' },
-  COMPLETED: { label: 'เสร็จสิ้น', color: 'blue' },
-  NO_SHOW: { label: 'ไม่มาตามนัด', color: 'volcano' },
-  EXPIRED: { label: 'หมดเวลา', color: 'default' },
+/** label + สี Tag ของ antd · dot = สีหลักของ Tag นั้น (ใช้กับจุดสถานะ/เส้นประวัติ) */
+export const BOOKING_STATUS: Record<BookingStatus, { label: string; color: string; dot: string }> = {
+  PENDING: { label: 'รอร้านยืนยัน', color: 'gold', dot: '#d89614' },
+  AWAITING_DEPOSIT: { label: 'รอจ่ายมัดจำ', color: 'orange', dot: '#d87a16' },
+  DEPOSIT_SUBMITTED: { label: 'รอตรวจสลิป', color: 'purple', dot: '#854eca' },
+  CONFIRMED: { label: 'ยืนยันแล้ว', color: 'green', dot: '#49aa19' },
+  REJECTED: { label: 'ร้านปฏิเสธ', color: 'red', dot: '#d32029' },
+  CANCELLED_BY_CUSTOMER: { label: 'ยกเลิกแล้ว', color: 'default', dot: '#a7a1b3' },
+  CANCELLED_BY_MERCHANT: { label: 'ร้านยกเลิก', color: 'red', dot: '#d32029' },
+  CHECKED_IN: { label: 'เช็กอินแล้ว', color: 'cyan', dot: '#13a8a8' },
+  COMPLETED: { label: 'เสร็จสิ้น', color: 'blue', dot: '#1668dc' },
+  NO_SHOW: { label: 'ไม่มาตามนัด', color: 'volcano', dot: '#d84a1b' },
+  EXPIRED: { label: 'หมดเวลา', color: 'default', dot: '#a7a1b3' },
 };
 
 export const CROWD: Record<CrowdStatus, { label: string; dot: string }> = {

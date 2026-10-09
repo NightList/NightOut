@@ -1,4 +1,8 @@
-# CHANGELOG — frontend/modules/merchant/join
+## 2026-10-10 — สมัคร 3 ขั้นตาม Merchant 1i Sitemap
+- แบ่งเป็น ข้อมูลร้าน → เอกสาร (เลขใบอนุญาต/ทะเบียนพาณิชย์) → ส่งตรวจ (สรุปข้อมูล) · ส่ง `POST /merchant/join` ครั้งเดียวตอนจบเหมือนเดิม
+- Desktop: ฟอร์มซ้าย + ตัวอย่างการ์ดร้าน/ขั้นถัดไป/ปุ่มขวา · มือถือ: แถบบน (ปิด/ย้อน · 1/3) + แถบความคืบหน้า + ปุ่มล่าง (route ใช้ handle `merchantShell`)
+- ยังไม่มีอัปโหลดไฟล์เอกสาร / เบอร์ร้าน / เวลาเปิด / ความจุ (API ยังไม่รับ)
+- ไฟล์หลัก: `page.tsx`
 
 ## 2026-10-09 — ย้าย API เข้า `api.ts` ของโมดูล (ADR 0007)
 - เพิ่ม `api.ts`: `merchantJoin` (`POST /merchant/join`) — ย้ายมาจาก `services/api/<domain>.ts` / `services/queries/<domain>.ts` (ลบแล้ว) · เรียก `Rest` ตรง
