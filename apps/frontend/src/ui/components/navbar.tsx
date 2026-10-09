@@ -11,7 +11,7 @@ import { useScrolled } from '@/hooks/useScrolled';
 import { useAuth } from '@/services/auth';
 import { timeAgo } from '@/ui/utils/format';
 import { BrandLogo } from './brandLogo';
-import { useLoginModal } from './loginModal';
+import { useAuthModal } from './authModal';
 
 export interface NavItem {
   to: string;
@@ -54,7 +54,7 @@ export function Navbar({
   useDemo();
   const { user, signOut } = useAuth();
   const { message } = App.useApp();
-  const { open: openLogin } = useLoginModal();
+  const { openLogin } = useAuthModal();
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);

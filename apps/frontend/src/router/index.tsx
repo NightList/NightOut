@@ -15,12 +15,12 @@ import { RequireAuth, RequireRole } from './middleware';
 const routes: RouteObject[] = [
   // แผนที่เต็มจอ (ไม่มี navbar — มีปุ่มลอยของตัวเอง)
   { path: 'map', lazy: () => import('@/modules/map/page').then((m) => ({ Component: m.MapPage })) },
-  // /login = redirect ไปหน้าหลักแล้วเปิด modal เข้าสู่ระบบ (ลิงก์เก่า + RequireAuth)
+  // /login, /register = redirect ไปหน้าหลักแล้วเปิด modal (ลิงก์เก่า + RequireAuth)
   { path: 'login', lazy: () => import('@/modules/login/page').then((m) => ({ Component: m.LoginPage })) },
+  { path: 'register', lazy: () => import('@/modules/register/page').then((m) => ({ Component: m.RegisterPage })) },
   {
     element: <AuthLayout />,
     children: [
-      { path: 'register', lazy: () => import('@/modules/register/page').then((m) => ({ Component: m.RegisterPage })) },
       { path: 'verify-email', lazy: () => import('@/modules/verifyEmail/page').then((m) => ({ Component: m.VerifyEmailPage })) },
       { path: 'forgot-password', lazy: () => import('@/modules/forgotPassword/page').then((m) => ({ Component: m.ForgotPasswordPage })) },
       { path: 'reset-password', lazy: () => import('@/modules/resetPassword/page').then((m) => ({ Component: m.ResetPasswordPage })) },

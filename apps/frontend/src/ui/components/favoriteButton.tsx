@@ -6,7 +6,7 @@ import { App, Button } from 'antd';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '@/services/auth';
-import { useLoginModal } from './loginModal';
+import { useAuthModal } from './authModal';
 import { useDemo } from '@/hooks/useDemo';
 
 /** POST /me/favorites/:barId/toggle — คืน true = เพิ่มเป็นร้านโปรด · backend: domains/account */
@@ -16,7 +16,7 @@ export function FavoriteButton({ barId, className }: { barId: string; className?
   useDemo();
   const { user } = useAuth();
   const { message } = App.useApp();
-  const { open: openLogin } = useLoginModal();
+  const { openLogin } = useAuthModal();
   const [busy, setBusy] = useState(false);
   const active = favorites().includes(barId);
   return (

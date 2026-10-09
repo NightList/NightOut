@@ -24,7 +24,7 @@ flowchart TD
   PUB --> INFO["/about (+ /contact) · /terms · /privacy · /cookies"]
 
   AUTH --> LOGIN["/login → / + modal"]
-  AUTH --> REG["/register"]
+  AUTH --> REG["/register → / + modal"]
   AUTH --> FGT["/forgot-password · /reset-password"]
   AUTH --> VER["/verify-email"]
   AUTH --> INV["/accept-invite"]
@@ -78,8 +78,8 @@ flowchart TD
 ### เข้าสู่ระบบ
 | Path | หน้า | Access | ส่วนประกอบหลัก | Figma |
 |---|---|---|---|---|
-| `/login` | เข้าสู่ระบบ (redirect → `/` + เปิด modal) | 🌐 | ไม่มีหน้าแยก: modal Ant Design เปิดจากปุ่ม navbar / route guard (`?next=`) · อีเมล + password, Google/Facebook, ลืมรหัสผ่าน, ลิงก์สมัคร · `ui/components/loginModal.tsx` | 🟡 Login, Login-P |
-| `/register` | สมัครสมาชิก | 🌐 | อีเมล, password + ยืนยัน, ชื่อที่แสดง, วันเกิด (20+), ยอมรับ Terms/Privacy, Turnstile | 🟡 |
+| `/login` | เข้าสู่ระบบ (redirect → `/` + เปิด modal) | 🌐 | ไม่มีหน้าแยก: modal Ant Design เปิดจากปุ่ม navbar / route guard (`?next=`) · อีเมล + password, Google/Facebook, ลืมรหัสผ่าน, ลิงก์สมัคร · `ui/components/authModal.tsx` | 🟡 Login, Login-P |
+| `/register` | สมัครสมาชิก (redirect → `/` + เปิด modal) | 🌐 | modal เดียวกับ login สลับมุมมองได้ · อีเมล, password + ยืนยัน, ชื่อที่แสดง, วันเกิด (20+), ยอมรับ Terms/Privacy, Turnstile · 🟡 |
 | `/verify-email` | ยืนยันอีเมล | 🌐 | แจ้งให้เช็กอีเมล + ส่งใหม่ | ⬜ |
 | `/forgot-password` | ลืมรหัสผ่าน | 🌐 | อีเมล | ⬜ |
 | `/reset-password` | ตั้งรหัสใหม่ | 🌐 | password + ยืนยัน | ⬜ |

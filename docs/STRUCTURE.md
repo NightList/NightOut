@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|
 | `home` | หน้าแรก: Hero, หมวด "คืนนี้อยากได้ฟีลไหน", ร้านแนะนำ | `/` | `catalog` · `site-content` | `homeContent` | 1A (เนื้อหาแก้ได้: นอก MVP — ยังไม่ระบุวันอนุมัติ) |
 | `map` | แผนที่ร้านเต็มจอ (Leaflet + OpenFreeMap) | `/map` | `catalog` | — | กฎธุรกิจ |
-| `login` | redirect `/login` → `/` แล้วเปิด modal เข้าสู่ระบบ (`ui/components/loginModal.tsx`) | `/login` | Supabase Auth | — | 1A |
+| `login` | redirect `/login` → `/` แล้วเปิด modal เข้าสู่ระบบ (`ui/components/authModal.tsx`) | `/login` | Supabase Auth | — | 1A |
 | `register` | สมัครสมาชิก | `/register` | Supabase Auth · `account` | — | 1A |
 | `verifyEmail` | ยืนยันอีเมล | `/verify-email` | Supabase Auth | — | 1A |
 | `forgotPassword` | ขอลิงก์รีเซ็ตรหัสผ่าน | `/forgot-password` | Supabase Auth | — | 1A |
