@@ -34,6 +34,47 @@
   }
 }
 
+/* Modal เข้าสู่ระบบ/สมัครสมาชิก — การ์ดกระจก: เบลอ + ขอบ/เงาด้านใน + เส้นแสงขอบบน/ซ้าย
+   (เติมชั้นสีมืดบางๆ ใต้กระจก ให้ตัวหนังสือขาวอ่านออกบนฉากหลังสว่าง) */
+.auth-glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background:
+    linear-gradient(145deg, rgba(168, 85, 247, 0.12), transparent 60%),
+    rgba(255, 255, 255, 0.05) !important;
+  background-color: rgba(14, 10, 26, 0.45) !important;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 0 60px rgba(168, 85, 247, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 4px 2px rgba(255, 255, 255, 0.2) !important;
+}
+.auth-glass::before,
+.auth-glass::after {
+  position: absolute;
+  pointer-events: none;
+  content: '';
+}
+.auth-glass::before {
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+}
+.auth-glass::after {
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent, rgba(255, 255, 255, 0.3));
+}
+
 /* Modal เข้าสู่ระบบ/สมัครสมาชิก — ช่องกรอกแบบกระจกฝ้า (glassmorphism) */
 .auth-modal .ant-input-affix-wrapper,
 .auth-modal .ant-picker {
