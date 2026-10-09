@@ -30,5 +30,23 @@ export const COMMON_ERRORS = {
   // เซิร์ฟเวอร์คุยกับ Supabase ไม่ได้ (ดูสาเหตุเต็มใน log ของ Vercel หรือ GET /api/health?deep=1)
   SUPABASE_URL_NOT_CONFIGURED: 'เซิร์ฟเวอร์ยังไม่ได้ตั้ง SUPABASE_URL — ใส่ใน Environment Variables ของ deploy แล้ว Redeploy',
   SUPABASE_UNREACHABLE: 'เซิร์ฟเวอร์ติดต่อฐานข้อมูล (Supabase) ไม่ได้ ลองใหม่อีกครั้ง',
+  // สร้างโดยตัวกลางของ backend (common/api-response.ts)
+  VALIDATION_FAILED: 'ข้อมูลที่ส่งมาไม่ถูกต้อง',
+  TOO_MANY_REQUESTS: 'เรียกถี่เกินไป รอสักครู่แล้วลองใหม่',
+  INTERNAL_ERROR: 'เซิร์ฟเวอร์ขัดข้อง ลองใหม่อีกครั้ง',
   SUPABASE_BAD_RESPONSE: 'ฐานข้อมูล (Supabase) ตอบกลับผิดปกติ — อาจถูกพักหรือเกินโควตา ลองใหม่อีกครั้ง',
 } as const satisfies Record<string, string>;
+
+/**
+ * รูปแบบคำตอบของทุก endpoint (ห่อโดย backend common/api-response.ts) — HTTP status ยังเป็นค่าจริง และ status_code = ค่าเดียวกัน
+ * หน้าเว็บไม่ต้องเช็ก `status` เอง: Rest แกะ `data` คืนให้ และ throw ApiError(err_msg) เมื่อ status = "no"
+ */
+export interface ApiResponse<T> {
+  status: 'ok' | 'no';
+  status_code: number;
+  data: T | null;
+  /** รหัส error คงที่ (เช่น ZONE_FULL, MFA_REQUIRED) ไว้ให้โค้ดตัดสินใจ — สำเร็จ = null */
+  code: string | null;
+  /** ข้อความภาษาไทยไว้แสดงผู้ใช้ — สำเร็จ = null */
+  err_msg: string | null;
+}

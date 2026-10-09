@@ -7,13 +7,14 @@ import type { Db } from '@nightout/types';
 import { Avatar, Button, Popconfirm, Space, Switch, Table, Tag, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useAdminAuth } from '@/services/adminAuth';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { DragHandle, SortableDisabledContext, SortableRow } from './components/sortableRow';
 import { TeamMemberDrawer } from './form/teamMemberDrawer';
 import { contactCount, isOwnMember } from './utils/contacts';
 import { photoSrc } from './utils/photo';
 import { useTeamOrder } from './utils/useTeamOrder';
+import { useTeamMembers, updateTeamMemberAction, deleteTeamMemberAction } from './api';
 
 /** หน้าเกี่ยวกับเราบนเว็บลูกค้า (deploy: โดเมนเดียวกัน · dev: คนละ port) */
 const ABOUT_URL = import.meta.env.DEV ? 'http://localhost:5173/about' : '/about';
@@ -24,9 +25,7 @@ const ABOUT_URL = import.meta.env.DEV ? 'http://localhost:5173/about' : '/about'
  * แก้ / ซ่อน = ซูเปอร์แอดมินทุกแถว · แอดมินเฉพาะแถวที่อีเมลในช่องทางติดต่อตรงกับอีเมลบัญชี · ทุกการเปลี่ยนแปลงลง Audit Log
  */
 export function TeamPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_team_members', {
-    order: { column: 'sort_order', ascending: true },
-  });
+  const { data, isLoading, error, refetch } = useTeamMembers();
   const act = useAdminAction();
   const { isSuperAdmin, session } = useAdminAuth();
   const canEdit = (r: Db.AdminTeamMember) =>
@@ -175,9 +174,7 @@ export function TeamPage() {
                       aria-label={`แสดง ${r.nickname} บนหน้าเกี่ยวกับเรา`}
                       onChange={(next) =>
                         act.mutate({
-                          method: 'PATCH',
-                          path: `team-members/${r.id}`,
-                          body: { active: next },
+                          ...updateTeamMemberAction(r.id, { active: next }),
                           success: next
                             ? `แสดง${r.nickname}บนเว็บแล้ว`
                             : `ซ่อน${r.nickname}จากเว็บแล้ว`,
@@ -212,8 +209,7 @@ export function TeamPage() {
                           cancelText="ยกเลิก"
                           onConfirm={() =>
                             act.mutateAsync({
-                              method: 'DELETE',
-                              path: `team-members/${r.id}`,
+                              ...deleteTeamMemberAction(r.id),
                               success: `ลบ${r.nickname}แล้ว`,
                             })
                           }

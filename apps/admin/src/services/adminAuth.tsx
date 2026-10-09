@@ -10,8 +10,11 @@ import {
   type ReactNode,
 } from 'react';
 import type { MyProfile } from '@nightout/contracts';
-import { fetchMyProfile } from '@/services/api/account';
+import { Rest } from '@nightout/utils/rest';
 import { supabase } from '@/services/supabase';
+
+/** GET /me/profile ด้วย token ที่ระบุ (ตอนโหลด session ก่อน Rest รู้จัก token) · backend: domains/account */
+const fetchMyProfile = (accessToken: string) => Rest.get<MyProfile>('/me/profile', { headers: { Authorization: `Bearer ${accessToken}` } });
 
 /**
  * Auth ของ Backoffice — ชั้นบัญชีต้องเข้าหลังบ้านได้ (แอดมิน / ซูเปอร์แอดมิน อ่านจากตาราง users + roles ไม่ใช่ user_metadata)

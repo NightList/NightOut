@@ -1,4 +1,4 @@
-import { useBarLedger, type DepositLedgerRow } from '@/services/data';
+import { useBarLedger, type DepositLedgerRow } from './api';
 import { Alert, Card, Col, Row, Statistic, Table, Tag } from 'antd';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { baht, dateTime } from '@/ui/utils/format';
@@ -23,7 +23,8 @@ export function MerchantDepositsPage() {
   const bar = useMerchantBar();
   const { data = [], isLoading, error } = useBarLedger(bar.id);
   const rows = data.filter((r) => r.status !== 'REJECTED');
-  const sum = (k: DepositLedgerRow['settlement']) => rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
+  const sum = (k: DepositLedgerRow['settlement']) =>
+    rows.filter((r) => r.settlement === k).reduce((a, r) => a + Number(r.amount), 0);
   return (
     <div>
       <PageHeader
@@ -34,14 +35,27 @@ export function MerchantDepositsPage() {
             : 'ยังไม่ได้ตั้งบัญชีรับเงิน — ตั้งได้ที่ตั้งค่าการจอง'
         }
       />
-      {error && <Alert className="!mb-6" type="error" showIcon title="โหลดมัดจำไม่สำเร็จ" description={(error as Error).message} />}
+      {error && (
+        <Alert
+          className="!mb-6"
+          type="error"
+          showIcon
+          title="โหลดมัดจำไม่สำเร็จ"
+          description={(error as Error).message}
+        />
+      )}
       <Row gutter={[16, 16]} className="mb-6">
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
-            <Statistic title="NightOut ถือไว้ (ยังไม่เช็กอิน)" value={sum('HELD')} prefix="฿" loading={isLoading} />
+            <Statistic
+              title="NightOut ถือไว้ (ยังไม่เช็กอิน)"
+              value={sum('HELD')}
+              prefix="฿"
+              loading={isLoading}
+            />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
               title="รอโอนให้ร้าน"
@@ -52,12 +66,12 @@ export function MerchantDepositsPage() {
             />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="โอนแล้ว" value={sum('PAID_OUT')} prefix="฿" loading={isLoading} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="เครดิตในร้าน" value={sum('CREDIT')} prefix="฿" loading={isLoading} />
           </Card>
@@ -74,11 +88,18 @@ export function MerchantDepositsPage() {
           { title: 'รหัสจอง', dataIndex: 'booking_code', width: 120 },
           { title: 'ลูกค้า', dataIndex: 'customer_name', render: (v: string | null) => v ?? '-' },
           { title: 'วันที่จอง', dataIndex: 'booking_datetime', render: (v: string) => dateTime(v) },
-          { title: 'ยอด', dataIndex: 'amount', align: 'right', render: (v: number) => baht(Number(v)) },
+          {
+            title: 'ยอด',
+            dataIndex: 'amount',
+            align: 'right',
+            render: (v: number) => baht(Number(v)),
+          },
           {
             title: 'สถานะเงิน',
             dataIndex: 'settlement',
-            render: (s: DepositLedgerRow['settlement']) => <Tag color={SETTLEMENT[s]?.color}>{SETTLEMENT[s]?.label ?? s}</Tag>,
+            render: (s: DepositLedgerRow['settlement']) => (
+              <Tag color={SETTLEMENT[s]?.color}>{SETTLEMENT[s]?.label ?? s}</Tag>
+            ),
           },
           {
             title: 'อัปเดต',

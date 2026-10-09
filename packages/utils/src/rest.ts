@@ -9,7 +9,9 @@ import axios, { AxiosError, AxiosHeaders, type AxiosInstance, type AxiosRequestC
  *   const bars = await Rest.get<Bar[]>('/public/catalog')
  *
  * - แนบ `Authorization: Bearer <token>` ให้อัตโนมัติ (ถ้า getAccessToken คืนค่า และ request ไม่ได้ใส่เอง)
- * - error ทุกแบบ → ApiError(status, code) พร้อมข้อความภาษาไทย (errorMessages ที่ส่งตอน configure — ERROR_MESSAGES จาก @nightout/contracts)
+ * - backend ห่อทุกคำตอบเป็น { status: 'ok' | 'no', status_code, data, code, err_msg } (ApiResponse ใน contracts)
+ *   → Rest แกะ `data` คืนให้ · status ไม่ใช่ 'ok' = throw ApiError(status_code, code) ข้อความ = err_msg — คนเรียกไม่ต้องเช็ก status เอง
+ * - error ทุกแบบ → ApiError(status, code) พร้อมข้อความภาษาไทย (err_msg จาก API · ไม่มี = errorMessages ที่ส่งตอน configure)
  * - log ทุก request ผ่าน logger ของแอป (ป้าย NightOut ใน Console)
  * แยก entry `@nightout/utils/rest` จาก index — backend ที่ใช้ @nightout/utils จะไม่ต้องโหลด axios
  */
@@ -24,8 +26,9 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     readonly code: string,
+    message?: string | null,
   ) {
-    super(errorMessages[code] ?? Object.entries(errorMessages).find(([k]) => code.includes(k))?.[1] ?? code);
+    super(message || (errorMessages[code] ?? Object.entries(errorMessages).find(([k]) => code.includes(k))?.[1] ?? code));
     this.name = 'ApiError';
   }
 }
@@ -48,6 +51,11 @@ export interface RestConfig {
   timeout?: number;
   /** รหัส error → ข้อความไทย (ส่ง ERROR_MESSAGES จาก @nightout/contracts) */
   errorMessages?: Readonly<Record<string, string>>;
+  /**
+   * เรียกหลัง POST / PUT / PATCH / DELETE ที่สำเร็จ — Rest รอให้เสร็จก่อนคืนผลให้คนเรียก
+   * (frontend ใช้โหลด store ใหม่ คนเรียกไม่ต้อง refresh เอง) · error ในนี้แค่ log ไม่ทำให้การเขียนล้ม
+   */
+  afterWrite?: (req: { method: string; url: string }) => unknown;
 }
 
 /**
@@ -71,6 +79,20 @@ export const RETRY_DELAYS_MS = [500, 1000, 2000] as const;
 
 /** method ที่ส่งซ้ำแล้วผลเท่าเดิม (HTTP idempotent) — POST / PATCH ต้องตั้ง `retryable` เอง กันบันทึกซ้ำ */
 const IDEMPOTENT = new Set(['get', 'head', 'put', 'delete']);
+
+/** method ที่เป็นการเขียน → เรียก `afterWrite` หลังสำเร็จ */
+const WRITES = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+/** คำตอบรูปแบบกลางของ backend (ApiResponse ใน @nightout/contracts — utils import contracts ไม่ได้) */
+interface Envelope {
+  status: 'ok' | 'no';
+  status_code: number;
+  data: unknown;
+  code: string | null;
+  err_msg: string | null;
+}
+const isEnvelope = (d: unknown): d is Envelope =>
+  typeof d === 'object' && d !== null && 'status_code' in d && ((d as Envelope).status === 'ok' || (d as Envelope).status === 'no');
 
 /** ลองซ้ำเฉพาะต่อไม่ติด (`ERR_NETWORK`) ของ request ที่ส่งซ้ำได้ และยังไม่ครบรอบ */
 const shouldRetry = (err: AxiosError) => {
@@ -112,9 +134,25 @@ export class Rest {
     });
 
     client.interceptors.response.use(
-      (res) => {
+      async (res) => {
+        if (isEnvelope(res.data)) {
+          const body = res.data;
+          if (body.status !== 'ok') {
+            log.warn(`API ${describe(res.config)} → ${body.status_code} ${body.code ?? ''} · ${elapsed((res.config as Timed).metadata?.t0)}`);
+            throw new ApiError(body.status_code, body.code ?? `HTTP ${body.status_code}`, body.err_msg);
+          }
+          res.data = body.data;
+        }
         const rows = Array.isArray(res.data) ? ` · ${res.data.length} แถว` : '';
         log.info(`API ${describe(res.config)} → ${res.status}${rows} · ${elapsed((res.config as Timed).metadata?.t0)}`);
+        const method = (res.config.method ?? 'get').toUpperCase();
+        if (cfg.afterWrite && WRITES.has(method)) {
+          try {
+            await cfg.afterWrite({ method, url: res.config.url ?? '' });
+          } catch (e) {
+            log.warn(`API ${describe(res.config)} บันทึกแล้ว แต่ afterWrite ไม่สำเร็จ`, e instanceof Error ? e.message : e);
+          }
+        }
         return res;
       },
       (err: unknown) => {
@@ -135,15 +173,13 @@ export class Rest {
           return Promise.reject(new ApiError(0, `ติดต่อเซิร์ฟเวอร์ไม่ได้ (${cfg.baseURL}) — เปิดหลังบ้านด้วย pnpm dev แล้วลองใหม่`));
         }
         const { status, data } = err.response;
-        const msg = typeof data === 'object' && data ? (data as { message?: string | string[] }).message : undefined;
-        const code =
-          status === 401 && cfg.unauthorizedCode
-            ? cfg.unauthorizedCode
-            : Array.isArray(msg)
-              ? msg.join(', ')
-              : (msg ?? `HTTP ${status}`);
+        const env = isEnvelope(data) ? data : null;
+        const msg = env ? env.code : typeof data === 'object' && data ? (data as { message?: string | string[] }).message : undefined;
+        const unauthorized = status === 401 ? cfg.unauthorizedCode : undefined;
+        const code = unauthorized ?? (Array.isArray(msg) ? msg.join(', ') : (msg ?? `HTTP ${status}`));
         log.warn(`API ${describe(err.config)} → ${status} ${code} · ${elapsed(t0)}`);
-        return Promise.reject(new ApiError(status, code));
+        // unauthorizedCode (เช่น MFA_REQUIRED ของ Backoffice) ใช้ข้อความของรหัสนั้น ไม่ใช่ err_msg ของ 401
+        return Promise.reject(new ApiError(status, code, unauthorized ? null : env?.err_msg));
       },
     );
 

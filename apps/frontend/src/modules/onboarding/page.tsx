@@ -1,6 +1,7 @@
 import { App, Button, Card, Form, InputNumber, Select } from 'antd';
 import { useState } from 'react';
-import { MASTER, myPrefs, updateProfile } from '@/services/data';
+import { MASTER, myPrefs } from '@/services/data';
+import { updateProfile } from './api';
 import { useNavigate } from 'react-router';
 import { PageHeader } from '@/ui/components/pageHeader';
 

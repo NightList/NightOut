@@ -1,4 +1,4 @@
-import { listBars, rankingByPeriod } from '@/services/data';
+import { rankingByPeriod } from '@/services/data';
 import { useDemo } from '@/hooks/useDemo';
 import { AuroraBackdrop } from './components/auroraBackdrop';
 import { CategoryGrid } from './components/categoryGrid';
@@ -6,6 +6,7 @@ import { Hero } from './components/hero';
 import { Newsletter } from './components/newsletter';
 import { PopularGrid } from './components/popularGrid';
 import { WeeklySpotlight } from './components/weeklySpotlight';
+import { pickPopular } from './utils/popularBars';
 import { useHomeContent } from './utils/useHomeContent';
 
 /**
@@ -16,9 +17,10 @@ import { useHomeContent } from './utils/useHomeContent';
 export function HomePage() {
   useDemo();
   // Hero + การ์ดหมวด แอดมินแก้ได้ที่ Backoffice (GET /public/home) · ยังไม่มา = skeleton · โหลดไม่ได้ = ปุ่มลองใหม่ใน Hero
-  const { content, categories, failed, retry } = useHomeContent();
-  const popular = listBars({ sort: 'rating' }).slice(0, 8);
-  // อันดับประจำสัปดาห์ตามโหวต (เดียวกับหน้า /ranking) — ไม่ซ้ำกับกริดยอดนิยมที่เรียงตามคะแนนรีวิว
+  const { content, categories, popularIds, failed, retry } = useHomeContent();
+  // ร้านที่แอดมินปักไว้ก่อน แล้วเติมด้วยคะแนนรีวิวสูงสุดจนครบ 8
+  const popular = pickPopular(popularIds);
+  // อันดับประจำสัปดาห์ตามโหวต (เดียวกับหน้า /ranking) — คนละชุดกับกริดยอดนิยม (ปักโดยแอดมิน + คะแนนรีวิว)
   const weekly = rankingByPeriod('WEEK').slice(0, 3);
 
   return (
@@ -40,7 +42,7 @@ export function HomePage() {
 
         <div className="space-y-16 pb-10 pt-14 md:space-y-24 md:pb-14 md:pt-20">
           <WeeklySpotlight bars={weekly} />
-          <PopularGrid bars={popular} />
+          <PopularGrid bars={popular} eyebrow={content?.popular_eyebrow} title={content?.popular_title} />
           <Newsletter />
         </div>
       </div>

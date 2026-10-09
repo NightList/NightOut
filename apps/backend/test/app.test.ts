@@ -18,7 +18,7 @@ describe('NightOut API', () => {
 
   it('GET /health', async () => {
     const res = await request(app.getHttpServer()).get('/health').expect(200);
-    expect(res.body.status).toBe('ok');
+    expect(res.body).toMatchObject({ status: 'ok', status_code: 200, code: null, err_msg: null, data: { status: 'ok' } });
   });
 
   it('POST /pricing/estimate validates and calculates', async () => {
@@ -30,12 +30,15 @@ describe('NightOut API', () => {
         pax: 4,
       })
       .expect(200);
-    expect(res.body.estimated_total).toBe(2354);
-    expect(res.body.per_person).toBe(588.5);
+    expect(res.body.data.estimated_total).toBe(2354);
+    expect(res.body.data.per_person).toBe(588.5);
   });
 
   it('POST /pricing/estimate rejects invalid body', async () => {
-    await request(app.getHttpServer()).post('/pricing/estimate').send({ pax: 0 }).expect(400);
+    const res = await request(app.getHttpServer()).post('/pricing/estimate').send({ pax: 0 }).expect(400);
+    // ทุก error เป็น ApiResponse เดียวกัน — err_msg ภาษาไทยพร้อมชื่อ field
+    expect(res.body).toMatchObject({ status: 'no', status_code: 400, data: null, code: 'VALIDATION_FAILED' });
+    expect(res.body.err_msg).toContain('ข้อมูลที่ส่งมาไม่ถูกต้อง');
   });
 
   it('POST /jobs/* requires the job secret', async () => {
@@ -48,7 +51,8 @@ describe('NightOut API', () => {
 
   // ADR 0002: หน้าเว็บอ่านข้อมูลผ่าน API — endpoint ของผู้ใช้ต้องล็อกอิน · ข้อมูลที่ส่งมาต้องผ่าน validation
   it('GET /me/* requires a bearer token', async () => {
-    await request(app.getHttpServer()).get('/me/overview').expect(401);
+    const res = await request(app.getHttpServer()).get('/me/overview').expect(401);
+    expect(res.body).toMatchObject({ status: 'no', status_code: 401, data: null, code: 'Missing bearer token' });
     await request(app.getHttpServer()).get('/me/profile').expect(401);
     await request(app.getHttpServer()).get('/merchant/bars/00000000-0000-4000-8000-000000000000/team').expect(401);
     await request(app.getHttpServer()).post('/storage/upload-url').send({ bucket: 'deposit-slips', path: 'a/b.jpg' }).expect(401);

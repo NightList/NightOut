@@ -7,6 +7,7 @@ import { useAdminAction } from '@/services/adminData';
 import { webSrc } from '@/ui/utils/image';
 import { SLOT_LABELS } from '../utils/slots';
 import { checkImage, IMAGE_ACCEPT, uploadSiteImage } from '../utils/media';
+import { homeCategoryAction } from '../api';
 
 type Values = Pick<Db.AdminHomeCategory, 'title' | 'hint' | 'link_to' | 'image_url' | 'badge'>;
 
@@ -54,9 +55,7 @@ export function CategoryDrawer({ category, onClose }: { category: Db.AdminHomeCa
     };
     try {
       await act.mutateAsync({
-        method: 'PATCH',
-        path: `home-categories/${category.slot}`,
-        body,
+        ...homeCategoryAction(category.slot, body),
         success: `บันทึกการ์ด${body.title}แล้ว`,
       });
       onClose();

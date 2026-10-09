@@ -4,7 +4,7 @@ import { hhmm, objectPath, text, uuid } from './common';
 
 /**
  * โดเมน bar — ข้อมูลร้าน เมนู โปรของร้าน ค่าธรรมเนียม โซน/โต๊ะ ความปลอดภัย ตั้งค่าการจอง บัญชีรับเงิน ความแน่น
- * สมัครลงร้าน (ลูกค้า) · อนุมัติ/ระงับ/Editor's Pick/ยืนยัน Safety/ตรวจโปรของร้าน (แอดมิน)
+ * สมัครลงร้าน (ลูกค้า) · อนุมัติ/ระงับ/ยืนยัน Safety/ตรวจโปรของร้าน (แอดมิน)
  */
 
 // ----------------------------- ลูกค้า -----------------------------
@@ -153,10 +153,6 @@ export type CrowdBody = z.infer<typeof CrowdBody>;
 /** PATCH /admin/bars/:id/status */
 export const SetBarStatusBody = z.object({ status: BarStatus, reason: z.string().trim().min(1).max(500).optional() });
 export type SetBarStatusBody = z.infer<typeof SetBarStatusBody>;
-/** PATCH /admin/bars/:id/editor-pick */
-export const SetEditorPickBody = z.object({ value: z.boolean() });
-export type SetEditorPickBody = z.infer<typeof SetEditorPickBody>;
-
 export const BAR_ERRORS = {
   NOT_BAR_MEMBER: 'บัญชีนี้ไม่ได้อยู่ในทีมของร้านนี้',
   NOT_BAR_MANAGER: 'เฉพาะเจ้าของหรือผู้จัดการร้านเท่านั้น',

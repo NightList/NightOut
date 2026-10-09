@@ -1,5 +1,6 @@
 import { CalendarCheck, MapPin, UsersThree } from '@phosphor-icons/react';
-import { getBarBySlug, useShareCard } from '@/services/data';
+import { getBarBySlug } from '@/services/data';
+import { useShareCard } from './api';
 import { Button, Card, Spin } from 'antd';
 import { Link, useParams } from 'react-router';
 import { BarCover } from '@/ui/components/barCard';

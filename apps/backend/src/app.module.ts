@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { ApiExceptionFilter, ApiResponseInterceptor } from './common/api-response';
 import { validateEnv } from './config/env';
 import { AccountModule } from './domains/account/account.module';
 import { BackofficeModule } from './domains/backoffice/backoffice.module';
@@ -52,6 +53,9 @@ import { SupabaseModule } from './supabase/supabase.module';
     LocalJobsScheduler,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // ทุกคำตอบเป็น ApiResponse { status, status_code, data, code, err_msg } (common/api-response.ts)
+    { provide: APP_INTERCEPTOR, useClass: ApiResponseInterceptor },
+    { provide: APP_FILTER, useClass: ApiExceptionFilter },
   ],
 })
 export class AppModule {}

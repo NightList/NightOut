@@ -26,7 +26,6 @@ export interface BarDetailRow {
   score: number | null;
   current_crowd: Bar['crowd'] | null;
   crowd_updated_at: string | null;
-  is_editor_pick: boolean;
   is_promoted: boolean;
   description: string | null;
   address: string;
@@ -175,7 +174,6 @@ export function toBar(r: BarDetailRow): Bar {
     statusReason: r.status_reason ?? undefined,
     staffRole: r.staff_role,
     promoted: r.is_promoted,
-    editorsPick: r.is_editor_pick,
     deposit: {
       amount: Number(settings?.deposit_amount ?? 0),
       unit: settings?.deposit_unit ?? 'PER_TABLE',

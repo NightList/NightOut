@@ -3,7 +3,7 @@ import { useThemeMode } from '@nightout/ui';
 import { App, Button, Card, Segmented } from 'antd';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/services/auth';
-import { deleteAccount } from '@/services/data';
+import { deleteAccount } from './api';
 import { PageHeader } from '@/ui/components/pageHeader';
 
 export function SettingsPage() {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { CreateBookingBody, ERROR_MESSAGES, ReorderTeamBody, ReviewDepositBody, TeamMemberBody, UpdateTeamMemberBody } from './index';
+import { CreateBookingBody, ERROR_MESSAGES, errorMessageOf, ReorderTeamBody, ReviewDepositBody, TeamMemberBody, UpdateTeamMemberBody } from './index';
 import { canCreateRole, CreateUserBody } from './account';
-import { UpdateHomeCategoryBody, UpdateHomeContentBody } from './site-content';
+import { UpdateHomeCategoryBody, UpdateHomeContentBody, UpdateHomePopularBody } from './site-content';
 
 describe('booking', () => {
   const base = {
@@ -63,6 +63,15 @@ describe('site-content', () => {
     expect(UpdateHomeCategoryBody.safeParse({ title: '' }).success).toBe(false);
     expect(UpdateHomeCategoryBody.safeParse({ link_to: '/search?style=Rooftop' }).success).toBe(true);
   });
+  it('popular bars: up to 8 unique uuids', () => {
+    const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
+    expect(UpdateHomePopularBody.safeParse({ bar_ids: [] }).success).toBe(true);
+    expect(UpdateHomePopularBody.safeParse({ bar_ids: [1, 2, 3, 4, 5, 6, 7, 8].map(id) }).success).toBe(true);
+    expect(UpdateHomePopularBody.safeParse({ bar_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9].map(id) }).success).toBe(false);
+    expect(UpdateHomePopularBody.safeParse({ bar_ids: [id(1), id(1)] }).success).toBe(false);
+    expect(UpdateHomePopularBody.safeParse({ bar_ids: ['not-a-uuid'] }).success).toBe(false);
+    expect(UpdateHomeContentBody.safeParse({ popular_title: ' ' }).success).toBe(false);
+  });
 });
 
 describe('account', () => {
@@ -91,5 +100,11 @@ describe('errors', () => {
     expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_OWN).toBeTruthy();
     expect(ERROR_MESSAGES.TEAM_MEMBER_EMAIL_LOCKED).toBeTruthy();
     expect(Object.keys(ERROR_MESSAGES).length).toBeGreaterThan(70);
+  });
+
+  it('errorMessageOf: exact code → embedded code → unknown stays as-is', () => {
+    expect(errorMessageOf('ZONE_FULL')).toBe(ERROR_MESSAGES.ZONE_FULL);
+    expect(errorMessageOf('SUPABASE_UNREACHABLE: fetch failed')).toBe(ERROR_MESSAGES.SUPABASE_UNREACHABLE);
+    expect(errorMessageOf('SOMETHING_NEW')).toBe('SOMETHING_NEW');
   });
 });

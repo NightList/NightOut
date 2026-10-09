@@ -1,5 +1,6 @@
 import { Clock, ChatCircleDots, MapPin, ShareNetwork } from '@phosphor-icons/react';
-import { autoCancelAt, cancelBooking, getBar, getBooking } from '@/services/data';
+import { autoCancelAt, getBar, getBooking } from '@/services/data';
+import { cancelBooking } from './api';
 import { App, Button, Card, Timeline } from 'antd';
 import { QRCodeSVG } from 'qrcode.react';
 import { Link, useParams } from 'react-router';

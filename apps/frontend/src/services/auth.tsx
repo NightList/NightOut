@@ -5,8 +5,12 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { useDemo } from '@/hooks/useDemo';
 import { log } from '@/services/log';
 import { supabase } from '@/services/supabase';
-import { fetchMyProfile } from '@/services/api/account';
+import { Rest } from '@nightout/utils/rest';
 import { clearUser, currentProfile, startUser } from '@/services/sync';
+
+/** GET /me/profile ด้วย token ที่ระบุ (ตอนโหลด session ก่อน Rest รู้จัก token) · backend: domains/account */
+const fetchMyProfile = (accessToken: string) =>
+  Rest.get<C.MyProfile>('/me/profile', { headers: { Authorization: `Bearer ${accessToken}` } });
 
 export interface AppUser {
   id: string;

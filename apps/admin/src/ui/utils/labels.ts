@@ -9,7 +9,7 @@ export interface TagLabel {
 export const BAR_STATUS: Record<Db.Enums<'bar_status'>, TagLabel> = {
   DRAFT: { text: 'ร่าง', color: 'default' },
   PENDING_REVIEW: { text: 'รอตรวจ', color: 'gold' },
-  APPROVED: { text: 'เปิดแสดง', color: 'green' },
+  APPROVED: { text: 'แสดง', color: 'green' },
   REJECTED: { text: 'ไม่อนุมัติ', color: 'red' },
   SUSPENDED: { text: 'ระงับ', color: 'volcano' },
 };
@@ -96,7 +96,7 @@ export const REPORT_REASON: Record<string, string> = {
 
 export const AUDIT_ACTION: Record<string, string> = {
   'bar.status': 'เปลี่ยนสถานะร้าน',
-  'bar.editor_pick': "Editor's Pick",
+  'bar.editor_pick': "Editor's Pick (ยกเลิกแล้ว)", // ฟีเจอร์ถูกลบ 2026-10-08 — เก็บไว้ให้ log เก่าอ่านออก
   'safety.verify': 'ยืนยัน Safety',
   'deposit.verify': 'สลิปมัดจำผ่าน',
   'deposit.reject': 'สลิปมัดจำไม่ผ่าน',

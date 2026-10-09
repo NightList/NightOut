@@ -1,7 +1,7 @@
 import { CaretLeft, CaretRight, X } from '@phosphor-icons/react';
 import { Drawer, Grid, Tag } from 'antd';
 import { useEffect, useId, useState } from 'react';
-import type { SiteTeamMember } from '@/services/data';
+import type { SiteTeamMember } from '../api';
 import { teamContactLinks } from '../utils/teamContacts';
 import { TeamContactLinks } from './teamContactLinks';
 import { TeamPortrait } from './teamPortrait';

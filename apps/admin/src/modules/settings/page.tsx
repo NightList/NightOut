@@ -1,8 +1,8 @@
 import { PageContainer } from '@ant-design/pro-components';
 import type { Db } from '@nightout/types';
 import { Card, Space, Table, Tag } from 'antd';
-import { useMasterTable } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
+import { useMasterTable } from './api';
 
 /** ข้อมูลตั้งต้นของระบบ (อ่านอย่างเดียว — แก้ผ่าน migration/seed) */
 export function SettingsPage() {

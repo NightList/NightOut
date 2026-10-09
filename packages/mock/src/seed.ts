@@ -332,7 +332,6 @@ export function createSeed(): DemoState {
       avgPerPerson: avg,
       status: 'APPROVED',
       promoted: i === 0 || i === 3 || i === 8,
-      editorsPick: i === 9,
       deposit: {
         amount: category === 'PUB_BAR' ? 500 : 300,
         unit: 'PER_TABLE',
@@ -360,7 +359,6 @@ export function createSeed(): DemoState {
     district: 'สุขุมวิท',
     status: 'PENDING_REVIEW',
     promoted: false,
-    editorsPick: false,
     reviewCount: 0,
     score: 0,
     rating: 0,

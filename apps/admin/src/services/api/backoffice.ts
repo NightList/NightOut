@@ -23,6 +23,7 @@ export interface AdminViewRows {
   admin_team_members: Db.AdminTeamMember;
   admin_home_content: Db.AdminHomeContent;
   admin_home_categories: Db.AdminHomeCategory;
+  admin_home_popular: Db.AdminHomePopular;
 }
 
 /** ตัวกรองแบบง่าย: [คอลัมน์, ค่า] = eq · [คอลัมน์, ค่า[]] = in */
@@ -43,9 +44,6 @@ function viewParams(opts: ListOptions): Record<string, string | number> {
 
 export const fetchAdminView = <V extends AdminView>(view: V, opts: ListOptions = {}) =>
   Rest.get<AdminViewRows[V][]>(`/admin/views/${view}`, { params: viewParams(opts) });
-export const fetchAdminDashboard = () => Rest.get<Db.AdminDashboard | null>('/admin/dashboard');
-export const fetchMasterTable = <T>(table: AdminMasterTable, orderBy: string) =>
-  Rest.get<T[]>(`/admin/master/${table}`, { params: { order: `${orderBy}.asc` } });
 
 export interface AdminActionInput {
   method: 'POST' | 'PATCH' | 'PUT' | 'DELETE';

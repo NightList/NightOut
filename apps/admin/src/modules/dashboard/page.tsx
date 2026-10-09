@@ -1,7 +1,7 @@
 import { PageContainer, StatisticCard } from '@ant-design/pro-components';
 import { Link } from 'react-router';
-import { useAdminDashboard } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
+import { useAdminDashboard } from './api';
 
 const CARDS = [
   { key: 'bookings_today', title: 'การจองวันนี้', to: '/bookings' },

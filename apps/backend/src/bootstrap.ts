@@ -24,6 +24,7 @@ export async function createApp(): Promise<INestApplication> {
       .setTitle('NightOut API')
       .setDescription(
         'API ของ NightOut — หน้าเว็บอ่าน/เขียนข้อมูลผ่าน API นี้เท่านั้น (ADR 0002) · จัดกลุ่มตามโดเมน (ADR 0006) · key ใน body และ response เป็น snake_case ทั้งหมด · ' +
+          'ทุกคำตอบห่อเป็น `{ status: "ok" | "no", status_code, data, code, err_msg }` (HTTP status เป็นค่าจริง · "returns" ของแต่ละเส้น = สิ่งที่อยู่ใน `data`) · ' +
           'เส้นที่มีรูปกุญแจต้องส่ง `Authorization: Bearer <Supabase access token>`',
       )
       .setVersion('0.1.0')

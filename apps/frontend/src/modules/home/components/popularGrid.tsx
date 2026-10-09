@@ -12,7 +12,6 @@ import { PromotedTag } from './promotedTag';
 
 /** ป้ายมุมซ้ายบนรูป (ไม่ใช่โฆษณา) — ร้านโปรโมทใช้ <PromotedTag> แทนและมาก่อนเสมอ · ไม่เข้าเงื่อนไขก็ไม่แสดง */
 function badgeOf(bar: BarWithTier): { label: string; className: string } | null {
-  if (bar.editorsPick) return { label: 'ทีมงานเลือก', className: 'bg-purple text-white' };
   if (bar.isNew) return { label: 'ร้านใหม่', className: 'bg-[var(--crowd-available)] text-white' };
   return null;
 }
@@ -111,17 +110,23 @@ function PopularBarCard({ bar }: { bar: BarWithTier }) {
   );
 }
 
-/** กริดร้านยอดนิยม (เรียงตามคะแนนรีวิว) — มือถือ 2 คอลัมน์ · md ขึ้นไป 4 คอลัมน์ */
-export function PopularGrid({ bars }: { bars: BarWithTier[] }) {
+/**
+ * กริดร้านยอดนิยม (ร้านที่แอดมินปัก + เติมด้วยคะแนนรีวิว · ดู utils/popularBars) — มือถือ 2 คอลัมน์ · md ขึ้นไป 4 คอลัมน์
+ * หัวข้อแก้ได้ที่ Backoffice · ระหว่างรอ API ใช้ข้อความเดิม (section นี้อยู่พ้นจอแรก ไม่ต้องมี skeleton)
+ */
+export function PopularGrid({
+  bars,
+  eyebrow = 'คะแนนรีวิวสูงสุด',
+  title = 'ร้านยอดนิยม',
+}: {
+  bars: BarWithTier[];
+  eyebrow?: string;
+  title?: string;
+}) {
   if (!bars.length) return null;
   return (
     <section aria-labelledby="home-popular" className="mx-auto max-w-7xl px-4 md:px-8">
-      <SectionHeader
-        id="home-popular"
-        eyebrow="คะแนนรีวิวสูงสุด"
-        title="ร้านยอดนิยม"
-        to="/search"
-      />
+      <SectionHeader id="home-popular" eyebrow={eyebrow || undefined} title={title} to="/search" />
       <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
         {bars.map((b) => (
           <li key={b.id}>

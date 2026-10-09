@@ -1,5 +1,6 @@
 import { CaretDown, MagnifyingGlass, MapPin } from '@phosphor-icons/react';
-import { DISTRICTS, type SiteHomeContent } from '@/services/data';
+import { DISTRICTS } from '@/services/data';
+import { type SiteHomeContent } from '../api';
 import { Dropdown } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';

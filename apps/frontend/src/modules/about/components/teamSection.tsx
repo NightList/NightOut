@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 import { useCallback, useState } from 'react';
-import { useSiteTeam } from '@/services/data';
+import { useSiteTeam } from '../api';
 import { TeamGrid } from './teamGrid';
 import { TeamProfileDrawer } from './teamProfileDrawer';
 

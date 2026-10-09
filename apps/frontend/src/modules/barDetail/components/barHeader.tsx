@@ -22,7 +22,6 @@ export function BarHeader({ bar }: { bar: BarWithTier }) {
     <>
       <div className="flex flex-wrap items-center gap-2">
         <Tag>{CATEGORY_LABELS[bar.category]}</Tag>
-        {bar.editorsPick && <Tag color="gold">Editor&apos;s Pick</Tag>}
         {bar.promoted && <Tag>แนะนำ · โฆษณา</Tag>}
         {bar.styles.map((s) => (
           <Tag key={s} color="purple" variant="filled">

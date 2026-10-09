@@ -1,5 +1,9 @@
 # CHANGELOG — team (จัดการทีมงาน /team)
 
+## 2026-10-09 — ย้าย API เข้า `api.ts` ของโมดูล (ADR 0007)
+- เพิ่ม `api.ts`: `useTeamMembers` · `createTeamMemberAction` · `updateTeamMemberAction` · `deleteTeamMemberAction` · `reorderTeamAction` — ชื่อ view / path / body ของหน้านี้ย้ายมาอยู่ที่เดียว (เดิมเขียนในหน้าผ่าน `useAdminView('admin_x', …)` / `act.mutate({ method, path, body })`) · body มี type จาก `@nightout/contracts`
+- หน้า / form / modal ของโมดูลเรียกผ่าน `./api` · พฤติกรรมเดิม (query key, ข้อความแจ้งผล, invalidate `['admin']`)
+
 ## 2026-10-08 — ลากเรียงลำดับทีมงาน (แทนปุ่มขึ้น/ลง)
 - คอลัมน์ "ลำดับ" เปลี่ยนจากปุ่มลูกศรขึ้น/ลง เป็นปุ่มจับ (ไอคอน `DotsSixVertical`) ลากทั้งแถวขึ้นลงได้ — ใช้ dnd-kit ตาม demo "Drag sorting with handler" ของ antd · ลากได้เฉพาะที่ปุ่มจับ · คีย์บอร์ด: Tab ไปที่ปุ่มจับ → Space ยก → ลูกศร → Space วาง (Esc ยกเลิก)
 - ปล่อยแล้วแถวอยู่ตำแหน่งใหม่ทันทีระหว่างรอ API (`PUT /admin/team-members/order`) · API พลาด = กลับลำดับเดิม · ระหว่างบันทึกล็อกการลาก · ยังเฉพาะซูเปอร์แอดมิน

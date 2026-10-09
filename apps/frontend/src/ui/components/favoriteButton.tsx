@@ -1,11 +1,16 @@
 import { Heart } from '@phosphor-icons/react';
-import { favorites, toggleFavorite } from '@/services/data';
+import type * as C from '@nightout/contracts';
+import { Rest } from '@nightout/utils/rest';
+import { favorites } from '@/services/data';
 import { App, Button } from 'antd';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/services/auth';
 import { useDemo } from '@/hooks/useDemo';
+
+/** POST /me/favorites/:barId/toggle — คืน true = เพิ่มเป็นร้านโปรด · backend: domains/account */
+const toggleFavorite = async (barId: string) => (await Rest.post<C.ToggleFavoriteResult>(`/me/favorites/${barId}/toggle`)).favorite;
 
 export function FavoriteButton({ barId, className }: { barId: string; className?: string }) {
   useDemo();

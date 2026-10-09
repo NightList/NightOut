@@ -1,4 +1,4 @@
-import { setPayoutAccount, updateBookingSettings } from '@/services/data';
+import { setPayoutAccount, updateBookingSettings } from './api';
 import { Alert, App, Button, Card, Form, Input, InputNumber, Select } from 'antd';
 import { useState } from 'react';
 import { PageHeader } from '@/ui/components/pageHeader';

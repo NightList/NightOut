@@ -19,22 +19,22 @@ export function MerchantAnalyticsPage() {
     <div>
       <PageHeader title="สถิติ" subtitle="คำนวณจากการจองของร้านใน NightOut" />
       <Row gutter={[16, 16]}>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="การจองทั้งหมด" value={all.length} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="ลูกค้ารวม" value={pax} suffix="คน" />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="No-show" value={noShow} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="ผ่านการโปรโมท" value={bar.promoted ? 'กำลังแสดง' : '-'} />
           </Card>

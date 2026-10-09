@@ -3,6 +3,7 @@ import { z } from 'zod';
 /**
  * โดเมน site-content — เนื้อหาหน้าแรกที่แอดมินแก้ได้ (ตาราง home_content / home_categories · bucket site-media)
  * Hero (หัวข้อ · คำโปรย · ช่องค้นหา · ภาพพื้น) + การ์ดหมวด "คืนนี้อยากได้ฟีลไหน" 8 ช่องแบบ bento
+ * + ร้านยอดนิยมที่แอดมินปักไว้ (ตาราง home_popular_bars · สูงสุด HOME_POPULAR_MAX)
  * Backoffice จัดการที่ /home-content
  */
 
@@ -36,6 +37,8 @@ export const UpdateHomeContentBody = z
     hero_image_url: imageUrl.nullable().describe('ภาพพื้น Hero · null = ภาพดวงจันทร์ตั้งต้น (มีดาว/ไฟระยิบ)'),
     categories_eyebrow: z.string().trim().max(40).describe('บรรทัดเล็กเหนือชื่อ section หมวด (ว่างได้)'),
     categories_title: line(60).describe('ชื่อ section หมวด เช่น "คืนนี้อยากได้ฟีลไหน"'),
+    popular_eyebrow: z.string().trim().max(40).describe('บรรทัดเล็กเหนือชื่อ section ร้านยอดนิยม (ว่างได้)'),
+    popular_title: line(60).describe('ชื่อ section ร้านยอดนิยม เช่น "ร้านยอดนิยม"'),
   })
   .partial();
 export type UpdateHomeContentBody = z.infer<typeof UpdateHomeContentBody>;
@@ -52,6 +55,24 @@ export const UpdateHomeCategoryBody = z
   .partial();
 export type UpdateHomeCategoryBody = z.infer<typeof UpdateHomeCategoryBody>;
 
+/** จำนวนร้านในกริดร้านยอดนิยมของหน้าแรก (= จำนวนที่แอดมินปักได้สูงสุด) */
+export const HOME_POPULAR_MAX = 8;
+
+/** PUT /admin/home-popular — แทนที่ทั้งรายการตามลำดับ · [] = ไม่ปัก (หน้าแรกเรียงตามคะแนนรีวิวทั้งหมด) */
+export const UpdateHomePopularBody = z.object({
+  bar_ids: z
+    .array(z.string().uuid())
+    .max(HOME_POPULAR_MAX, `เลือกได้ไม่เกิน ${HOME_POPULAR_MAX} ร้าน`)
+    .refine((ids) => new Set(ids).size === ids.length, 'มีร้านซ้ำ')
+    .describe('รหัสร้าน (APPROVED) เรียงตามลำดับที่จะแสดง'),
+});
+export type UpdateHomePopularBody = z.infer<typeof UpdateHomePopularBody>;
+
+/** ผลของ PUT /admin/home-popular */
+export interface UpdateHomePopularResult {
+  bar_ids: string[];
+}
+
 export interface HomeContent {
   hero_title_lead: string;
   hero_title_highlight: string;
@@ -61,6 +82,8 @@ export interface HomeContent {
   hero_image_url: string | null;
   categories_eyebrow: string;
   categories_title: string;
+  popular_eyebrow: string;
+  popular_title: string;
   updated_at: string;
 }
 
@@ -79,9 +102,13 @@ export interface PublicHomeResult {
   content: HomeContent;
   /** เรียงตาม HOME_CATEGORY_SLOTS เสมอ */
   categories: HomeCategory[];
+  /** ร้านยอดนิยมที่แอดมินปักไว้ (เฉพาะร้าน APPROVED · เรียงตามลำดับ) — ช่องที่เหลือหน้าเว็บเติมด้วยคะแนนรีวิว */
+  popular_bar_ids: string[];
 }
 
 export const SITE_CONTENT_ERRORS = {
   HOME_CATEGORY_NOT_FOUND: 'ไม่พบการ์ดหมวดนี้ — รีเฟรชหน้าแล้วลองใหม่',
+  INVALID_HOME_POPULAR: 'เลือกร้านยอดนิยมได้ไม่เกิน 8 ร้าน และห้ามซ้ำ',
+  HOME_POPULAR_BAR_NOT_FOUND: 'มีร้านที่ไม่พบหรือยังไม่อนุมัติ — รีเฟรชหน้าแล้วเลือกใหม่',
   INVALID_HOME_CONTENT: 'เนื้อหาหน้าแรกไม่ครบหรือยาวเกินไป (รูปต้องเป็น URL · ลิงก์ต้องขึ้นต้นด้วย /)',
 } as const satisfies Record<string, string>;

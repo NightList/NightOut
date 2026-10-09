@@ -3,11 +3,12 @@ import type { Db } from '@nightout/types';
 import { Button, Popconfirm, Rate, Space, Table, Tabs, Tag } from 'antd';
 import { useMemo } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminAction, useAdminView } from '@/services/adminData';
+import { useAdminAction } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { dateTime } from '@/ui/utils/format';
 import { REPORT_REASON, REVIEW_STATUS } from '@/ui/utils/labels';
+import { useReviews, moderateReviewAction } from './api';
 
 type Row = Db.AdminReview;
 type Action = 'KEEP' | 'HIDE' | 'REMOVE' | 'RESTORE';
@@ -20,12 +21,10 @@ const DONE: Record<Action, string> = {
 
 /** รีวิวที่ลูกค้ารายงาน — เก็บไว้ / ซ่อน / ลบ · และรีวิวที่ถูกซ่อนหรือลบไปแล้ว (คืนได้) */
 export function ReviewsPage() {
-  const { data, isLoading, error, refetch } = useAdminView('admin_reviews', {
-    order: { column: 'created_at', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = useReviews();
   const act = useAdminAction();
   const moderate = (r: Row, action: Action) =>
-    act.mutate({ method: 'POST', path: `reviews/${r.id}/moderate`, body: { action }, success: DONE[action] });
+    act.mutate({ ...moderateReviewAction(r.id, { action }), success: DONE[action] });
 
   const reported = useMemo(() => (data ?? []).filter((r) => r.open_report_count > 0), [data]);
   const hidden = useMemo(() => (data ?? []).filter((r) => r.status !== 'PUBLISHED'), [data]);

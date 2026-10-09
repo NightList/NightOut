@@ -4,19 +4,20 @@ import { App } from './App';
 import { ERROR_MESSAGES } from '@nightout/contracts';
 import { ApiError, apiBaseUrlFromEnv, Rest } from '@nightout/utils/rest';
 import { log } from './services/log';
-import { prefetchSiteHome } from './services/queries/site-content';
+import { prefetchSiteHome } from './modules/home/api';
 import { isSupabaseConfigured, supabase } from './services/supabase';
-import { hydratePublicFromCache, loadPublic } from './services/sync';
+import { hydratePublicFromCache, loadPublic, refreshAfterWrite } from './services/sync';
 import { BootError } from './ui/components/bootError';
 import './styles/index.css';
 
-// HTTP client กลาง (ADR 0002) — ตั้งค่าครั้งเดียว ทุก service เรียก Rest.get/post/… ได้เลย
+// HTTP client กลาง (ADR 0002) — ตั้งค่าครั้งเดียว ทุก service เรียก Rest.get/post/… ได้เลย · เขียนสำเร็จแล้วโหลด store ใหม่ให้เอง (afterWrite)
 Rest.configure({
   baseURL: apiBaseUrlFromEnv(import.meta.env),
   getAccessToken: async () =>
     supabase ? ((await supabase.auth.getSession()).data.session?.access_token ?? null) : null,
   logger: log,
   errorMessages: ERROR_MESSAGES,
+  afterWrite: refreshAfterWrite,
 });
 
 /** log ว่า NestJS เปิดอยู่ไหม (ดูใน Console) */

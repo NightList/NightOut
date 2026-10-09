@@ -1,5 +1,6 @@
 import type { BarCategory } from '@nightout/types';
-import { CATEGORY_LABELS, MASTER, merchantJoin } from '@/services/data';
+import { CATEGORY_LABELS, MASTER } from '@/services/data';
+import { merchantJoin } from './api';
 import { useAuth } from '@/services/auth';
 import { useState } from 'react';
 import { App, Button, Card, Form, Input, Select, Steps } from 'antd';

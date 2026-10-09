@@ -1,0 +1,67 @@
+.merchant-nav-select {
+  min-height: 44px;
+  font-size: 16px;
+  touch-action: manipulation;
+}
+
+@media (max-width: 639px) {
+  .merchant-content .ant-card-body {
+    padding: 16px;
+  }
+
+  .merchant-content .ant-statistic-title,
+  .merchant-content .ant-statistic-content {
+    overflow-wrap: anywhere;
+  }
+
+  .merchant-content .ant-form-inline .ant-form-item,
+  .merchant-content .ant-form-inline .ant-form-item-control,
+  .merchant-content .ant-form-inline .ant-input,
+  .merchant-content .ant-form-inline .ant-select,
+  .merchant-content .ant-form-inline .ant-input-number {
+    width: 100% !important;
+    max-width: none;
+  }
+
+  .merchant-content .ant-form-inline > .ant-btn {
+    width: 100%;
+  }
+
+  .merchant-content .ant-table-wrapper {
+    max-width: 100%;
+  }
+
+  .merchant-content .ant-table-content,
+  .merchant-content .ant-table-body {
+    overscroll-behavior-x: contain;
+  }
+
+  .merchant-content .list-row {
+    flex-wrap: wrap;
+  }
+
+  .merchant-content .list-row-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .merchant-content .merchant-safety-label {
+    flex-basis: 100%;
+  }
+
+  .merchant-content .merchant-hours-range {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .merchant-content .merchant-hours-range .ant-picker-input {
+    min-width: 0;
+  }
+
+  .merchant-content input,
+  .merchant-content textarea,
+  .merchant-content .ant-select-selection-item,
+  .merchant-content .ant-picker-input input {
+    font-size: 16px;
+  }
+}

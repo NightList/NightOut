@@ -4,11 +4,11 @@ import { formatThaiPhone } from '@nightout/utils';
 import { Input, Table, Timeline, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { PAGE_SIZE } from '@/configs/constants';
-import { useAdminView } from '@/services/adminData';
 import { LoadError } from '@/ui/components/LoadError';
 import { StatusTag } from '@/ui/components/StatusTag';
 import { baht, dateTime } from '@/ui/utils/format';
 import { BOOKING_STATUS } from '@/ui/utils/labels';
+import { useBookings } from './api';
 
 /** หลักฐานที่ลูกค้าติ๊กยอมรับเงื่อนไขริบมัดจำตอน Checkout (แก้ไม่ได้ — ใช้ยืนยันเมื่อมีข้อพิพาท) */
 function ConsentEvidence({ c }: { c: Db.AdminDepositConsent | null }) {
@@ -45,9 +45,7 @@ function ConsentEvidence({ c }: { c: Db.AdminDepositConsent | null }) {
 /** การจองทั้งระบบ — ค้นด้วยรหัสจอง ชื่อ/อีเมล หรือเบอร์ลูกค้า · กดแถวเพื่อดูประวัติสถานะและหลักฐานการยอมรับเงื่อนไขมัดจำ */
 export function BookingsPage() {
   const [q, setQ] = useState('');
-  const { data, isLoading, error, refetch } = useAdminView('admin_bookings', {
-    order: { column: 'booking_datetime', ascending: false },
-  });
+  const { data, isLoading, error, refetch } = useBookings();
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
     return (data ?? []).filter(

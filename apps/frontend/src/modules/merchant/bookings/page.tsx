@@ -1,6 +1,7 @@
 import { ArrowsLeftRight, HandCoins } from '@phosphor-icons/react';
 import type { TeamBookingStatusBody } from '@nightout/contracts';
-import { barBookings, setBookingStatus, type Booking } from '@/services/data';
+import { barBookings, type Booking } from '@/services/data';
+import { setBookingStatus } from './api';
 import type { BookingStatus } from '@nightout/types';
 import { nextStatuses } from '@nightout/utils';
 import { App, Button, Card, Drawer, Segmented, Space, Table, Timeline } from 'antd';
@@ -14,12 +15,22 @@ import { MoveTableModal } from './modal/moveTableModal';
 import { canRefund, RefundModal } from './modal/refundModal';
 
 /** สถานะที่ยังถือโต๊ะอยู่ → ย้ายโต๊ะได้ */
-const MOVABLE: BookingStatus[] = ['PENDING', 'AWAITING_DEPOSIT', 'DEPOSIT_SUBMITTED', 'CONFIRMED', 'CHECKED_IN'];
+const MOVABLE: BookingStatus[] = [
+  'PENDING',
+  'AWAITING_DEPOSIT',
+  'DEPOSIT_SUBMITTED',
+  'CONFIRMED',
+  'CHECKED_IN',
+];
 
 /** สถานะที่ทีมร้านสั่งได้ผ่าน API (ตรงกับ TeamBookingStatusBody) */
 type TeamAction = TeamBookingStatusBody['to'];
 const isTeamAction = (s: BookingStatus): s is TeamAction =>
-  s === 'CONFIRMED' || s === 'REJECTED' || s === 'CHECKED_IN' || s === 'COMPLETED' || s === 'CANCELLED_BY_MERCHANT';
+  s === 'CONFIRMED' ||
+  s === 'REJECTED' ||
+  s === 'CHECKED_IN' ||
+  s === 'COMPLETED' ||
+  s === 'CANCELLED_BY_MERCHANT';
 
 const ACTION_LABEL: Partial<Record<BookingStatus, string>> = {
   CONFIRMED: 'ยืนยัน',
@@ -131,12 +142,12 @@ export function MerchantBookingsPage() {
         open={!!open}
         onClose={() => setOpen(null)}
         title={open ? `${open.code} · ${open.userName}` : ''}
-        size="large"
-        extra={open && <Space>{actions(open)}</Space>}
+        size="min(100vw, 46rem)"
       >
         {open && (
           <div className="space-y-6">
-            <dl className="grid grid-cols-2 gap-3 text-sm">
+            {actions(open).length > 0 && <Space wrap>{actions(open)}</Space>}
+            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-muted">วันเวลา</dt>
                 <dd>{dateTime(open.datetime)}</dd>
@@ -160,7 +171,7 @@ export function MerchantBookingsPage() {
                 </dd>
               </div>
               {open.note && (
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <dt className="text-muted">หมายเหตุ</dt>
                   <dd>{open.note}</dd>
                 </div>
@@ -171,7 +182,9 @@ export function MerchantBookingsPage() {
                 <h3 id="onsite-actions" className="mb-1 text-sm font-semibold">
                   จัดการหน้างาน
                 </h3>
-                <p className="mb-3 text-xs text-muted">ทุกคนในทีมร้านใช้ได้ · ลูกค้าได้รับแจ้งเตือนทุกครั้ง</p>
+                <p className="mb-3 text-xs text-muted">
+                  ทุกคนในทีมร้านใช้ได้ · ลูกค้าได้รับแจ้งเตือนทุกครั้ง
+                </p>
                 <Space wrap>
                   {MOVABLE.includes(open.status) && (
                     <Button icon={<ArrowsLeftRight size={16} />} onClick={() => setMoving(open)}>
@@ -179,7 +192,11 @@ export function MerchantBookingsPage() {
                     </Button>
                   )}
                   {canRefund(open) && (
-                    <Button danger icon={<HandCoins size={16} />} onClick={() => setRefunding(open)}>
+                    <Button
+                      danger
+                      icon={<HandCoins size={16} />}
+                      onClick={() => setRefunding(open)}
+                    >
                       ยืนยันการคืนเงิน
                     </Button>
                   )}

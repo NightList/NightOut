@@ -1,5 +1,6 @@
 import { Plus, Trash } from '@phosphor-icons/react';
-import { setZones, type Bar } from '@/services/data';
+import { type Bar } from '@/services/data';
+import { setZones } from './api';
 import { App, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Tag } from 'antd';
 import { useState } from 'react';
 import { PageHeader } from '@/ui/components/pageHeader';

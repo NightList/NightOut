@@ -1,5 +1,5 @@
 import { Grid } from 'antd';
-import type { SiteTeamMember } from '@/services/data';
+import type { SiteTeamMember } from '../api';
 import { TeamTile } from './teamTile';
 
 /** จำนวนคอลัมน์ตามจอ: lg ขึ้นไป 4 · md 3 · เล็กกว่านั้น 2 */

@@ -1,7 +1,7 @@
 import { App, Button, Empty, Spin } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { respondInvite, useMyInvites } from '@/services/data';
+import { respondInvite, useMyInvites } from './api';
 import { useAuth } from '@/services/auth';
 import { AuthCard } from '@/ui/components/authCard';
 

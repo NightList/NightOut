@@ -32,12 +32,12 @@ export function MerchantDashboardPage() {
         }
       />
       <Row gutter={[16, 16]}>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="จองวันนี้" value={today.length} suffix="โต๊ะ" />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
               title="รอดำเนินการ"
@@ -46,12 +46,12 @@ export function MerchantDashboardPage() {
             />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic title="อัตรามาตามนัด" value={showRate} suffix="%" />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} lg={6}>
           <Card>
             <p className="mb-1 text-sm text-muted">ระดับร้าน</p>
             <BarRating bar={bar} compact />
@@ -65,7 +65,7 @@ export function MerchantDashboardPage() {
       >
         <Table
           rowKey="id"
-
+          scroll={{ x: 560 }}
           pagination={false}
           dataSource={today}
           locale={{ emptyText: 'ยังไม่มีการจองวันนี้' }}

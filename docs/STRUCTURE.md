@@ -68,7 +68,7 @@
 | `login` | เข้าสู่ระบบ + MFA | `/login` | Supabase Auth | — | 1C |
 | `dashboard` | แดชบอร์ด | `/` | `backoffice` (`/admin/dashboard`) | — | 1C |
 | `merchants` | ร้านรออนุมัติ | `/merchants` | `bar` · `admin_bars` | `merchant/join` · `merchant/status` | 1C |
-| `bars` | จัดการร้าน / ระงับ / Editor's Pick | `/bars` | `bar` · `admin_bars` | `barDetail` · `merchant/store` | 1C |
+| `bars` | จัดการร้าน / สวิตช์แสดง / ป้ายแนะนำ (ดูอย่างเดียว) | `/bars` | `bar` · `admin_bars` | `barDetail` · `merchant/store` | 1C |
 | `safety` | ยืนยัน Safety | `/safety` | `bar` · `admin_safety_queue` | `merchant/safety` | 1C |
 | `ranking` | ดาว / อันดับ | `/ranking` | `bar` · `admin_bars` | `ranking` | 1C |
 | `promotions` | ตรวจถ้อยคำโปร + คำสั่งซื้อโปรโมท | `/promotions` | `promotion` · `admin_bar_promotions` · `admin_promoted_listings` | `merchant/promotions` · `merchant/promote` | 1C |
