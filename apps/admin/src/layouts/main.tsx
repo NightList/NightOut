@@ -3,7 +3,7 @@ import { ProLayout } from '@ant-design/pro-components';
 import { ThemeToggle } from '@nightout/ui';
 import { Button, Spin, Tooltip, Typography } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
-import logo from '/favicon.svg';
+import logo from '/logo-mark.svg';
 import { ADMIN_ROUTES } from '@/configs/menu';
 import { useAdminAuth } from '@/services/adminAuth';
 

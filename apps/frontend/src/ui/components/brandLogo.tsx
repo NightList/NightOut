@@ -27,8 +27,8 @@ export function BrandLogo({
     <img
       src={onDark ? SRC.dark : SRC.light}
       alt={alt}
-      width={2000}
-      height={486}
+      width={1904}
+      height={348}
       decoding="async"
       loading={lazy ? 'lazy' : undefined}
       className={`w-auto ${className}`}

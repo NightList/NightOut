@@ -1,11 +1,12 @@
-import { ShieldStar } from '@phosphor-icons/react';
-import { Alert, Button, Card, Form, Input, Spin, Typography } from 'antd';
+import { CheckCircle } from '@phosphor-icons/react';
+import { Alert, Button, Form, Input, Spin, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { ApiError } from '@nightout/utils/rest';
 import { useAdminAuth } from '@/services/adminAuth';
 import { supabase } from '@/services/supabase';
 import { fetchMyProfile } from './api';
+import { StaffPass } from './components/staffPass';
 
 type Step = 'password' | 'verify' | 'enroll';
 
@@ -33,6 +34,9 @@ function toThai(message: string): string {
 export function LoginPage() {
   const navigate = useNavigate();
   const auth = useAdminAuth();
+  const [form] = Form.useForm<{ email: string; password: string }>();
+  /** ชื่อผู้ถือบนต้นขั้วบัตร — ตามช่องอีเมลแบบสด */
+  const emailLabel = (Form.useWatch('email', form) ?? '').trim().toUpperCase() || 'EMAIL ACCOUNT';
   const [step, setStep] = useState<Step>('password');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,97 +156,139 @@ export function LoginPage() {
     setError(null);
   };
 
-  return (
-    <div className="grid min-h-dvh place-items-center bg-background p-4">
-      <Card
-        className="w-full max-w-md"
-        title={
-          <span className="flex items-center gap-2">
-            <ShieldStar className="text-gold" /> NightOut Backoffice
-          </span>
-        }
+  const signedInEmail = auth.session?.user.email ?? '';
+  const otp = (
+    <Input.OTP
+      length={6}
+      value={code}
+      onChange={(v) => setCode(v)}
+      formatter={(v) => v.replace(/\D/g, '')}
+      disabled={busy}
+    />
+  );
+  const otpActions = (
+    <div className="staff-pass__actions">
+      <Button size="large" disabled={busy} onClick={() => void switchAccount()}>
+        <span className="text-muted">ใช้บัญชีอื่น</span>
+      </Button>
+      <Button
+        type="primary"
+        size="large"
+        loading={busy}
+        disabled={code.length !== 6}
+        onClick={onVerify}
       >
-        {error && <Alert className="!mb-4" type="error" showIcon title={error} />}
+        {step === 'enroll' ? 'ยืนยันและเข้าสู่ระบบ' : 'ยืนยันรหัส'}
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-background p-5">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-[200px] -bottom-[300px] size-[700px] rounded-full bg-[radial-gradient(circle,rgba(167,56,245,.22),transparent_65%)]"
+      />
+      <StaffPass
+        kicker={step === 'password' ? 'STAFF ONLY' : 'CHECKED · 1/2'}
+        holder={
+          step === 'password' ? (
+            <span className="truncate">{emailLabel}</span>
+          ) : (
+            <>
+              <CheckCircle weight="fill" size={18} className="shrink-0 text-crowd-available" />
+              <span className="truncate">{signedInEmail}</span>
+            </>
+          )
+        }
+        title={
+          step === 'password'
+            ? 'เช็กอินเข้าหลังบ้าน'
+            : step === 'enroll'
+              ? 'ผูกแอป Authenticator'
+              : 'ยืนยันตัวตนอีกขั้น'
+        }
+        step={step === 'password' ? 'STEP 1 / 2' : 'STEP 2 / 2'}
+        stepActive={step !== 'password'}
+      >
+        {error && <Alert type="error" showIcon title={error} />}
 
         {step === 'password' && (
           <Form<{ email: string; password: string }>
+            form={form}
             layout="vertical"
             requiredMark={false}
             disabled={busy}
             onFinish={onPassword}
+            className="flex flex-col gap-[inherit]"
           >
-            <Form.Item
-              name="email"
-              label="อีเมล"
-              rules={[{ required: true, type: 'email', message: 'กรอกอีเมลให้ถูกต้อง' }]}
-            >
-              <Input autoComplete="username" inputMode="email" autoFocus />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="รหัสผ่าน"
-              rules={[{ required: true, message: 'กรอกรหัสผ่าน' }]}
-            >
-              <Input.Password autoComplete="current-password" />
-            </Form.Item>
+            <div className="staff-pass__fields">
+              <Form.Item
+                name="email"
+                label="อีเมล"
+                className="!mb-0"
+                rules={[{ required: true, type: 'email', message: 'กรอกอีเมลให้ถูกต้อง' }]}
+              >
+                <Input
+                  autoComplete="username"
+                  inputMode="email"
+                  placeholder="you@nightout.co"
+                  autoFocus
+                />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="รหัสผ่าน"
+                className="!mb-0"
+                rules={[{ required: true, message: 'กรอกรหัสผ่าน' }]}
+              >
+                <Input.Password autoComplete="current-password" />
+              </Form.Item>
+            </div>
             <Button type="primary" htmlType="submit" block size="large" loading={busy}>
               เข้าสู่ระบบ
             </Button>
+            <p className="staff-pass__hint m-0 text-[13px] text-muted">
+              ถัดไปจะขอรหัส 6 หลักจากแอป Authenticator
+            </p>
           </Form>
         )}
 
-        {step === 'enroll' && enrollment && (
-          <div className="flex flex-col gap-4">
-            <Typography.Paragraph className="!mb-0">
-              ครั้งแรกต้องผูกแอป Authenticator (Google Authenticator, Microsoft Authenticator หรือ
-              1Password) — สแกน QR นี้ในแอป แล้วใส่รหัส 6 หลักที่แอปแสดง
-            </Typography.Paragraph>
-            <img
-              src={enrollment.qrCode}
-              alt="QR สำหรับผูกแอป Authenticator"
-              className="mx-auto size-48 rounded-lg bg-white p-2"
-            />
-            <Typography.Text type="secondary" className="text-center text-sm">
-              สแกนไม่ได้? ใส่รหัสนี้ในแอปแทน{' '}
-              <Typography.Text code copyable>
-                {enrollment.secret}
-              </Typography.Text>
-            </Typography.Text>
-          </div>
+        {step === 'verify' && (
+          <>
+            <p className="m-0 -mt-2 text-sm text-muted">ใส่รหัส 6 หลักจากแอป Authenticator</p>
+            {otp}
+            {otpActions}
+          </>
         )}
 
-        {(step === 'verify' || step === 'enroll') && (
-          <div className="mt-4 flex flex-col gap-4">
-            {step === 'verify' && (
-              <Typography.Paragraph className="!mb-0">
-                ใส่รหัส 6 หลักจากแอป Authenticator
-              </Typography.Paragraph>
-            )}
-            <div className="flex justify-center">
-              <Input.OTP
-                length={6}
-                value={code}
-                onChange={(v) => setCode(v)}
-                formatter={(v) => v.replace(/\D/g, '')}
-                disabled={busy}
+        {step === 'enroll' && enrollment && (
+          <>
+            <div className="flex flex-wrap items-center gap-5">
+              <img
+                src={enrollment.qrCode}
+                alt="QR สำหรับผูกแอป Authenticator"
+                className="size-[148px] shrink-0 rounded-[10px] bg-white p-2"
               />
+              <div className="flex min-w-0 flex-1 basis-56 flex-col gap-2 text-sm text-muted">
+                <p className="m-0">
+                  สแกน QR ในแอป Authenticator (Google, Microsoft หรือ 1Password) แล้วใส่รหัส 6
+                  หลักที่แอปแสดง
+                </p>
+                <p className="m-0">สแกนไม่ได้? ใส่รหัสนี้ในแอปแทน</p>
+                <Typography.Text
+                  copyable
+                  className="staff-pass__mono break-all rounded-[10px] border border-border bg-surface px-3 py-2 text-[13px]"
+                >
+                  {enrollment.secret}
+                </Typography.Text>
+              </div>
             </div>
-            <Button
-              type="primary"
-              block
-              size="large"
-              loading={busy}
-              disabled={code.length !== 6}
-              onClick={onVerify}
-            >
-              {step === 'enroll' ? 'ยืนยันและเข้าสู่ระบบ' : 'ยืนยันรหัส'}
-            </Button>
-            <Button type="text" block disabled={busy} onClick={() => void switchAccount()}>
-              ใช้บัญชีอื่น
-            </Button>
-          </div>
+            {otp}
+            {otpActions}
+          </>
         )}
-      </Card>
+      </StaffPass>
     </div>
   );
 }
