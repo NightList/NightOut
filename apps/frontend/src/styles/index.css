@@ -34,6 +34,37 @@
   }
 }
 
+/* Modal เข้าสู่ระบบ/สมัครสมาชิก — ช่องกรอกแบบกระจกฝ้า (glassmorphism) */
+.auth-modal .ant-input-affix-wrapper,
+.auth-modal .ant-picker {
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.auth-modal .ant-input-affix-wrapper:hover,
+.auth-modal .ant-picker:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+}
+.auth-modal .ant-input-affix-wrapper-focused,
+.auth-modal .ant-picker-focused {
+  border-color: #b84dff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(184, 77, 255, 0.22);
+}
+.auth-modal .ant-input,
+.auth-modal .ant-picker-input > input {
+  background: transparent;
+}
+.auth-modal input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
 /* หมุดแผนที่ (Leaflet divIcon) — ทอง + ขอบม่วง ให้เข้าธีม */
 .nl-pin {
   position: relative;

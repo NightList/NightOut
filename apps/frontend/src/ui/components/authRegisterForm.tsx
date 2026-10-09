@@ -67,12 +67,13 @@ export function AuthRegisterForm({
         >
           <Input placeholder="กรอกอีเมลของคุณ" autoComplete="email" inputMode="email" />
         </Form.Item>
+        <div className="grid gap-x-3 sm:grid-cols-2">
         <Form.Item
           name="password"
           className="!mb-4"
           rules={[{ required: true, min: 10, message: 'อย่างน้อย 10 ตัว' }]}
         >
-          <Input.Password placeholder="รหัสผ่าน (อย่างน้อย 10 ตัว)" autoComplete="new-password" />
+          <Input.Password placeholder="รหัสผ่าน (10 ตัวขึ้นไป)" autoComplete="new-password" />
         </Form.Item>
         <Form.Item
           name="confirm"
@@ -90,6 +91,7 @@ export function AuthRegisterForm({
         >
           <Input.Password placeholder="ยืนยันรหัสผ่าน" autoComplete="new-password" />
         </Form.Item>
+        </div>
         <Form.Item
           name="birthdate"
           className="!mb-4"
