@@ -11,6 +11,7 @@ import { useScrolled } from '@/hooks/useScrolled';
 import { useAuth } from '@/services/auth';
 import { timeAgo } from '@/ui/utils/format';
 import { BrandLogo } from './brandLogo';
+import { useAuthModal } from './authModal';
 
 export interface NavItem {
   to: string;
@@ -53,6 +54,7 @@ export function Navbar({
   useDemo();
   const { user, signOut } = useAuth();
   const { message } = App.useApp();
+  const { openLogin } = useAuthModal();
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -230,11 +232,9 @@ export function Navbar({
             />
           </Dropdown>
         ) : minimal ? null : (
-          <Link to="/login" className="ml-1">
-            <Button type="primary" shape="round">
-              เข้าสู่ระบบ
-            </Button>
-          </Link>
+          <Button type="primary" shape="round" className="ml-1" onClick={() => openLogin()}>
+            เข้าสู่ระบบ
+          </Button>
         )}
       </div>
     </motion.div>

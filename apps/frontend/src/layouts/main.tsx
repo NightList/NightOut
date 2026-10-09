@@ -30,7 +30,9 @@ export function MainLayout() {
   const bleed = isHome || fullBleed;
   const darkTop = isHome || handles.some((h) => h.darkTop);
   const isShop = user?.role === 'MERCHANT' || user?.role === 'STAFF';
-  const items: NavItem[] = [...NAV, ...(isShop ? [{ to: '/merchant', label: 'ร้านของฉัน' }] : [])];
+  // ฝั่งร้านไม่มีหน้าการจองของลูกค้า — ซ่อน "การจอง" (ร้านดูการจองที่ /merchant/bookings)
+  const baseNav = isShop ? NAV.filter((n) => n.to !== '/bookings') : NAV;
+  const items: NavItem[] = [...baseNav, ...(isShop ? [{ to: '/merchant', label: 'ร้านของฉัน' }] : [])];
 
   return (
     <Layout className="min-h-dvh !bg-background">
@@ -53,7 +55,7 @@ export function MainLayout() {
 
       {!hideFooter && <SiteFooter />}
 
-      <BottomIsland items={[...NAV, { to: '/profile', label: 'โปรไฟล์', icon: User }]} />
+      <BottomIsland items={[...baseNav, { to: '/profile', label: 'โปรไฟล์', icon: User }]} />
     </Layout>
   );
 }

@@ -9,6 +9,7 @@ import { PriceEstimator, type EstimatorValue } from '@/ui/components/priceEstima
 import { ReviewList } from '@/ui/components/reviewList';
 import { SafetyList } from '@/ui/components/safetyList';
 import { BarFacts } from './components/barFacts';
+import { BarGallery } from './components/barGallery';
 import { BarHeader, BarHero } from './components/barHeader';
 import { BookingBar, BookingCard } from './components/bookingActions';
 import { LocationSection } from './components/locationSection';
@@ -17,7 +18,7 @@ import { OpeningHours } from './components/openingHours';
 import { Perks, SocialLinks } from './components/perksAndLinks';
 import { PromotionList } from './components/promotionList';
 
-/** /bars/:slug — หน้าร้าน: หัวร้าน → แท็บ (ข้อมูล/เมนู/ความปลอดภัย/รีวิว) · การ์ดจองด้านขวา · ลิ้นชักประเมินราคา */
+/** /bars/:slug — หน้าร้าน: หัวร้าน + แถบรูปร้าน → แท็บ (ข้อมูล/เมนู/ความปลอดภัย/รีวิว) · การ์ดจองด้านขวา · ลิ้นชักประเมินราคา */
 export function BarDetailPage() {
   useDemo();
   const { slug = '' } = useParams();
@@ -34,6 +35,7 @@ export function BarDetailPage() {
   return (
     <div className="pb-20">
       <BarHero bar={bar} />
+      <BarGallery bar={bar} />
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div>
           <BarHeader bar={bar} />

@@ -60,11 +60,43 @@ export const MenuBody = z.object({
         name: z.string().trim().min(1).max(80),
         price: z.number().min(0).max(1_000_000),
         available: z.boolean(),
+        image_path: objectPath.nullish().describe('รูปเมนูใน bucket bar-media/<bar_id>/menu/… · ไม่ส่ง = คงรูปเดิม · null = ลบรูป'),
       }),
     )
     .max(500),
 });
 export type MenuBody = z.infer<typeof MenuBody>;
+
+/** รูปแกลเลอรีร้านได้สูงสุดกี่รูป (DB ตรวจซ้ำใน bar_media_save) */
+export const BAR_GALLERY_MAX = 10;
+
+/** PUT /merchant/bars/:barId/media · PUT /admin/bars/:id/media — แกลเลอรีทั้งชุดตามลำดับ + รูปปก (ต้องอยู่ในแกลเลอรี) */
+export const BarMediaBody = z
+  .object({
+    paths: z
+      .array(objectPath)
+      .max(BAR_GALLERY_MAX)
+      .refine((p) => new Set(p).size === p.length, 'รูปซ้ำกัน')
+      .describe('path ใน bucket bar-media/<bar_id>/gallery/… เรียงตามที่แสดง'),
+    cover_path: objectPath.nullable().describe('รูปปก — ต้องเป็นหนึ่งใน paths · null = ไม่มีปก (ใช้รูปแทน)'),
+  })
+  .refine((b) => b.cover_path === null || b.paths.includes(b.cover_path), { message: 'รูปปกต้องอยู่ในแกลเลอรี', path: ['cover_path'] });
+export type BarMediaBody = z.infer<typeof BarMediaBody>;
+export interface BarMediaResult {
+  bar_id: string;
+  count: number;
+  cover_image_url: string | null;
+  paths: string[];
+}
+
+/** PUT /admin/menu-items/:id/image — ตั้ง/ลบรูปเมนู 1 รายการแทนร้าน */
+export const MenuItemImageBody = z.object({ path: objectPath.nullable().describe('path ใน bar-media/<bar_id>/menu/… · null = ลบรูป') });
+export type MenuItemImageBody = z.infer<typeof MenuItemImageBody>;
+export interface MenuItemImageResult {
+  id: string;
+  bar_id: string;
+  image_path: string | null;
+}
 
 /** PUT /merchant/bars/:barId/promotions — แทนที่ทั้งหมด (โปรใหม่/แก้ข้อความ → รอแอดมินตรวจ) */
 export const BarPromotionsBody = z.object({
@@ -165,4 +197,8 @@ export const BAR_ERRORS = {
   INVALID_BAR_INFO: 'กรอกชื่อร้านและที่อยู่ให้ครบ',
   SAFETY_FEATURE_NOT_FOUND: 'ไม่พบมาตรการนี้',
   INVALID_EVIDENCE_PATH: 'อัปโหลดหลักฐานไม่สำเร็จ',
+  INVALID_MENU_ITEM: 'กรอกชื่อรายการและราคา (ไม่ติดลบ) ให้ครบ',
+  INVALID_MENU_IMAGE: 'รูปเมนูไม่ถูกต้องหรืออัปโหลดไม่สำเร็จ — ลองอัปโหลดใหม่',
+  INVALID_BAR_MEDIA: `รูปร้านไม่ถูกต้อง (สูงสุด ${BAR_GALLERY_MAX} รูป · รูปปกต้องอยู่ในแกลเลอรี) — ลองอัปโหลดใหม่`,
+  MENU_ITEM_NOT_FOUND: 'ไม่พบรายการเมนูนี้ (อาจถูกลบไปแล้ว)',
 } as const satisfies Record<string, string>;

@@ -1,15 +1,31 @@
 import { fileURLToPath, URL } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+
+const BASE = '/admin/';
+
+/** dev: เปิด /admin (ไม่มี / ท้าย) หรือ / แล้วพาไป /admin/ — Vite เสิร์ฟเฉพาะ path ที่ตรงกับ base (production: vercel.json rewrite ให้แล้ว) */
+const redirectToBase = (): Plugin => ({
+  name: 'nightout-admin-base-redirect',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      const [path, query] = (req.url ?? '').split('?');
+      if (path !== '/' && path !== BASE.slice(0, -1)) return next();
+      res.statusCode = 302;
+      res.setHeader('Location', query ? `${BASE}?${query}` : BASE);
+      res.end();
+    });
+  },
+});
 
 const pkg = (name: string) => fileURLToPath(new URL(`../../packages/${name}/src/index.ts`, import.meta.url));
 
 export default defineConfig({
-  base: '/admin/', // เสิร์ฟใต้ /admin บน Vercel services
+  base: BASE, // เสิร์ฟใต้ /admin บน Vercel services
   // อ่าน .env จาก root ของ monorepo (ไฟล์เดียวกับ backend) — ค่าเริ่มต้นของ Vite คือโฟลเดอร์แอป
   envDir: fileURLToPath(new URL('../..', import.meta.url)),
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), redirectToBase()],
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },

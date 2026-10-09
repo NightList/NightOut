@@ -399,6 +399,8 @@ export type MyBarDetail = Override<
     zones: ZoneEntry[];
     safety: SafetyEntry[];
     payout_account: { bank_code: string; account_name: string; account_no_last4: string; verified_at: ISODateTime | null } | null;
+    /** รูปแกลเลอรีของร้าน (migration 20261009000100) — ปก = cover_image_url */
+    media: MediaItem[];
   }
 >;
 
@@ -445,6 +447,21 @@ export type AdminHomeCategory = Tables<'home_categories'>;
 /** admin_home_popular (migration 20261008000300) — ร้านยอดนิยมที่ปักไว้บนหน้าแรก (รวมร้านที่ไม่ APPROVED แล้ว) */
 export type AdminHomePopular = Pick<Tables<'home_popular_bars'>, 'bar_id' | 'sort_order'> &
   Pick<Tables<'bars'>, 'name' | 'slug' | 'status'>;
+
+/** admin_bar_media (migration 20261009000100) — รูปร้าน 1 แถวต่อร้าน (ทุกสถานะ) · Backoffice "รูปร้าน" · path อยู่ bucket bar-media */
+export interface AdminBarMedia {
+  id: UUID;
+  slug: string;
+  name: string;
+  status: Enums<'bar_status'>;
+  /** URL เต็มของรูปปก (หนึ่งในแกลเลอรี) · null = ใช้รูปแทน */
+  cover_image_url: string | null;
+  media: { id: UUID; storage_path: string; created_at: ISODateTime }[];
+  menu: { id: UUID; category: string | null; name: string; image_path: string | null }[];
+  media_count: number;
+  menu_image_count: number;
+  updated_at: ISODateTime;
+}
 
 // ---------------------------------------------------------------------
 // กฎธุรกิจที่ต้องตรงกับ DB

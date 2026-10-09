@@ -1,12 +1,13 @@
 import type { ReviewMediaItem, SignedUrlsResult, UploadBucket, UploadUrlResult } from '@nightout/contracts';
 import type { ReviewMedia } from '@nightout/mock';
+import { barMediaPath, storagePublicUrl, type BarMediaFolder } from '@nightout/utils';
 import { Rest } from '@nightout/utils/rest';
 import { log } from '@/services/log';
 import { getBlob } from '@/services/mediaStore';
 
 /**
  * storage — อัปโหลดไฟล์ตาม policy ของแต่ละ bucket (โฟลเดอร์แรก = เจ้าของ) · backend: domains/storage
- *   deposit-slips/<user_id>/...   review-media/<user_id>/<review_id>/...   promo-slips/<bar_id>/...
+ *   deposit-slips/<user_id>/...   review-media/<user_id>/<review_id>/...   promo-slips/<bar_id>/...   bar-media/<bar_id>/{gallery,menu}/...
  * 1) ขอ URL อัปโหลดจาก API (POST /storage/upload-url — Storage policy ตรวจสิทธิ์ในนามผู้ใช้)
  * 2) PUT ไฟล์ตรงเข้า URL นั้น (ไฟล์ใหญ่อย่างวิดีโอรีวิวไม่ต้องผ่าน API) · NestJS รับแค่ path แล้วตรวจซ้ำใน DB
  */
@@ -54,6 +55,16 @@ export function uploadDepositSlip(userId: string, bookingId: string, file: Blob)
 
 export function uploadPromoSlip(barId: string, file: Blob) {
   return upload('promo-slips', `${barId}/${Date.now()}.${ext(file)}`, file);
+}
+
+/** รูปร้าน (gallery) / รูปเมนู (menu) — bucket bar-media เป็น public · path ไปบันทึกผ่าน PUT /merchant/bars/:barId/media | /menu */
+export function uploadBarMedia(barId: string, folder: BarMediaFolder, file: Blob) {
+  return upload('bar-media', barMediaPath(barId, folder, ext(file)), file);
+}
+
+/** URL ถาวรของไฟล์ใน bucket bar-media (ไม่ต้องขอ URL ชั่วคราว) */
+export function barMediaUrl(path: string) {
+  return storagePublicUrl(import.meta.env.VITE_SUPABASE_URL ?? '', 'bar-media', path);
 }
 
 export function uploadSafetyEvidence(barId: string, key: string, file: Blob) {

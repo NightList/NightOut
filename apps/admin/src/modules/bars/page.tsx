@@ -1,9 +1,9 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Star } from '@phosphor-icons/react';
+import { Images, Star } from '@phosphor-icons/react';
 import type { Db } from '@nightout/types';
-import { Input, Table, Tag } from 'antd';
+import { Button, Input, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { PAGE_SIZE } from '@/configs/constants';
 import { LoadError } from '@/ui/components/LoadError';
 import { StatusTag } from '@/ui/components/StatusTag';
@@ -12,9 +12,10 @@ import { BAR_STATUS } from '@/ui/utils/labels';
 import { ShowSwitch } from './components/showSwitch';
 import { useBars } from './api';
 
-/** ร้านทั้งหมด — เปิด/ปิดการแสดงบนเว็บ · ป้าย "แนะนำ" (โฆษณา) ดูอย่างเดียว จัดการที่ /promotions */
+/** ร้านทั้งหมด — เปิด/ปิดการแสดงบนเว็บ · ป้าย "แนะนำ" (โฆษณา) ดูอย่างเดียว จัดการที่ /promotions · รูปร้านจัดการที่ /bar-media */
 export function BarsPage() {
   const [q, setQ] = useState('');
+  const navigate = useNavigate();
   const { data, isLoading, error, refetch } = useBars();
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
@@ -32,7 +33,7 @@ export function BarsPage() {
         loading={isLoading}
         dataSource={rows}
         pagination={{ pageSize: PAGE_SIZE }}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 1100 }}
         columns={[
           {
             title: 'ร้าน',
@@ -86,6 +87,16 @@ export function BarsPage() {
             width: 90,
             // ร่าง / รอตรวจ / ไม่อนุมัติ ยังไม่เคยขึ้นเว็บ — จัดการที่หน้า /merchants
             render: (_, b) => (b.status === 'APPROVED' || b.status === 'SUSPENDED' ? <ShowSwitch bar={b} /> : '-'),
+          },
+          {
+            title: '',
+            key: 'media',
+            width: 110,
+            render: (_, b) => (
+              <Button size="small" icon={<Images size={14} />} onClick={() => void navigate(`/bar-media?bar=${b.id}`)}>
+                รูปร้าน
+              </Button>
+            ),
           },
         ]}
       />

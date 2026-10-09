@@ -1,0 +1,239 @@
+/* บัตร "Staff Pass" ของหน้า login — ส่วนที่ Tailwind เขียนยาก (gradient, รอยปรุ, รูบัตร, OTP ของ antd) */
+
+.staff-pass {
+  position: relative;
+  --pass-notch: 28px;
+  --pass-perf: 2px dashed rgba(232, 182, 76, 0.55);
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  width: min(880px, 100%);
+  min-height: 400px;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
+}
+
+/* ขอบทองรุ้งรอบบัตร: เส้นอยู่กับที่ สีไล่ทอง → ชมพู → ม่วง เลื่อนไปมาช้า ๆ
+   mask ให้เหลือแค่เส้นขอบ · อยู่ใต้รูบัตร (z-index 3) */
+.staff-pass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: 20px;
+  background: linear-gradient(
+      120deg,
+      #e8b64c,
+      #ffd77a,
+      #f0a6d8,
+      #a738f5,
+      #ffd77a,
+      #e8b64c
+    )
+    0% 50% / 300% 300%;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  animation: staff-pass-shimmer 8s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
+}
+@keyframes staff-pass-shimmer {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-pass::after {
+    animation: none;
+  }
+}
+
+.staff-pass__mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ต้นขั้วบัตร (ซ้าย) */
+.staff-pass__stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  border-right: var(--pass-perf);
+  border-radius: 20px 0 0 20px;
+  background: radial-gradient(circle at 50% 38%, #3a1857 0%, #22132f 40%, #14111c 80%);
+}
+
+.staff-pass__logo {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 0 18px rgba(167, 56, 245, 0.6));
+}
+
+.staff-pass__kicker {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.staff-pass__title {
+  margin: 4px 0 0;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.staff-pass__holder {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* รูบัตร 2 ข้างของรอยปรุ */
+.staff-pass__notch {
+  position: absolute;
+  right: calc(var(--pass-notch) / -2);
+  width: var(--pass-notch);
+  height: var(--pass-notch);
+  z-index: 3;
+  border-radius: 50%;
+  background: var(--background);
+}
+.staff-pass__notch--a {
+  top: calc(var(--pass-notch) / -2);
+}
+.staff-pass__notch--b {
+  bottom: calc(var(--pass-notch) / -2);
+}
+
+/* ฝั่งฟอร์ม (ขวา) */
+.staff-pass__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+  min-width: 0;
+  padding: 40px 48px;
+  border: 1px solid var(--border);
+  border-left: 0;
+  border-radius: 0 20px 20px 0;
+  background: var(--card);
+}
+
+.staff-pass__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.staff-pass__actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+}
+
+/* Input.OTP ของ antd: ช่องละ 64×64 */
+.staff-pass .ant-otp {
+  column-gap: 10px;
+}
+.staff-pass .ant-otp-input {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+@media (max-width: 899px) {
+  .staff-pass {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    width: min(480px, 100%);
+    min-height: 0;
+  }
+
+  .staff-pass__stub {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'logo heading'
+      'holder holder';
+    align-items: center;
+    gap: 12px 16px;
+    padding: 20px 22px;
+    border-right: 1px solid var(--border);
+    border-bottom: var(--pass-perf);
+    border-radius: 20px 20px 0 0;
+    background: radial-gradient(circle at 30% 40%, #3a1857, #22132f 45%, #14111c 85%);
+  }
+  .staff-pass__logo {
+    grid-area: logo;
+    width: 72px;
+    height: 72px;
+  }
+  .staff-pass__heading {
+    grid-area: heading;
+    text-align: right;
+  }
+  .staff-pass__kicker {
+    font-size: 11px;
+  }
+  .staff-pass__title {
+    font-size: 30px;
+    white-space: nowrap;
+  }
+  .staff-pass__title br {
+    display: none;
+  }
+  .staff-pass__holder {
+    grid-area: holder;
+    font-size: 12px;
+  }
+
+  .staff-pass__notch {
+    top: auto;
+    bottom: calc(var(--pass-notch) / -2);
+  }
+  .staff-pass__notch--a {
+    right: auto;
+    left: calc(var(--pass-notch) / -2);
+  }
+
+  .staff-pass__body {
+    gap: 18px;
+    padding: 26px 22px 24px;
+    border-left: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .staff-pass__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-pass__hint {
+    text-align: center;
+  }
+
+  /* ปุ่มเรียงลง: ยืนยันก่อน แล้วค่อย "ใช้บัญชีอื่น" */
+  .staff-pass__actions {
+    grid-template-columns: 1fr;
+  }
+  .staff-pass__actions > :first-child {
+    order: 1;
+    height: 48px;
+  }
+
+  .staff-pass .ant-otp {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: 8px;
+    width: 100%;
+  }
+  .staff-pass .ant-otp-input {
+    width: 100%;
+    height: 52px;
+  }
+}

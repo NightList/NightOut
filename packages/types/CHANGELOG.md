@@ -1,5 +1,9 @@
 # CHANGELOG — @nightout/types
 
+## 2026-10-09 — รูปร้าน
+- `database.ts`: `MyBarDetail.media` · `AdminBarMedia` (view `admin_bar_media` · migration `20261009000100`)
+- `database.generated.ts`: รัน `db:types` หลัง push migration `20261009000100` (ฟังก์ชัน/view รูปร้านใหม่)
+
 ## 2026-10-08 — ตัด is_editor_pick
 - ลบ `is_editor_pick` จาก `BarCardNonNull` / `AdminBar` · แก้ `database.generated.ts` ด้วยมือให้ตรง migration `20261008000400_bar_drop_editor_pick` (ไม่มีตาราง `editor_picks` / คอลัมน์ `is_editor_pick` / rpc `admin_set_editor_pick` · `admin_bars.promoted_until`) — รัน `db:types` หลัง `db:push`
 - ไฟล์: `src/database.ts`, `src/database.generated.ts`

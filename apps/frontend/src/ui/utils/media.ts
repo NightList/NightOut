@@ -1,3 +1,14 @@
+/** ชนิดรูปที่อัปโหลดเป็นรูปร้าน/รูปเมนูได้ (bucket bar-media) */
+export const PHOTO_ACCEPT = 'image/jpeg,image/png,image/webp';
+const MAX_PHOTO_SOURCE = 15 * 1024 * 1024;
+
+/** ตรวจไฟล์รูปก่อนย่อ/อัปโหลด — คืนข้อความผิดพลาด หรือ null ถ้าใช้ได้ */
+export function checkPhoto(file: File): string | null {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return `${file.name}: ใช้ได้เฉพาะรูป JPG, PNG หรือ WebP`;
+  if (file.size > MAX_PHOTO_SOURCE) return `${file.name}: รูปใหญ่เกิน 15MB`;
+  return null;
+}
+
 /** ย่อรูปก่อนเก็บ (ด้านยาวสุด maxSide px, JPEG) — รูปมือถือ 4–12MB เหลือ ~100–200KB */
 export function compressImage(file: File, maxSide = 1280, quality = 0.78): Promise<string> {
   return new Promise((resolve, reject) => {

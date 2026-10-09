@@ -34,6 +34,101 @@
   }
 }
 
+/* Modal เข้าสู่ระบบ/สมัครสมาชิก — การ์ดกระจก: เบลอ + ขอบ/เงาด้านใน + เส้นแสงขอบบน/ซ้าย
+   (เติมชั้นสีมืดบางๆ ใต้กระจก ให้ตัวหนังสือขาวอ่านออกบนฉากหลังสว่าง) */
+.auth-glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px !important;
+  border: 1px solid rgba(139, 79, 224, 0.55) !important;
+  background: linear-gradient(160deg, rgba(26, 21, 40, 0.82), rgba(12, 10, 20, 0.86)) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(139, 79, 224, 0.16) !important;
+}
+
+/* เบลอหน้าเว็บด้านหลัง modal ให้แรงขึ้น (ค่า blur ของ antd ค่าเริ่มต้นเบาเกินไป) */
+.auth-modal .ant-modal-mask {
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+/* Modal เข้าสู่ระบบ/สมัครสมาชิก — ช่องกรอกพื้นเทาเข้ม ไม่มีขอบ โฟกัสขอบม่วง */
+.auth-modal .ant-form-item-label {
+  padding-bottom: 6px;
+}
+.auth-modal .ant-form-item-label > label {
+  width: 100%;
+  height: auto;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-modal .ant-input-affix-wrapper,
+.auth-modal .ant-picker {
+  border-radius: 12px;
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.07);
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.auth-modal .ant-input-affix-wrapper:hover,
+.auth-modal .ant-picker:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.09);
+}
+.auth-modal .ant-input-affix-wrapper-focused,
+.auth-modal .ant-picker-focused {
+  border-color: #8b4fe0;
+  background: rgba(139, 79, 224, 0.1);
+  box-shadow: 0 0 0 3px rgba(139, 79, 224, 0.25);
+}
+.auth-modal .ant-input,
+.auth-modal .ant-picker-input > input {
+  background: transparent;
+}
+.auth-modal input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.auth-modal .ant-input-prefix {
+  margin-inline-end: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ปุ่มทองหลัก + ปุ่ม OAuth ของ modal */
+.auth-modal .btn-gold {
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffd77a, #e8b64c);
+  color: #1a1206;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 8px 22px -8px rgba(232, 182, 76, 0.65);
+}
+.auth-modal .btn-gold:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffe39a, #f0c156) !important;
+  color: #1a1206 !important;
+}
+.auth-modal .btn-oauth-dark {
+  height: 42px;
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-modal .btn-oauth-dark:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
 /* หมุดแผนที่ (Leaflet divIcon) — ทอง + ขอบม่วง ให้เข้าธีม */
 .nl-pin {
   position: relative;

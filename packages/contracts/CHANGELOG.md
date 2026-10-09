@@ -1,5 +1,10 @@
 # CHANGELOG — @nightout/contracts
 
+## 2026-10-09 — รูปร้าน + รูปเมนู
+- `bar.ts`: `BarMediaBody` (`paths` ไม่ซ้ำ ≤ `BAR_GALLERY_MAX` = 10 · `cover_path` ต้องอยู่ใน paths) + `BarMediaResult` · `MenuItemImageBody` + `MenuItemImageResult` · `MenuBody.items[].image_path` (nullish) · error ใหม่ `INVALID_BAR_MEDIA` · `INVALID_MENU_IMAGE` · `MENU_ITEM_NOT_FOUND` · `INVALID_MENU_ITEM` (DB โยนอยู่แล้วแต่ยังไม่มีข้อความไทย)
+- `storage.ts`: `bar-media` อยู่ใน `UPLOAD_BUCKETS` และ `PUBLIC_BUCKETS` · `backoffice.ts`: `ADMIN_VIEWS` + `admin_bar_media`
+- เทสต์ใน `contracts.test.ts`
+
 ## 2026-10-09 — รูปแบบคำตอบกลาง ApiResponse
 - เพิ่ม `ApiResponse<T>` = `{ status: 'ok' | 'no', status_code, data, code, err_msg }` (รูปแบบคำตอบของทุก endpoint) + `errorMessageOf(code)` (รหัส → ข้อความไทย ใช้ใน backend)
 - รหัสใหม่ใน `COMMON_ERRORS`: `VALIDATION_FAILED` · `TOO_MANY_REQUESTS` · `INTERNAL_ERROR` · เทสต์ `errorMessageOf`

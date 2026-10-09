@@ -13,6 +13,10 @@ import {
   nextStatuses,
   scoreToStars,
   starsToTier,
+  storagePublicUrl,
+  barMediaPath,
+  coverFirst,
+  galleryCoverPath,
 } from './index';
 
 describe('booking state machine', () => {
@@ -87,5 +91,33 @@ describe('deposit helpers', () => {
   it('has a label for every reject code', () => {
     expect(DEPOSIT_REJECT_CODES).toContain('FAKE_SLIP');
     expect(DEPOSIT_REJECT_REASONS.every((r) => r.label.length > 0)).toBe(true);
+  });
+});
+
+describe('storage public url', () => {
+  it('builds a Supabase public object URL and trims trailing slashes', () => {
+    expect(storagePublicUrl('https://x.supabase.co/', 'bar-media', 'b1/gallery/a.webp')).toBe(
+      'https://x.supabase.co/storage/v1/object/public/bar-media/b1/gallery/a.webp',
+    );
+  });
+  it('encodes each path segment but keeps the folder slashes', () => {
+    expect(storagePublicUrl('http://127.0.0.1:54321', 'bar-media', 'b1/menu/รูป 1.jpg')).toBe(
+      'http://127.0.0.1:54321/storage/v1/object/public/bar-media/b1/menu/%E0%B8%A3%E0%B8%B9%E0%B8%9B%201.jpg',
+    );
+  });
+  it('bar media paths live in <bar>/<folder>/<id>.<ext>', () => {
+    expect(barMediaPath('b1', 'gallery', '.WEBP', 'abc')).toBe('b1/gallery/abc.webp');
+    expect(barMediaPath('b1', 'menu', 'jpg')).toMatch(/^b1\/menu\/[0-9a-f-]{36}\.jpg$/);
+  });
+  it('finds the cover among gallery paths by URL suffix, whatever the Storage host', () => {
+    const paths = ['b1/gallery/a.webp', 'b1/gallery/b.webp'];
+    expect(galleryCoverPath('http://127.0.0.1:54321/storage/v1/object/public/bar-media/b1/gallery/b.webp', paths)).toBe('b1/gallery/b.webp');
+    expect(galleryCoverPath('https://x.supabase.co/storage/v1/object/public/bar-media/b1/gallery/zz.webp', paths)).toBeNull();
+    expect(galleryCoverPath(null, paths)).toBeNull();
+  });
+  it('puts the cover first and keeps the rest in order', () => {
+    expect(coverFirst(['a', 'b', 'c'], 'c')).toEqual(['c', 'a', 'b']);
+    expect(coverFirst(['a', 'b'], null)).toEqual(['a', 'b']);
+    expect(coverFirst(['a', 'b'], 'x')).toEqual(['a', 'b']);
   });
 });

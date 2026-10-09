@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|
 | `home` | หน้าแรก: Hero, หมวด "คืนนี้อยากได้ฟีลไหน", ร้านแนะนำ | `/` | `catalog` · `site-content` | `homeContent` | 1A (เนื้อหาแก้ได้: นอก MVP — ยังไม่ระบุวันอนุมัติ) |
 | `map` | แผนที่ร้านเต็มจอ (Leaflet + OpenFreeMap) | `/map` | `catalog` | — | กฎธุรกิจ |
-| `login` | เข้าสู่ระบบ email + Google / Facebook | `/login` | Supabase Auth | — | 1A |
+| `login` | redirect `/login` → `/` แล้วเปิด modal เข้าสู่ระบบ (`ui/components/authModal.tsx`) | `/login` | Supabase Auth | — | 1A |
 | `register` | สมัครสมาชิก | `/register` | Supabase Auth · `account` | — | 1A |
 | `verifyEmail` | ยืนยันอีเมล | `/verify-email` | Supabase Auth | — | 1A |
 | `forgotPassword` | ขอลิงก์รีเซ็ตรหัสผ่าน | `/forgot-password` | Supabase Auth | — | 1A |
@@ -22,7 +22,7 @@
 | `onboarding` | Age Gate / Consent / ความชอบ | `/onboarding` | `account` | — | 1A |
 | `ranking` | จัดอันดับรายสัปดาห์/รายเดือนตามโหวต (GSAP) | `/ranking` | `catalog` | `ranking` | 1A |
 | `search` | ค้นหา / กรองร้าน (รวมกรอง PR) | `/search` | `catalog` | — | 1A |
-| `barDetail` | หน้าร้าน: ข้อมูล Safety ความแน่น เมนู โปร | `/bars/:slug` | `catalog` · `booking` · `pricing` | `bars` · `safety` | 1A |
+| `barDetail` | หน้าร้าน: รูปปก + แกลเลอรี ข้อมูล Safety ความแน่น เมนู (มีรูป) โปร | `/bars/:slug` | `catalog` · `booking` · `pricing` | `bars` · `safety` · `barMedia` | 1A |
 | `barReviews` | รีวิวทั้งหมดของร้าน | `/bars/:slug/reviews` | `catalog` · `review` | `reviews` | 1A |
 | `book` | จองโต๊ะ + เลือกโปร 1 อย่าง + Checkout (เบอร์ + ยอมรับเงื่อนไขมัดจำ) | `/bars/:slug/book` | `booking` · `pricing` | `bookings` | 1A |
 | `bookings` | รายการจองของฉัน | `/bookings` | `booking` | `bookings` | 1A |
@@ -49,8 +49,8 @@
 | `tonight` | คืนนี้ + สแกน QR เช็กอิน + ความแน่น | `/merchant/tonight` | `booking` · `bar` | — | 1B |
 | `bookings` | จัดการการจอง / ย้ายโต๊ะ | `/merchant/bookings` | `booking` | `bookings` | 1B |
 | `deposits` | มัดจำของร้าน / ยืนยันคืนมัดจำ | `/merchant/deposits` | `deposit` | `deposits` | 1B |
-| `store` | ข้อมูลร้าน เวลาเปิด-ปิด สไตล์ ลิงก์ | `/merchant/store` | `bar` · `storage` | `bars` | 1B |
-| `menu` | เมนูและราคา | `/merchant/menu` | `bar` | — | 1B |
+| `store` | รูปร้าน (ปก + แกลเลอรี) ข้อมูลร้าน เวลาเปิด-ปิด สไตล์ ลิงก์ | `/merchant/store` | `bar` · `storage` | `bars` · `barMedia` | 1B |
+| `menu` | เมนู ราคา และรูปเมนู | `/merchant/menu` | `bar` · `storage` | `barMedia` | 1B |
 | `promotions` | โปรของร้าน (มี cutoff time) | `/merchant/promotions` | `bar` | `promotions` | 1B |
 | `tables` | โซน / โต๊ะ | `/merchant/tables` | `bar` | — | 1B |
 | `safety` | มาตรการ Safety | `/merchant/safety` | `bar` | `safety` | 1B |
@@ -69,6 +69,7 @@
 | `dashboard` | แดชบอร์ด | `/` | `backoffice` (`/admin/dashboard`) | — | 1C |
 | `merchants` | ร้านรออนุมัติ | `/merchants` | `bar` · `admin_bars` | `merchant/join` · `merchant/status` | 1C |
 | `bars` | จัดการร้าน / สวิตช์แสดง / ป้ายแนะนำ (ดูอย่างเดียว) | `/bars` | `bar` · `admin_bars` | `barDetail` · `merchant/store` | 1C |
+| `barMedia` | รูปร้าน: ปก + แกลเลอรี + รูปเมนู ของทุกร้าน (ดู / ลบ / อัปโหลดแทนร้าน) | `/bar-media` | `bar` · `storage` · `admin_bar_media` | `merchant/store` · `merchant/menu` · `barDetail` | นอก MVP — อนุมัติ 2026-10-09 |
 | `safety` | ยืนยัน Safety | `/safety` | `bar` · `admin_safety_queue` | `merchant/safety` | 1C |
 | `ranking` | ดาว / อันดับ | `/ranking` | `bar` · `admin_bars` | `ranking` | 1C |
 | `promotions` | ตรวจถ้อยคำโปร + คำสั่งซื้อโปรโมท | `/promotions` | `promotion` · `admin_bar_promotions` · `admin_promoted_listings` | `merchant/promotions` · `merchant/promote` | 1C |
