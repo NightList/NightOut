@@ -1,3 +1,4 @@
+import { CalendarBlank, EnvelopeSimple, Lock, UserCircle } from '@phosphor-icons/react';
 import { App, Button, Checkbox, DatePicker, Form, Input } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useState } from 'react';
@@ -13,6 +14,17 @@ interface RegisterValues {
   accept: boolean;
 }
 
+/** ความแข็งแรงรหัสผ่าน 0–4 (ยาว ≥10 · ตัวพิมพ์เล็ก+ใหญ่ · ตัวเลข · อักขระพิเศษ) แสดงเป็นแถบใต้ช่อง */
+function passwordStrength(pw: string): number {
+  if (!pw) return 0;
+  return [
+    pw.length >= 10,
+    /[a-z]/.test(pw) && /[A-Z]/.test(pw),
+    /\d/.test(pw),
+    /[^A-Za-z0-9]/.test(pw),
+  ].filter(Boolean).length;
+}
+
 /** ฟอร์มสมัครสมาชิกใน AuthModal (Supabase signUp → trigger สร้าง public.users) */
 export function AuthRegisterForm({
   onNavigate,
@@ -25,6 +37,8 @@ export function AuthRegisterForm({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const max = dayjs().subtract(20, 'year');
+  const [form] = Form.useForm<RegisterValues>();
+  const strength = passwordStrength(Form.useWatch('password', form) ?? '');
 
   const onFinish = async (v: RegisterValues) => {
     setLoading(true);
@@ -56,28 +70,41 @@ export function AuthRegisterForm({
 
   return (
     <>
-      <Form<RegisterValues> layout="vertical" size="large" requiredMark={false} onFinish={onFinish}>
-        <Form.Item name="displayName" className="!mb-4" rules={[{ required: true, max: 60, message: 'กรอกชื่อที่แสดง' }]}>
-          <Input placeholder="ชื่อที่แสดง" autoComplete="nickname" />
+      <Form<RegisterValues> form={form} layout="vertical" size="large" requiredMark={false} onFinish={onFinish}>
+        <Form.Item
+          name="displayName"
+          label="ชื่อที่แสดง"
+          className="!mb-4"
+          rules={[{ required: true, max: 60, message: 'กรอกชื่อที่แสดง' }]}
+        >
+          <Input prefix={<UserCircle size={18} />} placeholder="ชื่อเล่นของคุณ" autoComplete="nickname" />
         </Form.Item>
         <Form.Item
           name="email"
+          label="อีเมล"
           className="!mb-4"
           rules={[{ required: true, type: 'email', message: 'กรอกอีเมลให้ถูกต้อง' }]}
         >
-          <Input placeholder="กรอกอีเมลของคุณ" autoComplete="email" inputMode="email" />
+          <Input
+            prefix={<EnvelopeSimple size={18} />}
+            placeholder="you@email.com"
+            autoComplete="email"
+            inputMode="email"
+          />
         </Form.Item>
         <div className="grid gap-x-3 sm:grid-cols-2">
         <Form.Item
           name="password"
-          className="!mb-4"
+          label="รหัสผ่าน"
+          className="!mb-2"
           rules={[{ required: true, min: 10, message: 'อย่างน้อย 10 ตัว' }]}
         >
-          <Input.Password placeholder="รหัสผ่าน (10 ตัวขึ้นไป)" autoComplete="new-password" />
+          <Input.Password prefix={<Lock size={18} />} placeholder="10 ตัวขึ้นไป" autoComplete="new-password" />
         </Form.Item>
         <Form.Item
           name="confirm"
-          className="!mb-4"
+          label="ยืนยันรหัสผ่าน"
+          className="!mb-2"
           dependencies={['password']}
           rules={[
             { required: true, message: 'ยืนยันรหัสผ่าน' },
@@ -89,18 +116,29 @@ export function AuthRegisterForm({
             }),
           ]}
         >
-          <Input.Password placeholder="ยืนยันรหัสผ่าน" autoComplete="new-password" />
+          <Input.Password prefix={<Lock size={18} />} placeholder="อีกครั้ง" autoComplete="new-password" />
         </Form.Item>
+        </div>
+        <div className="mb-4 grid grid-cols-4 gap-1.5" role="presentation">
+          {[1, 2, 3, 4].map((n) => (
+            <span
+              key={n}
+              className={`h-[3px] rounded-full transition-colors ${n <= strength ? 'bg-[#e8b64c]' : 'bg-white/15'}`}
+            />
+          ))}
         </div>
         <Form.Item
           name="birthdate"
+          label="วันเกิด"
           className="!mb-4"
           rules={[{ required: true, message: 'ต้องระบุวันเกิด' }]}
-          extra={<span className="text-xs text-white/70">ต้องอายุ 20 ปีขึ้นไป</span>}
+          extra={<span className="text-xs text-white/60">ต้องอายุ 20 ปีขึ้นไป</span>}
         >
           <DatePicker
             className="w-full"
-            placeholder="วันเกิด"
+            suffixIcon={null}
+            prefix={<CalendarBlank size={18} className="text-white/60" />}
+            placeholder="เลือกวันเกิด"
             defaultPickerValue={max}
             disabledDate={(d) => d.isAfter(max)}
             format="D MMM YYYY"
@@ -120,31 +158,24 @@ export function AuthRegisterForm({
           <Checkbox>
             <span className="text-xs">
               ยอมรับ{' '}
-              <Link to="/terms" onClick={onNavigate} className="!text-[#b84dff]">
+              <Link to="/terms" onClick={onNavigate} className="!text-[#c79bff]">
                 เงื่อนไขการใช้งาน
               </Link>{' '}
               และ{' '}
-              <Link to="/privacy" onClick={onNavigate} className="!text-[#b84dff]">
+              <Link to="/privacy" onClick={onNavigate} className="!text-[#c79bff]">
                 นโยบายความเป็นส่วนตัว
               </Link>
             </span>
           </Checkbox>
         </Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          shape="round"
-          block
-          loading={loading}
-          className="!h-11 !border-0 !bg-[#a63cf2] hover:!bg-[#b657ff]"
-        >
+        <Button type="primary" htmlType="submit" block loading={loading} className="btn-gold">
           สมัครสมาชิก
         </Button>
       </Form>
 
-      <p className="mt-6 text-center text-xs text-white/90">
-        มีบัญชีแล้ว ?{' '}
-        <button type="button" onClick={onSwitch} className="font-bold text-[#b84dff] hover:text-white">
+      <p className="mt-5 text-center text-xs text-white/80">
+        มีบัญชีแล้ว?{' '}
+        <button type="button" onClick={onSwitch} className="font-bold text-[#c79bff] hover:text-white">
           เข้าสู่ระบบ
         </button>
       </p>

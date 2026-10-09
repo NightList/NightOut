@@ -2,6 +2,7 @@ import { X } from '@phosphor-icons/react';
 import { ConfigProvider, Modal, theme } from 'antd';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
+import { BrandLogo } from './brandLogo';
 import { AuthLoginForm } from './authLoginForm';
 import { AuthRegisterForm } from './authRegisterForm';
 
@@ -22,23 +23,22 @@ export function useAuthModal(): AuthModalApi {
   return ctx;
 }
 
-/** กรอบของ modal — พื้นมืดโปร่งเห็นหน้าเว็บเบลอด้านหลัง ตามดีไซน์ (เหมือนกันทั้งธีมมืด/สว่าง) */
-/** ลุคกระจกอยู่ที่ `.auth-glass` ใน styles/index.css */
+/** กรอบของ modal — การ์ดมืดขอบม่วง เห็นหน้าเว็บเบลอด้านหลัง ตามดีไซน์ (เหมือนกันทั้งธีมมืด/สว่าง) */
+/** ลุคการ์ดอยู่ที่ `.auth-glass` ใน styles/index.css */
 const MODAL_STYLES = {
-  mask: { background: 'rgba(5, 3, 12, 0.5)' },
-  container: { padding: '28px 32px 26px' },
-  header: {
-    marginBottom: 22,
-    paddingBottom: 10,
-    paddingRight: 36,
-    background: 'transparent',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.35)',
-  },
+  mask: { background: 'rgba(5, 3, 12, 0.55)' },
+  container: { padding: '28px 36px 26px' },
 } as const;
 
-const TITLES: Record<AuthView, string> = {
-  login: 'ยินดีต้อนรับสู่ ',
-  register: 'สมัครสมาชิก ',
+const HEADINGS: Record<AuthView, { title: string; subtitle: string }> = {
+  login: {
+    title: 'ยินดีต้อนรับกลับ',
+    subtitle: 'เข้าสู่ระบบเพื่อจองโต๊ะและดูรีวิวจากคนที่ไปจริง',
+  },
+  register: {
+    title: 'สร้างบัญชี',
+    subtitle: 'ใช้เวลาไม่ถึงนาที · สำหรับผู้ที่อายุ 20 ปีขึ้นไป',
+  },
 };
 
 /** Provider เดียวทั้งแอป: ปุ่ม "เข้าสู่ระบบ" / route guard เรียก `useAuthModal().openLogin()` */
@@ -70,22 +70,22 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
           footer={null}
           centered
           destroyOnHidden
-          width={view === 'register' ? 440 : 400}
+          width={view === 'register' ? 520 : 480}
           rootClassName="auth-modal"
           mask={{ blur: true }}
           styles={MODAL_STYLES}
           classNames={{ container: 'auth-glass' }}
-          title={
-            <span className="text-xl font-bold text-white sm:text-2xl">
-              {TITLES[view]}Night<span className="text-[#b84dff]">Out</span>
-            </span>
-          }
           closeIcon={
-            <span className="flex size-7 items-center justify-center rounded-full bg-white/35 text-white/90">
+            <span className="flex size-8 items-center justify-center rounded-full bg-white/10 text-white/90 transition-colors hover:bg-white/20">
               <X size={16} weight="bold" />
             </span>
           }
         >
+          <header className="mb-6 flex flex-col items-center text-center">
+            <BrandLogo surface="dark" className="h-7" />
+            <h2 className="mt-5 text-2xl font-bold text-white">{HEADINGS[view].title}</h2>
+            <p className="mt-1.5 text-xs text-white/60">{HEADINGS[view].subtitle}</p>
+          </header>
           {view === 'login' ? (
             <AuthLoginForm
               next={next}
