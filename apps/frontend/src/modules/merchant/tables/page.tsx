@@ -1,10 +1,12 @@
-import { Plus, Trash } from '@phosphor-icons/react';
-import { type Bar } from '@/services/data';
-import { setZones } from './api';
-import { App, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Tag } from 'antd';
+import { Info, Plus } from '@phosphor-icons/react';
+import { App, Empty, Form, Input, InputNumber, Modal, Popconfirm } from 'antd';
 import { useState } from 'react';
-import { PageHeader } from '@/ui/components/pageHeader';
+import { Link } from 'react-router';
+import { type Bar } from '@/services/data';
 import { useMerchantBar } from '@/hooks/useMerchantBar';
+import { Tile } from '@/ui/components/merchantUi';
+import { baht } from '@/ui/utils/format';
+import { setZones } from './api';
 
 type Zone = Bar['zones'][number];
 interface NewZone {
@@ -14,7 +16,9 @@ interface NewZone {
   duration: number;
 }
 
-/** /merchant/tables — โซน/โต๊ะ (DB กันจองซ้อนเวลาต่อโต๊ะ + นับความจุโซน) */
+const hoursLabel = (min: number) => `${(min / 60).toLocaleString('th-TH', { maximumFractionDigits: 1 })} ชม.`;
+
+/** /merchant/tables — การ์ดโซนละใบ: ความจุ · ระยะเวลาจอง · มัดจำ · โต๊ะ (DB กันจองซ้อนเวลาต่อโต๊ะ + นับความจุโซน) */
 export function MerchantTablesPage() {
   const bar = useMerchantBar();
   const { message } = App.useApp();
@@ -35,6 +39,8 @@ export function MerchantTablesPage() {
       setSaving(false);
     }
   };
+  const update = (z: Zone, p: Partial<Zone>, done: string) =>
+    save(bar.zones.map((x) => (x.id === z.id ? { ...x, ...p } : x)), done);
   const nextName = (z: Zone) => {
     const prefix = z.tables[0]?.name.replace(/\d+$/, '') || z.name.slice(0, 1).toUpperCase();
     let n = z.tables.length + 1;
@@ -42,95 +48,169 @@ export function MerchantTablesPage() {
     return `${prefix}${n}`;
   };
   const addTable = (z: Zone) =>
-    save(
-      bar.zones.map((x) =>
-        x.id === z.id ? { ...x, tables: [...x.tables, { id: '', name: nextName(x), seats: 4 }], capacityPax: x.capacityPax + 4 } : x,
-      ),
-      `เพิ่มโต๊ะใน ${z.name} แล้ว`,
-    );
+    update(z, { tables: [...z.tables, { id: '', name: nextName(z), seats: 4 }], capacityPax: z.capacityPax + 4 }, `เพิ่มโต๊ะใน ${z.name} แล้ว`);
   const removeTable = (z: Zone, tableId: string) => {
     const t = z.tables.find((x) => x.id === tableId);
-    return save(
-      bar.zones.map((x) =>
-        x.id === z.id ? { ...x, tables: x.tables.filter((y) => y.id !== tableId), capacityPax: Math.max(1, x.capacityPax - (t?.seats ?? 0)) } : x,
-      ),
+    return update(
+      z,
+      { tables: z.tables.filter((y) => y.id !== tableId), capacityPax: Math.max(1, z.capacityPax - (t?.seats ?? 0)) },
       'ปิดใช้โต๊ะแล้ว (การจองเดิมยังอยู่)',
     );
   };
 
-  return (
-    <div>
-      <PageHeader
-        title="โซน / โต๊ะ"
-        subtitle="ระบบกันจองซ้อนจากช่วงเวลาจองต่อโต๊ะ และนับคนไม่ให้เกินความจุโซน"
-        extra={
-          <Button type="primary" icon={<Plus />} onClick={() => setOpen(true)}>
-            เพิ่มโซน
-          </Button>
-        }
+  const tableCount = bar.zones.reduce((a, z) => a + z.tables.length, 0);
+  const pax = bar.zones.reduce((a, z) => a + z.capacityPax, 0);
+  const deposit = bar.deposit.amount > 0 ? `${baht(bar.deposit.amount)}/${bar.deposit.unit === 'PER_PERSON' ? 'คน' : 'โต๊ะ'}` : 'ไม่มี';
+
+  /** ช่องสถิติแก้ได้ในที่ (บันทึกตอนออกจากช่อง) */
+  const statInput = (label: string, value: number, suffix: string, min: number, max: number, step: number, onSave: (v: number) => void) => (
+    <label className="flex min-w-0 flex-col gap-0.5 rounded-xl bg-surface p-2.5">
+      <span className="text-[11px] text-muted">{label}</span>
+      <InputNumber
+        variant="borderless"
+        size="small"
+        min={min}
+        max={max}
+        step={step}
+        defaultValue={value}
+        suffix={<span className="text-xs text-muted">{suffix}</span>}
+        className="!w-full !p-0 [&_input]:!p-0 [&_input]:!text-base [&_input]:!font-bold"
+        aria-label={label}
+        onBlur={(e) => {
+          const v = Number(e.target.value);
+          if (v && v !== value) onSave(v);
+        }}
       />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {bar.zones.map((z) => (
-          <Card
-            key={z.id}
-            title={z.name}
-            extra={
-              <Button icon={<Plus />} loading={saving} onClick={() => void addTable(z)}>
-                โต๊ะ
-              </Button>
-            }
-          >
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted">
-              <span>ความจุ</span>
-              <InputNumber
-                min={1}
-                max={2000}
-                defaultValue={z.capacityPax}
-                suffix="คน"
-                aria-label={`ความจุ ${z.name}`}
-                onBlur={(e) => {
-                  const v = Number(e.target.value);
-                  if (v && v !== z.capacityPax)
-                    void save(bar.zones.map((x) => (x.id === z.id ? { ...x, capacityPax: v } : x)), 'บันทึกความจุแล้ว');
-                }}
-              />
-              <span>จองนาน</span>
-              <InputNumber
-                min={60}
-                max={480}
-                step={30}
-                defaultValue={z.defaultDurationMinutes}
-                suffix="นาที"
-                aria-label={`เวลาจองของ ${z.name}`}
-                onBlur={(e) => {
-                  const v = Number(e.target.value);
-                  if (v && v !== z.defaultDurationMinutes)
-                    void save(bar.zones.map((x) => (x.id === z.id ? { ...x, defaultDurationMinutes: v } : x)), 'บันทึกเวลาจองแล้ว');
-                }}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {z.tables.length === 0 && <span className="text-sm text-muted">ยังไม่มีโต๊ะ — ลูกค้าจองเป็นโซน</span>}
-              {z.tables.map((t) => (
-                <Tag key={t.id} className="!inline-flex !items-center !gap-1 !px-3 !py-1">
-                  {t.name} · {t.seats} ที่
-                  <Popconfirm
-                    title={`ปิดใช้โต๊ะ ${t.name}?`}
-                    okText="ปิดใช้"
-                    cancelText="ยกเลิก"
-                    okButtonProps={{ danger: true }}
-                    onConfirm={() => removeTable(z, t.id)}
-                  >
-                    <button type="button" aria-label={`ปิดใช้โต๊ะ ${t.name}`} className="text-muted hover:text-(--crowd-full)">
-                      <Trash size={12} />
-                    </button>
-                  </Popconfirm>
-                </Tag>
-              ))}
-            </div>
-          </Card>
-        ))}
+    </label>
+  );
+
+  const tableButton = (z: Zone, t: Zone['tables'][number], compact: boolean) => (
+    <Popconfirm
+      key={t.id}
+      title={`ปิดใช้โต๊ะ ${t.name}?`}
+      description="การจองเดิมยังอยู่ · ลูกค้าจองโต๊ะนี้ใหม่ไม่ได้"
+      okText="ปิดใช้"
+      cancelText="ยกเลิก"
+      okButtonProps={{ danger: true }}
+      onConfirm={() => removeTable(z, t.id)}
+    >
+      <button
+        type="button"
+        aria-label={`โต๊ะ ${t.name} ${t.seats} ที่ — กดเพื่อปิดใช้`}
+        className={`merchant-pill flex flex-col items-center justify-center border border-border bg-surface hover:border-(--crowd-full) ${
+          compact ? 'h-11 rounded-[10px] text-xs' : 'h-14 rounded-[14px]'
+        }`}
+      >
+        <b className={compact ? '' : 'text-[15px]'}>{t.name}</b>
+        <span className={`${compact ? 'text-[10px]' : 'text-[11px]'} text-muted`}>
+          {t.seats}
+          {compact ? '' : ' ที่'}
+        </span>
+      </button>
+    </Popconfirm>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-[17px] font-bold lg:font-display lg:text-[30px]">โซน / โต๊ะ</h1>
+          <p className="mt-1 text-xs text-muted lg:text-sm">
+            {bar.zones.length} โซน · {tableCount} โต๊ะ · รับได้ {pax} คน
+            <span className="hidden lg:inline"> · ระบบกันจองซ้อนตามระยะเวลาจอง</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="merchant-pill hidden h-10 items-center gap-2 rounded-xl bg-gold px-[18px] text-sm font-semibold text-on-gold lg:inline-flex"
+        >
+          <Plus /> เพิ่มโซน
+        </button>
+        <button type="button" aria-label="เพิ่มโซน" onClick={() => setOpen(true)} className="grid size-10 place-items-center text-xl text-gold lg:hidden">
+          <Plus />
+        </button>
       </div>
+
+      {bar.zones.length === 0 ? (
+        <Tile>
+          <Empty description="ยังไม่มีโซน — ต้องมีอย่างน้อย 1 โซนเพื่อรับจอง" />
+        </Tile>
+      ) : (
+        <>
+          {/* Desktop */}
+          <div className="hidden gap-4 lg:grid lg:grid-cols-3">
+            {bar.zones.map((z) => (
+              <Tile key={z.id} className="flex flex-col gap-3.5">
+                <b className="text-lg font-semibold">{z.name}</b>
+                <div className="grid grid-cols-3 gap-2">
+                  {statInput('ความจุรวม', z.capacityPax, 'คน', 1, 2000, 1, (v) => void update(z, { capacityPax: v }, 'บันทึกความจุแล้ว'))}
+                  {statInput('ระยะเวลาจอง', z.defaultDurationMinutes, 'นาที', 60, 480, 30, (v) =>
+                    void update(z, { defaultDurationMinutes: v }, 'บันทึกเวลาจองแล้ว'),
+                  )}
+                  <span className="flex min-w-0 flex-col gap-0.5 rounded-xl bg-surface p-2.5">
+                    <span className="text-[11px] text-muted">มัดจำ</span>
+                    <b className="truncate text-base text-gold-text">{deposit}</b>
+                  </span>
+                </div>
+                <span className="text-[13px] text-muted">
+                  โต๊ะ ({z.tables.length}) · {hoursLabel(z.defaultDurationMinutes)} ต่อรอบ
+                </span>
+                {z.tables.length === 0 ? (
+                  <span className="text-sm text-muted">ยังไม่มีโต๊ะ — ลูกค้าจองเป็นโซน</span>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">{z.tables.map((t) => tableButton(z, t, false))}</div>
+                )}
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => void addTable(z)}
+                  className="merchant-pill mt-auto flex h-10 items-center justify-center gap-1.5 rounded-xl border border-dashed border-muted/60 text-sm text-muted hover:border-gold hover:text-text disabled:opacity-50"
+                >
+                  <Plus /> เพิ่มโต๊ะ
+                </button>
+              </Tile>
+            ))}
+          </div>
+
+          {/* มือถือ */}
+          <div className="flex flex-col gap-3 lg:hidden">
+            {bar.zones.map((z) => (
+              <Tile key={z.id} className="flex flex-col gap-2.5 !rounded-[18px] !p-3.5">
+                <span className="flex items-center justify-between gap-2">
+                  <b className="text-base font-semibold">{z.name}</b>
+                  <span className="text-xs text-muted">
+                    {z.tables.length} โต๊ะ · {z.capacityPax} คน · {hoursLabel(z.defaultDurationMinutes)}
+                  </span>
+                </span>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {z.tables.map((t) => tableButton(z, t, true))}
+                  <button
+                    type="button"
+                    aria-label={`เพิ่มโต๊ะใน ${z.name}`}
+                    disabled={saving}
+                    onClick={() => void addTable(z)}
+                    className="grid h-11 place-items-center rounded-[10px] border border-dashed border-muted/60 text-muted"
+                  >
+                    <Plus />
+                  </button>
+                </div>
+              </Tile>
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-[18px] py-3.5 text-sm text-muted">
+        <Info size={18} className="shrink-0 text-link" />
+        <span className="flex-1">
+          ลูกค้าเลือกได้ทั้งโซนหรือโต๊ะ · ถ้าไม่มาเช็กอินเกิน grace period ({bar.gracePeriodMinutes} นาที) ระบบยกเลิกโต๊ะอัตโนมัติ
+        </span>
+        <Link to="/merchant/settings" className="hidden shrink-0 lg:inline">
+          ตั้งค่าการจอง →
+        </Link>
+      </div>
+
       <Modal
         open={open}
         title="เพิ่มโซน"

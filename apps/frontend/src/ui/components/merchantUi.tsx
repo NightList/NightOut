@@ -25,8 +25,8 @@ export function Tile({
   );
 }
 
-/** วงแหวนเปอร์เซ็นต์ (conic-gradient) — ตัวเลขอยู่กลางวง */
-export function Ring({ pct, size = 72 }: { pct: number; size?: number }) {
+/** วงแหวนเปอร์เซ็นต์ (conic-gradient) — กลางวงเป็นตัวเลข % หรือ children */
+export function Ring({ pct, size = 72, children }: { pct: number; size?: number; children?: ReactNode }) {
   const p = Math.max(0, Math.min(100, Math.round(pct)));
   const inner = Math.round(size * 0.75);
   return (
@@ -41,10 +41,10 @@ export function Ring({ pct, size = 72 }: { pct: number; size?: number }) {
       }}
     >
       <span
-        className="grid place-items-center rounded-full bg-card text-sm font-semibold"
+        className="flex flex-col items-center justify-center rounded-full bg-card text-sm font-semibold"
         style={{ width: inner, height: inner }}
       >
-        {p}%
+        {children ?? `${p}%`}
       </span>
     </span>
   );

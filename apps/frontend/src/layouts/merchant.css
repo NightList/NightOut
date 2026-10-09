@@ -11,6 +11,15 @@
   transform: scale(0.96);
 }
 
+/* ช่องรูปที่ยังว่าง — ลายแรเงาเฉียง (โทนตามธีม) */
+.merchant-hatch {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--card) 0 8px,
+    color-mix(in srgb, var(--border) 45%, var(--card)) 8px 16px
+  );
+}
+
 .merchant-tabbar {
   height: calc(76px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);

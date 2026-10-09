@@ -1,3 +1,7 @@
+## 2026-10-10 — Bento ตาม Merchant 1i Store/Growth
+- Bento 2×2: มัดจำ · บัญชีรับเงิน (การ์ดบัญชีปัจจุบัน + ปุ่ม "เปลี่ยน") · Grace period แบบปุ่มเลือก · PR ปุ่ม −/+ (ชาย/หญิง/LGBTQ+) · ปุ่มบันทึกบนหัวหน้า
+- ไฟล์หลัก: `page.tsx`
+
 # CHANGELOG — frontend/modules/merchant/settings
 
 ## 2026-10-09 — ย้าย API เข้า `api.ts` ของโมดูล (ADR 0007)

@@ -173,7 +173,7 @@ export function MerchantDashboardPage() {
                 {!isStaff && (
                   <>
                     {' · '}
-                    <Link to="/merchant/reviews">ตอบกลับ</Link>
+                    <Link to="/merchant/reviews">ดูรีวิว</Link>
                   </>
                 )}
               </span>
