@@ -1,5 +1,9 @@
 # CHANGELOG — @nightout/utils
 
+## 2026-10-09 — storage public URL
+- `storage.ts` (ใหม่): `storagePublicUrl(supabaseUrl, bucket, path)` ใช้ร่วม backend + หน้าเว็บ · `barMediaPath(barId, folder, ext)` path รูปร้าน `<bar_id>/gallery|menu/<uuid>.<ext>` + type `BarMediaFolder` · `galleryCoverPath` (หา path ปกจาก `cover_image_url`) · `coverFirst` (เรียงปกขึ้นก่อน) — ใช้ร่วมหน้าข้อมูลร้าน + Backoffice
+- เทสต์ใน `utils.test.ts`
+
 ## 2026-10-09 — Rest: แกะ ApiResponse ให้
 - backend ตอบ `{ status, status_code, data, code, err_msg }` ทุกเส้น → `Rest.get/post/…` คืน `data` ให้เลย (หน้าเว็บไม่ต้องเช็ก `status`) · `status: 'no'` (แม้ HTTP 2xx) หรือ HTTP error → `ApiError(status_code, code)` ข้อความ = `err_msg` · ไม่มี err_msg = ใช้ `errorMessages` เหมือนเดิม · `unauthorizedCode` ยังชนะบน 401
 - `ApiError` รับข้อความตัวที่ 3 ได้ · คำตอบแบบเก่า (ไม่ห่อ) ยังใช้ได้

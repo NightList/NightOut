@@ -5,9 +5,11 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { PageHeader } from '@/ui/components/pageHeader';
 import { useMerchantBar } from '@/hooks/useMerchantBar';
+import { BarPhotos } from './components/barPhotos';
 
 const DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
 
+/** /merchant/store — รูปร้าน (บันทึกทันที) · ข้อมูลทั่วไป · เวลาเปิด-ปิด · ลิงก์โซเชียล */
 export function MerchantStorePage() {
   const bar = useMerchantBar();
   const { message } = App.useApp();
@@ -18,6 +20,7 @@ export function MerchantStorePage() {
         title="ข้อมูลร้าน"
         subtitle="ข้อความต้องเป็นข้อมูลร้าน ห้ามชักชวนให้ดื่ม (ดูนโยบายถ้อยคำ)"
       />
+      <BarPhotos bar={bar} />
       <Form
         layout="vertical"
         initialValues={{

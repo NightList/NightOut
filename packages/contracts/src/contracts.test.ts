@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { CreateBookingBody, ERROR_MESSAGES, errorMessageOf, ReorderTeamBody, ReviewDepositBody, TeamMemberBody, UpdateTeamMemberBody } from './index';
 import { canCreateRole, CreateUserBody } from './account';
 import { UpdateHomeCategoryBody, UpdateHomeContentBody, UpdateHomePopularBody } from './site-content';
+import { BAR_GALLERY_MAX, BarMediaBody, MenuBody, MenuItemImageBody } from './bar';
+import { PUBLIC_BUCKETS, UploadBucket } from './storage';
 
 describe('booking', () => {
   const base = {
@@ -92,6 +94,32 @@ describe('account', () => {
   });
 });
 
+describe('bar media', () => {
+  const bar = '96e5917b-2acc-5f7f-b4ca-fc9a3b00f07d';
+  const g = (n: number) => `${bar}/gallery/${n}.webp`;
+  it('gallery: up to BAR_GALLERY_MAX unique paths, cover must be one of them', () => {
+    expect(BarMediaBody.safeParse({ paths: [], cover_path: null }).success).toBe(true);
+    expect(BarMediaBody.safeParse({ paths: [g(1), g(2)], cover_path: g(2) }).success).toBe(true);
+    expect(BarMediaBody.safeParse({ paths: [g(1)], cover_path: g(2) }).success).toBe(false);
+    expect(BarMediaBody.safeParse({ paths: [g(1), g(1)], cover_path: null }).success).toBe(false);
+    expect(BarMediaBody.safeParse({ paths: Array.from({ length: BAR_GALLERY_MAX + 1 }, (_, i) => g(i)), cover_path: null }).success).toBe(false);
+    expect(BarMediaBody.safeParse({ paths: [`${bar}/../x.webp`], cover_path: null }).success).toBe(false);
+  });
+  it('menu image: optional per item (missing = keep, null = remove) · admin body takes path or null', () => {
+    const item = { category: 'อาหาร', name: 'ข้าว', price: 60, available: true };
+    expect(MenuBody.safeParse({ items: [item] }).success).toBe(true);
+    expect(MenuBody.safeParse({ items: [{ ...item, image_path: null }] }).success).toBe(true);
+    expect(MenuBody.safeParse({ items: [{ ...item, image_path: `${bar}/menu/a.jpg` }] }).success).toBe(true);
+    expect(MenuBody.safeParse({ items: [{ ...item, image_path: '/etc/passwd' }] }).success).toBe(false);
+    expect(MenuItemImageBody.safeParse({ path: null }).success).toBe(true);
+    expect(MenuItemImageBody.safeParse({}).success).toBe(false);
+  });
+  it('bar-media is an uploadable public bucket', () => {
+    expect(UploadBucket.safeParse('bar-media').success).toBe(true);
+    expect(PUBLIC_BUCKETS).toContain('bar-media');
+  });
+});
+
 describe('errors', () => {
   it('every domain contributes and nothing collides silently', () => {
     expect(ERROR_MESSAGES.ZONE_FULL).toContain('เต็ม');
@@ -99,6 +127,9 @@ describe('errors', () => {
     expect(ERROR_MESSAGES.LAST_SUPER_ADMIN).toBeTruthy();
     expect(ERROR_MESSAGES.TEAM_MEMBER_NOT_OWN).toBeTruthy();
     expect(ERROR_MESSAGES.TEAM_MEMBER_EMAIL_LOCKED).toBeTruthy();
+    expect(ERROR_MESSAGES.INVALID_BAR_MEDIA).toContain('รูป');
+    expect(ERROR_MESSAGES.INVALID_MENU_IMAGE).toBeTruthy();
+    expect(ERROR_MESSAGES.INVALID_MENU_ITEM).toBeTruthy();
     expect(Object.keys(ERROR_MESSAGES).length).toBeGreaterThan(70);
   });
 

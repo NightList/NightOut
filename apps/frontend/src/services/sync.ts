@@ -306,7 +306,7 @@ export async function refresh(opts: { public?: boolean } = {}) {
 /** การเขียนที่ไม่ต้องโหลด store ใหม่ — POST ที่จริงเป็นการขอ URL ไฟล์ / ลบบัญชี (เข้าสู่ระบบไม่ได้แล้ว) */
 const NO_REFRESH = /^\/storage\/|^\/me\/delete$/;
 /** การเขียนที่เปลี่ยนข้อมูลหน้าร้าน → โหลด `/public/catalog` ใหม่ด้วย */
-const PUBLIC_WRITES = /^\/merchant\/bars\/[^/]+\/(crowd|info|menu|promotions|fees|zones|safety|booking-settings)|^\/bookings\/[^/]+\/review$/;
+const PUBLIC_WRITES = /^\/merchant\/bars\/[^/]+\/(crowd|info|media|menu|promotions|fees|zones|safety|booking-settings)|^\/bookings\/[^/]+\/review$/;
 
 /**
  * ตั้งเป็น `afterWrite` ของ Rest ใน main.tsx — ทุก POST/PUT/PATCH/DELETE ที่สำเร็จโหลด store ใหม่ให้อัตโนมัติ

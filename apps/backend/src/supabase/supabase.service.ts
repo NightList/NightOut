@@ -11,6 +11,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { storagePublicUrl } from '@nightout/utils';
 
 interface PostgrestError {
   code?: string;
@@ -157,7 +158,25 @@ export class SupabaseService {
 
   /** URL ถาวรของไฟล์ใน bucket public */
   publicUrl(bucket: string, path: string): string {
-    return `${this.url}/storage/v1/object/public/${encodeURIComponent(bucket)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+    return storagePublicUrl(this.url, bucket, path);
+  }
+
+  /**
+   * ลบไฟล์ใน Storage ด้วย service_role (เช่น รูปร้านที่ไม่มีแถวไหนอ้างแล้ว — path มาจากฟังก์ชันใน DB เท่านั้น)
+   * ลบไม่สำเร็จไม่ทำให้งานหลักล้ม (ไฟล์ค้างไม่กระทบหน้าเว็บ) แค่บันทึก log
+   */
+  async removeObjects(bucket: string, paths: string[]): Promise<void> {
+    if (!paths.length) return;
+    try {
+      const res = await this.call(`${this.url}/storage/v1/object/${encodeURIComponent(bucket)}`, {
+        method: 'DELETE',
+        headers: this.headers(),
+        body: JSON.stringify({ prefixes: paths }),
+      });
+      if (!res.ok) this.log.warn(`ลบไฟล์ ${bucket} ไม่สำเร็จ (${res.status}): ${paths.join(', ')}`);
+    } catch (e) {
+      this.log.warn(`ลบไฟล์ ${bucket} ไม่สำเร็จ: ${e instanceof Error ? e.message : String(e)}`);
+    }
   }
 
   /**

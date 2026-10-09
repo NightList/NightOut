@@ -55,6 +55,7 @@ describe('NightOut API', () => {
     expect(res.body).toMatchObject({ status: 'no', status_code: 401, data: null, code: 'Missing bearer token' });
     await request(app.getHttpServer()).get('/me/profile').expect(401);
     await request(app.getHttpServer()).get('/merchant/bars/00000000-0000-4000-8000-000000000000/team').expect(401);
+    await request(app.getHttpServer()).put('/merchant/bars/00000000-0000-4000-8000-000000000000/media').send({ paths: [], cover_path: null }).expect(401);
     await request(app.getHttpServer()).post('/storage/upload-url').send({ bucket: 'deposit-slips', path: 'a/b.jpg' }).expect(401);
   });
 
@@ -67,6 +68,9 @@ describe('NightOut API', () => {
     await request(app.getHttpServer()).post('/admin/team-members').send({ nickname: 'x' }).expect(401);
     await request(app.getHttpServer()).post('/admin/users').send({ email: 'a@b.co' }).expect(401);
     await request(app.getHttpServer()).put('/admin/team-members/order').send({ ids: [] }).expect(401);
+    await request(app.getHttpServer()).get('/admin/views/admin_bar_media').expect(401);
+    await request(app.getHttpServer()).put('/admin/bars/00000000-0000-4000-8000-000000000000/media').send({ paths: [], cover_path: null }).expect(401);
+    await request(app.getHttpServer()).put('/admin/menu-items/00000000-0000-4000-8000-000000000000/image').send({ path: null }).expect(401);
   });
 
   it('read endpoints validate input before touching Supabase', async () => {

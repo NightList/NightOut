@@ -4,11 +4,11 @@ import { objectPath } from './common';
 /** โดเมน storage — ขอ URL อัปโหลด / URL ชั่วคราวของไฟล์ (สิทธิ์จริงตัดสินโดย Storage policy ของแต่ละ bucket) */
 
 /** bucket ที่หน้าเว็บอัปโหลด/ขอ URL ได้ */
-export const UPLOAD_BUCKETS = ['deposit-slips', 'review-media', 'promo-slips', 'bar-verifications', 'team-photos', 'site-media'] as const;
+export const UPLOAD_BUCKETS = ['deposit-slips', 'review-media', 'promo-slips', 'bar-verifications', 'team-photos', 'site-media', 'bar-media'] as const;
 export const UploadBucket = z.enum(UPLOAD_BUCKETS);
 export type UploadBucket = z.infer<typeof UploadBucket>;
 /** bucket ที่เป็น public — ตอบ public_url กลับไปด้วย */
-export const PUBLIC_BUCKETS: readonly UploadBucket[] = ['team-photos', 'site-media'];
+export const PUBLIC_BUCKETS: readonly UploadBucket[] = ['team-photos', 'site-media', 'bar-media'];
 
 /** POST /storage/signed-urls */
 export const SignedUrlsBody = z.object({

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AdminGuard } from '../../auth/admin.guard';
 import { CurrentUser } from '../../auth/current-user.decorator';
@@ -6,15 +6,19 @@ import { SupabaseJwtGuard, type AuthUser } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
 import { ADMIN_FORBIDDEN, Id } from '../../common/params';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { ApproveDto, SetBarStatusDto } from './bar.dto';
+import { BarMediaService } from './bar-media.service';
+import { ApproveDto, BarMediaDto, MenuItemImageDto, SetBarStatusDto } from './bar.dto';
 
-/** bar · Backoffice — อนุมัติ/ระงับร้าน · ยืนยัน Safety · ตรวจถ้อยคำโปรของร้าน (audit log ในธุรกรรมเดียว) */
+/** bar · Backoffice — อนุมัติ/ระงับร้าน · รูปร้าน/รูปเมนูแทนร้าน · ยืนยัน Safety · ตรวจถ้อยคำโปรของร้าน (audit log ในธุรกรรมเดียว) */
 @ApiTags('bar')
 @ApiBearerAuth()
 @UseGuards(SupabaseJwtGuard, AdminGuard)
 @Controller('admin')
 export class BarAdminController {
-  constructor(private readonly db: SupabaseService) {}
+  constructor(
+    private readonly db: SupabaseService,
+    private readonly media: BarMediaService,
+  ) {}
 
   @Patch('bars/:id/status')
   @ApiDoc({
@@ -25,6 +29,30 @@ export class BarAdminController {
   })
   setStatus(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: SetBarStatusDto) {
     return this.db.rpc('admin_set_bar_status', { p_actor: me.id, p_bar: id, p_status: b.status, p_reason: b.reason ?? null });
+  }
+
+  @Put('bars/:id/media')
+  @ApiDoc({
+    summary: 'ตั้งรูปร้านแทนร้าน (ปก + แกลเลอรี)',
+    description:
+      'เหมือน PUT /merchant/bars/:barId/media แต่ทำในนาม NightOut (เช่น ลบรูปไม่เหมาะสม · อัปโหลดรูปที่ร้านส่งมา) · ไฟล์อยู่ bucket bar-media/<bar_id>/gallery/ · บันทึก audit log + แจ้งทีมร้าน (rpc admin_set_bar_media)',
+    returns: '`bar_id` · `count` จำนวนรูป · `cover_image_url` URL รูปปก · `paths` แกลเลอรีที่บันทึก',
+    forbidden: ADMIN_FORBIDDEN,
+  })
+  setMedia(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: BarMediaDto) {
+    return this.media.setGallery('admin_set_bar_media', me.id, id, b);
+  }
+
+  @Put('menu-items/:id/image')
+  @ApiDoc({
+    summary: 'ตั้ง/ลบรูปเมนู 1 รายการแทนร้าน',
+    description:
+      '`path` = รูปใน bucket bar-media/<bar_id>/menu/ (อัปโหลดเองก่อน) · null = ลบรูป · รูปเดิมถูกลบจาก Storage · บันทึก audit log + แจ้งทีมร้าน (rpc admin_set_menu_item_image)',
+    returns: '`id` รหัสรายการเมนู · `bar_id` · `image_path` รูปปัจจุบัน',
+    forbidden: ADMIN_FORBIDDEN,
+  })
+  setMenuItemImage(@CurrentUser() me: AuthUser, @Id() id: string, @Body() b: MenuItemImageDto) {
+    return this.media.setMenuItemImage(me.id, id, b);
   }
 
   @Post('safety/:id/verify')

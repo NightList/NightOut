@@ -66,6 +66,7 @@
 - แผนที่ใช้ Leaflet + vector tiles OpenFreeMap (ฟรี ไม่ต้องมี key) สีตามพาเลต Google Maps ปกติ/กลางคืน (`ui/utils/mapStyle.ts`) — ไม่ใช้ Google Maps API / CARTO · สำรองเป็น OSM raster · หน้า `/map` เต็มจอ หมุดและการ์ดใช้รูปร้าน `barImage()` (coverUrl หรือรูปแทน `/images/bars/placeholder.webp`)
 - หน้าจัดอันดับเป็นรายสัปดาห์/รายเดือนตามจำนวนโหวต (1 การจองที่เช็กอิน = 1 โหวต) ใช้ GSAP + ScrollTrigger (`modules/ranking/utils/gsap.ts`) — GSAP ใช้เฉพาะหน้านั้น ที่อื่นใช้ Motion ตามเดิม
 - รีวิวแนบรูป/วิดีโอได้สูงสุด 6 ไฟล์ (วิดีโอ ≤ 60 วิ / 60MB) · ของจริงเก็บ Supabase Storage `review-media` (migration 0003) · ตอนเลือกไฟล์: รูปเป็น data URL, วิดีโอพักใน IndexedDB (`services/mediaStore.ts`) แล้วอัปโหลดตอนส่งรีวิว
+- **รูปร้าน**: ปก + แกลเลอรีสูงสุด 10 รูป (ปก = หนึ่งในแกลเลอรี → `bars.cover_image_url`) + รูปเมนูต่อรายการ · ไฟล์อยู่ bucket `bar-media` (`<bar_id>/gallery/…` · `<bar_id>/menu/…`) · ร้าน (เจ้าของ/ผู้จัดการ) จัดการที่ `/merchant/store` · `/merchant/menu` · Backoffice `/bar-media` ดู/ลบ/อัปโหลดแทนร้าน (Admin = Super Admin · audit + แจ้งทีมร้าน) · ไฟล์ที่เอาออก backend ลบจาก Storage ให้ (`…20261009000100`)
 - ธีมมืดเป็นค่าเริ่มต้น · หน้า Auth ไม่มีปุ่มเปลี่ยนธีม/ปุ่มเข้าสู่ระบบบน navbar (`<Navbar minimal />`)
 - ไม่มีโหมดเดโมแล้ว (เอาปุ่มเข้าเร็วเดโม/ปุ่มรีเซ็ตออก)
 - **ไม่มี Editor's Pick** (ตัดออก 2026-10-08) · ป้ายร้านมีแค่ "แนะนำ · โฆษณา" (ร้านจ่ายเงินโปรโมท — แอดมินเปิดเองไม่ได้ จัดการที่ `/promotions`) และ "ร้านใหม่" · สถานะร้าน `APPROVED` เรียกว่า "แสดง" (Backoffice `/bars` สวิตช์แสดง ↔ ระงับ)

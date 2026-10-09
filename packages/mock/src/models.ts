@@ -25,6 +25,16 @@ export interface MenuItem {
   name: string;
   price: number;
   available: boolean;
+  /** รูปเมนู: path ใน bucket bar-media (`<bar_id>/menu/…`) + URL สำหรับแสดง */
+  imagePath?: string;
+  imageUrl?: string;
+}
+
+/** รูปแกลเลอรีร้าน (bucket bar-media `<bar_id>/gallery/…`) — ปกร้านคือรูปที่ `url` ตรงกับ coverUrl */
+export interface BarPhoto {
+  id: string;
+  path: string;
+  url: string;
 }
 
 export interface PricePackage {
@@ -94,6 +104,8 @@ export interface Bar {
   cover: string; // css gradient (ไม่มีรูปจริงในเดโม)
   /** รูปปกร้านจริง (Supabase Storage) — ถ้าไม่มีใช้ cover gradient */
   coverUrl?: string;
+  /** แกลเลอรีรูปร้านตามลำดับที่ร้านจัด (ไม่มี = ยังไม่อัปโหลด) */
+  gallery?: BarPhoto[];
   hours: OpeningHours[];
   menu: MenuItem[];
   packages: PricePackage[];

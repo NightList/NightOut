@@ -32,6 +32,7 @@ export {
 export type {
   Bar,
   BarFilter,
+  BarPhoto,
   BarPromotion,
   BarWithTier,
   Booking,

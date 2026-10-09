@@ -4,6 +4,8 @@ import { createZodDto } from 'nestjs-zod';
 export class MerchantJoinDto extends createZodDto(C.MerchantJoinBody) {}
 export class BarInfoDto extends createZodDto(C.BarInfoBody) {}
 export class MenuDto extends createZodDto(C.MenuBody) {}
+export class BarMediaDto extends createZodDto(C.BarMediaBody) {}
+export class MenuItemImageDto extends createZodDto(C.MenuItemImageBody) {}
 export class BarPromotionsDto extends createZodDto(C.BarPromotionsBody) {}
 export class FeesDto extends createZodDto(C.FeesBody) {}
 export class ZonesDto extends createZodDto(C.ZonesBody) {}

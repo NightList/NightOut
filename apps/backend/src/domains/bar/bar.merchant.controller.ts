@@ -5,11 +5,12 @@ import { SupabaseJwtGuard, type AuthUser } from '../../auth/supabase-jwt.guard';
 import { ApiDoc } from '../../common/api-doc';
 import { BarId, TEAM_FORBIDDEN } from '../../common/params';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { BarInfoDto, BarPromotionsDto, BookingSettingsDto, CrowdDto, EvidenceDto, FeesDto, MenuDto, PayoutAccountDto, SafetyDto, ZonesDto } from './bar.dto';
+import { BarMediaService } from './bar-media.service';
+import { BarInfoDto, BarMediaDto, BarPromotionsDto, BookingSettingsDto, CrowdDto, EvidenceDto, FeesDto, MenuDto, PayoutAccountDto, SafetyDto, ZonesDto } from './bar.dto';
 import { PayoutCryptoService } from './payout-crypto.service';
 
 /**
- * bar · ทีมร้าน — ข้อมูลร้าน เมนู โปร ค่าธรรมเนียม โซน ความปลอดภัย ตั้งค่าการจอง บัญชีรับเงิน ความแน่น
+ * bar · ทีมร้าน — ข้อมูลร้าน รูปร้าน เมนู โปร ค่าธรรมเนียม โซน ความปลอดภัย ตั้งค่าการจอง บัญชีรับเงิน ความแน่น
  * ฟังก์ชันใน DB ตรวจ bar_staff + บทบาท: STAFF ทำได้แค่ความแน่น · เจ้าของ/ผู้จัดการ ทุกอย่าง · บัญชีรับเงินเฉพาะเจ้าของ
  */
 @ApiTags('bar')
@@ -20,6 +21,7 @@ export class BarMerchantController {
   constructor(
     private readonly db: SupabaseService,
     private readonly crypto: PayoutCryptoService,
+    private readonly media: BarMediaService,
   ) {}
 
   @Post('crowd')
@@ -45,15 +47,28 @@ export class BarMerchantController {
     return this.db.rpc('app_update_bar_info', { p_actor: me.id, p_bar: bar, p: b });
   }
 
+  @Put('media')
+  @ApiDoc({
+    summary: 'ตั้งรูปร้าน (ปก + แกลเลอรี)',
+    description:
+      'แทนที่แกลเลอรีทั้งชุดตามลำดับ (สูงสุด 10 รูป · อัปโหลดเข้า bucket bar-media/<bar_id>/gallery/ เองก่อนด้วย POST /storage/upload-url แล้วส่ง path) · `cover_path` = รูปปกที่ใช้บนการ์ด/แผนที่/หัวหน้าร้าน (ต้องอยู่ในแกลเลอรี · null = ใช้รูปแทน) · ไฟล์ที่เอาออกถูกลบจาก Storage · เจ้าของ/ผู้จัดการเท่านั้น (rpc app_set_bar_media)',
+    returns: '`bar_id` · `count` จำนวนรูป · `cover_image_url` URL รูปปก · `paths` แกลเลอรีที่บันทึก',
+    forbidden: TEAM_FORBIDDEN,
+  })
+  setMedia(@CurrentUser() me: AuthUser, @BarId() bar: string, @Body() b: BarMediaDto) {
+    return this.media.setGallery('app_set_bar_media', me.id, bar, b);
+  }
+
   @Put('menu')
   @ApiDoc({
     summary: 'ตั้งเมนูและราคา',
-    description: 'แทนที่เมนูทั้งหมดของร้าน (ราคาแสดงเพื่อประเมินงบ ไม่มีสั่งล่วงหน้า) (rpc app_set_menu)',
+    description:
+      'แทนที่เมนูทั้งหมดของร้าน (ราคาแสดงเพื่อประเมินงบ ไม่มีสั่งล่วงหน้า) · `image_path` ต่อรายการ = รูปใน bucket bar-media/<bar_id>/menu/ (ไม่ส่ง = คงรูปเดิม · null = ลบรูป) · รูปที่ถูกแทน/ลบถูกลบจาก Storage (rpc app_set_menu)',
     returns: '`bar_id` · `count` จำนวนรายการที่บันทึก',
     forbidden: TEAM_FORBIDDEN,
   })
   menu(@CurrentUser() me: AuthUser, @BarId() bar: string, @Body() b: MenuDto) {
-    return this.db.rpc('app_set_menu', { p_actor: me.id, p_bar: bar, p_items: b.items });
+    return this.media.setMenu(me.id, bar, b);
   }
 
   @Put('promotions')

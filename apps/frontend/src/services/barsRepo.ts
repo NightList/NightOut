@@ -1,4 +1,5 @@
 import type { Bar } from '@nightout/mock';
+import { barMediaUrl } from '@/services/api/storage';
 
 /**
  * แปลงแถวจาก view `bar_detail` (ร้านสาธารณะ) / `my_bar_detail` (ร้านของฉัน ทุกสถานะ) → รูปแบบ Bar ที่หน้าเว็บใช้
@@ -40,7 +41,9 @@ export interface BarDetailRow {
     grace_minutes: number;
   } | null;
   fees: { fee_type: string; calc: string; value: number }[];
-  menu: { id: string; category: string | null; name: string; price: number; is_available: boolean }[];
+  menu: { id: string; category: string | null; name: string; price: number; is_available: boolean; image_path: string | null }[];
+  /** แกลเลอรีรูปร้าน (bucket bar-media) — ปก = cover_image_url */
+  media?: { id: string; kind: 'IMAGE' | 'VIDEO'; storage_path: string }[];
   packages: {
     id: string;
     name: string;
@@ -107,6 +110,9 @@ export function toBar(r: BarDetailRow): Bar {
     styles: r.styles.map((k) => STYLE_LABELS[k] ?? k),
     cover: r.cover_style ?? DEFAULT_COVER,
     coverUrl: r.cover_image_url ?? undefined,
+    gallery: (r.media ?? [])
+      .filter((m) => m.kind === 'IMAGE')
+      .map((m) => ({ id: m.id, path: m.storage_path, url: barMediaUrl(m.storage_path) })),
     hours: r.hours.map((h) => ({
       day: h.day_of_week,
       open: h.open_time ?? '18:00',
@@ -119,6 +125,8 @@ export function toBar(r: BarDetailRow): Bar {
       name: m.name,
       price: Number(m.price),
       available: m.is_available,
+      imagePath: m.image_path ?? undefined,
+      imageUrl: m.image_path ? barMediaUrl(m.image_path) : undefined,
     })),
     packages: r.packages.map((p) => ({
       id: p.id,

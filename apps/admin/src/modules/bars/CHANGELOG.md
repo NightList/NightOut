@@ -1,5 +1,9 @@
 # bars — ประวัติการแก้ไข
 
+## 2026-10-09 — ปุ่มรูปร้าน
+- คอลัมน์ท้ายตารางมีปุ่ม "รูปร้าน" → `/bar-media?bar=<id>` เปิดรูปของร้านนั้นเลย
+- ไฟล์: `page.tsx`
+
 ## 2026-10-09 — ย้าย API เข้า `api.ts` ของโมดูล (ADR 0007)
 - เพิ่ม `api.ts`: `useBars` · `barStatusAction` — ชื่อ view / path / body ของหน้านี้ย้ายมาอยู่ที่เดียว (เดิมเขียนในหน้าผ่าน `useAdminView('admin_x', …)` / `act.mutate({ method, path, body })`) · body มี type จาก `@nightout/contracts`
 - หน้า / form / modal ของโมดูลเรียกผ่าน `./api` · พฤติกรรมเดิม (query key, ข้อความแจ้งผล, invalidate `['admin']`)
