@@ -1,6 +1,6 @@
 import { BAR_GALLERY_MAX } from '@nightout/contracts';
 import { coverFirst, galleryCoverPath } from '@nightout/utils';
-import { ImageSquare, Plus, UploadSimple } from '@phosphor-icons/react';
+import { ImageSquare, Plus } from '@phosphor-icons/react';
 import { App, Popconfirm, Spin, Upload } from 'antd';
 import { useState, type ReactNode } from 'react';
 import type { Bar } from '@/services/data';
@@ -8,8 +8,8 @@ import { PHOTO_ACCEPT, checkPhoto } from '@/ui/utils/media';
 import { setBarMedia, uploadGalleryPhoto } from '../api';
 
 /**
- * รูปร้าน — 10 ช่องเสมอ: ปก (ช่องใหญ่ 2×2) + 9 ช่อง · ช่องว่างเป็นลายแรเงา แตะเพื่อเพิ่มรูป · แตะรูปเพื่อเลือก แล้วกด "ตั้งเป็นปก" / "ลบ"
- * บันทึกทันทีที่อัปโหลด/ลบ/ตั้งปก (ไม่ต้องกดบันทึกของฟอร์ม)
+ * รูปร้าน — ภาพใหญ่ + แถบฟิล์ม 10 ช่อง: แตะรูปในแถบเพื่อดูเป็นภาพใหญ่ แล้วกด "ตั้งเป็นปก" / "ลบ" บนภาพ
+ * ช่องว่างในแถบเป็นลายแรเงา แตะเพื่อเพิ่มรูป · บันทึกทันทีที่อัปโหลด/ลบ/ตั้งปก (ไม่ต้องกดบันทึกของฟอร์ม)
  */
 export function BarPhotos({ bar }: { bar: Bar }) {
   const { message } = App.useApp();
@@ -22,7 +22,10 @@ export function BarPhotos({ bar }: { bar: Bar }) {
   const ordered = paths.map((p) => photos.find((g) => g.path === p)!);
   const room = BAR_GALLERY_MAX - photos.length;
   const busy = progress !== null;
-  const selected = picked && paths.includes(picked) ? picked : null;
+  // เริ่มที่ปก · รูปที่เลือกหายไป (ถูกลบ) → กลับไปที่ปก
+  const selIndex = picked && paths.includes(picked) ? paths.indexOf(picked) : 0;
+  const sel = ordered[selIndex];
+  const selIsCover = selIndex === 0;
 
   const save = async (next: string[], nextCover: string | null, done: string) => {
     setProgress('กำลังบันทึก…');
@@ -93,111 +96,113 @@ export function BarPhotos({ bar }: { bar: Bar }) {
       </span>
 
       <Spin spinning={busy} description={progress ?? undefined}>
-        <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0 lg:grid-cols-4 lg:auto-rows-[minmax(150px,1fr)] lg:gap-3">
-          {Array.from({ length: BAR_GALLERY_MAX }, (_, i) => {
-            const p = ordered[i];
-            const isCover = i === 0;
-            const slot = isCover
-              ? 'col-span-3 h-60 sm:h-72 lg:col-span-2 lg:row-span-2 lg:h-auto'
-              : 'aspect-square lg:aspect-auto';
-            const shape = isCover ? 'rounded-[18px] lg:rounded-2xl' : 'rounded-xl lg:rounded-[14px]';
-            if (!p)
-              return (
-                <li key={`empty-${i}`} className={slot}>
-                  {uploader(
-                    <span
-                      className={`merchant-hatch flex size-full cursor-pointer flex-col justify-end gap-1 border p-2.5 text-muted transition-colors hover:border-gold hover:text-text ${shape} ${
-                        isCover ? 'border-2 border-dashed border-gold/60' : 'border-border'
-                      } ${i === ordered.length ? '' : 'opacity-80'}`}
-                    >
-                      {isCover ? (
-                        <>
-                          <span className="self-start rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-semibold text-gold-text">ปก</span>
-                          <span className="mt-auto flex items-center gap-2 text-sm text-text">
-                            <ImageSquare size={22} className="text-gold-text" aria-hidden /> ยังไม่มีรูปร้าน
-                          </span>
-                          <span className="text-xs">แตะเพื่อเพิ่ม · รูปแรกจะเป็นปก (ตอนนี้ลูกค้าเห็นรูปแทนของ NightOut)</span>
-                        </>
-                      ) : (
-                        <>
-                          {i === ordered.length && <Plus size={18} className="text-gold-text" aria-hidden />}
-                        </>
-                      )}
-                    </span>,
-                    'block size-full [&_.ant-upload]:block [&_.ant-upload]:size-full',
-                    `เพิ่มรูปช่องที่ ${i + 1}`,
-                  )}
-                </li>
-              );
-            const on = selected === p.path;
-            return (
-              <li key={p.path} className={slot}>
-                <button
-                  type="button"
-                  aria-pressed={on}
-                  aria-label={isCover ? `รูปปก ${bar.name}` : `รูปร้านที่ ${i + 1}`}
-                  onClick={() => setPicked(on ? null : p.path)}
-                  className={`relative block size-full overflow-hidden ${shape} ${
-                    isCover ? 'border-2 border-gold' : 'border border-border'
-                  } ${on ? 'ring-2 ring-gold ring-offset-2 ring-offset-card' : ''}`}
-                >
-                  <img src={p.url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
-                  {isCover && (
-                    <span className="absolute left-2.5 top-2.5 rounded-full bg-gold px-2.5 py-0.5 text-xs font-semibold text-on-gold">
-                      ปก
-                    </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-          {/* Desktop: ช่องท้ายแถวสุดท้าย (1 รูป + ช่องนี้กว้าง 3) */}
-          <li className="hidden flex-col justify-center gap-1 rounded-[14px] border border-dashed border-border p-3 text-xs text-muted lg:col-span-3 lg:flex">
-            <b className="text-sm font-medium text-text">{room > 0 ? `ว่างอีก ${room} ช่อง` : 'ครบ 10 รูปแล้ว'}</b>
-            ช่องลายแรเงาคือช่องว่าง แตะเพื่อเพิ่มรูป · ตัวอย่างมุมที่ลูกค้าอยากเห็นเขียนไว้ในช่อง
-          </li>
-        </ul>
-      </Spin>
-
-      {ordered.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {uploader(
-            <span
-              className={`merchant-pill inline-flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-muted/60 px-3.5 text-sm text-muted ${
-                room <= 0 ? 'opacity-50' : 'hover:border-gold hover:text-text'
+        <div className="flex flex-col gap-3">
+          {sel ? (
+            <div
+              className={`relative aspect-[16/10] overflow-hidden rounded-2xl ${
+                selIsCover ? 'border-2 border-gold' : 'border border-border'
               }`}
             >
-              <UploadSimple /> {room > 0 ? 'เพิ่มรูป' : 'ครบ 10 รูปแล้ว'}
-            </span>,
+              <img
+                src={sel.url}
+                alt={selIsCover ? `รูปปก ${bar.name}` : `รูปร้านที่ ${selIndex + 1}`}
+                decoding="async"
+                className="absolute inset-0 size-full object-cover"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.7),transparent_50%)]" />
+              <div className="absolute left-3 top-3 flex gap-1.5">
+                {selIsCover && (
+                  <span className="rounded-full bg-gold px-2.5 py-0.5 text-xs font-semibold text-on-gold">ปก</span>
+                )}
+                <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-xs text-white tabular-nums">
+                  {selIndex + 1} / {ordered.length}
+                </span>
+              </div>
+              <div className="absolute inset-x-3 bottom-3 flex justify-end gap-2">
+                {!selIsCover && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void save(paths, sel.path, 'ตั้งเป็นรูปปกแล้ว')}
+                    className="merchant-pill inline-flex h-10 items-center rounded-xl bg-gold px-3.5 text-sm font-semibold text-on-gold disabled:opacity-40 sm:h-9"
+                  >
+                    ตั้งเป็นปก
+                  </button>
+                )}
+                <Popconfirm
+                  title="ลบรูปนี้?"
+                  description={selIsCover && ordered.length > 1 ? 'รูปถัดไปจะเป็นรูปปกแทน' : undefined}
+                  okText="ลบ"
+                  cancelText="ยกเลิก"
+                  okButtonProps={{ danger: true }}
+                  disabled={busy}
+                  onConfirm={() => remove(sel.path)}
+                >
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className="merchant-pill inline-flex h-10 items-center rounded-xl border border-border bg-surface/85 px-3.5 text-sm text-(--crowd-full) disabled:opacity-40 sm:h-9"
+                  >
+                    ลบ
+                  </button>
+                </Popconfirm>
+              </div>
+            </div>
+          ) : (
+            uploader(
+              <span className="merchant-hatch flex aspect-[16/10] w-full cursor-pointer flex-col justify-end gap-1 rounded-2xl border-2 border-dashed border-gold/60 p-4 text-muted transition-colors hover:border-gold hover:text-text">
+                <span className="self-start rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-semibold text-gold-text">ปก</span>
+                <span className="mt-auto flex items-center gap-2 text-sm text-text">
+                  <ImageSquare size={22} className="text-gold-text" aria-hidden /> ยังไม่มีรูปร้าน
+                </span>
+                <span className="text-xs">แตะเพื่อเพิ่ม · รูปแรกจะเป็นปก (ตอนนี้ลูกค้าเห็นรูปแทนของ NightOut)</span>
+              </span>,
+              'block w-full [&_.ant-upload]:block [&_.ant-upload]:w-full',
+              'เพิ่มรูปร้าน',
+            )
           )}
-          <button
-            type="button"
-            disabled={busy || !selected || selected === cover}
-            onClick={() => selected && void save(paths, selected, 'ตั้งเป็นรูปปกแล้ว')}
-            className="merchant-pill inline-flex h-9 items-center rounded-xl border border-border px-3.5 text-sm disabled:opacity-40"
-          >
-            ตั้งเป็นปก
-          </button>
-          <Popconfirm
-            title="ลบรูปนี้?"
-            description={selected === cover && ordered.length > 1 ? 'รูปถัดไปจะเป็นรูปปกแทน' : undefined}
-            okText="ลบ"
-            cancelText="ยกเลิก"
-            okButtonProps={{ danger: true }}
-            disabled={busy || !selected}
-            onConfirm={() => selected && remove(selected)}
-          >
-            <button
-              type="button"
-              disabled={busy || !selected}
-              className="merchant-pill inline-flex h-9 items-center rounded-xl border border-border px-3.5 text-sm text-(--crowd-full) disabled:opacity-40"
-            >
-              ลบ
-            </button>
-          </Popconfirm>
-          <span className="self-center text-xs text-muted">{selected ? 'เลือกรูปแล้ว' : 'แตะรูปเพื่อเลือก'}</span>
+
+          {/* แถบฟิล์ม 10 ช่องเสมอ · มือถือ 5×2 ให้ช่องใหญ่พอแตะ */}
+          <ul className="m-0 grid list-none grid-cols-5 gap-1.5 p-0 sm:grid-cols-10">
+            {Array.from({ length: BAR_GALLERY_MAX }, (_, i) => {
+              const p = ordered[i];
+              if (!p)
+                return (
+                  <li key={`empty-${i}`} className="aspect-square min-w-0">
+                    {uploader(
+                      <span
+                        className={`merchant-hatch flex size-full cursor-pointer items-center justify-center rounded-[10px] border border-border transition-colors hover:border-gold ${
+                          i === ordered.length ? '' : 'opacity-80'
+                        }`}
+                      >
+                        {i === ordered.length && <Plus size={18} className="text-gold-text" aria-hidden />}
+                      </span>,
+                      'block size-full [&_.ant-upload]:block [&_.ant-upload]:size-full',
+                      `เพิ่มรูปช่องที่ ${i + 1}`,
+                    )}
+                  </li>
+                );
+              const on = i === selIndex;
+              return (
+                <li key={p.path} className="aspect-square min-w-0">
+                  <button
+                    type="button"
+                    aria-pressed={on}
+                    aria-label={i === 0 ? `รูปปก ${bar.name}` : `รูปร้านที่ ${i + 1}`}
+                    onClick={() => setPicked(p.path)}
+                    className={`merchant-pill relative block size-full overflow-hidden rounded-[10px] bg-surface transition-opacity ${
+                      i === 0 ? 'border-2 border-gold' : 'border border-border'
+                    } ${on ? 'ring-2 ring-gold ring-offset-2 ring-offset-card' : 'opacity-55 hover:opacity-90'}`}
+                  >
+                    <img src={p.url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-      )}
+      </Spin>
+
       <p className="text-xs text-muted">JPG, PNG หรือ WebP ไม่เกิน 15MB ต่อรูป · ใช้รูปบรรยากาศจริง ห้ามมีข้อความชวนดื่ม</p>
     </div>
   );
